@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --linkedin: #0077B5;
+    --linkedin-dark: #004182;
+    --gold: #c9a96e;
+    --gold-light: #f5f0e8;
+  }
+}
+
+@layer components {
+  .bible-verse {
+    @apply bg-gradient-to-r from-amber-50 to-orange-50 border-l-4 border-amber-600 
+           px-6 py-4 my-4 rounded-r-lg italic text-amber-900;
+  }
+
+  .service-card {
+    @apply border border-gray-200 rounded-xl p-6 hover:shadow-lg 
+           hover:-translate-y-1 transition-all duration-200;
+  }
+
+  .pricing-card {
+    @apply border-2 rounded-2xl p-8 text-center bg-white;
+  }
+
+  .pricing-card-featured {
+    @apply border-amber-500 bg-gradient-to-b from-amber-50 to-white shadow-xl scale-105;
+  }
+
+  .btn-primary {
+    @apply bg-linkedin text-white px-6 py-3 rounded-lg font-semibold 
+           hover:bg-linkedin-dark transition-colors duration-200;
+  }
+
+  .btn-secondary {
+    @apply border-2 border-linkedin text-linkedin px-6 py-3 rounded-lg 
+           font-semibold hover:bg-linkedin hover:text-white transition-colors duration-200;
+  }
+
+  .section-title {
+    @apply text-3xl font-bold text-gray-900 mb-4;
+  }
+
+  .phledger-badge {
+    @apply bg-linkedin text-white px-3 py-1 rounded-full text-xs font-semibold;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+}
