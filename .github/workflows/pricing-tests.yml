@@ -16,5 +16,5 @@ jobs:
         run: npm install
       - name: Ensure vitest present
         run: npm install -D vitest@^2
-      - name: Run pricing-engine tests
-        run: npx vitest run tests/pricing.spec.ts
+      - name: Run pricing-engine and lead-billing tests
+        run: npx vitest run tests/pricing.spec.ts tests/leads.spec.ts

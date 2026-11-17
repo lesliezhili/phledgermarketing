@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import BibleVerse from '@/components/BibleVerse'
 import { useI18n } from '@/lib/i18n'
-import { businessTypes, channels, methodSteps, paygJobs } from '@/lib/catalog'
+import { businessTypes, channels, methodSteps, leadPrices } from '@/lib/catalog'
 
 const channelName = (id: string) => channels.find(c => c.id === id)?.name ?? id
 
@@ -87,11 +87,11 @@ export default function Home() {
 
           <div className="mt-8 bg-white border border-green-200 rounded-xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
-              <p className="font-bold text-gray-900">Tiny or small business? Pay as you go.</p>
-              <p className="text-sm text-gray-600">One-off jobs from ${Math.min(...paygJobs.map(j => j.price))} — a flyer refresh, a Google profile tune-up, a starter pack of posts. No setup fee, no contract.</p>
+              <p className="font-bold text-gray-900">Tiny or small business? Pay only per lead.</p>
+              <p className="text-sm text-gray-600">We market your business and you pay only when a new customer emails or calls you — from ${Math.min(...leadPrices.map(l => l.price))} per lead. No setup fee, no contract.</p>
             </div>
             <Link href="/pricing#payg" className="bg-green-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-green-700 transition-colors whitespace-nowrap">
-              See PAYG Prices
+              See Lead Prices
             </Link>
           </div>
         </div>

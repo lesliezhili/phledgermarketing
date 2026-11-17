@@ -3,7 +3,10 @@
 import { useEffect, useState } from 'react'
 import { useI18n } from '@/lib/i18n'
 import BibleVerse from '@/components/BibleVerse'
-import { services, businessTypes, channels, adPlatforms, commitments, quotePackage, serviceLabel, paygJobs, PAYG_BUNDLE } from '@/lib/catalog'
+import { services, businessTypes, channels, adPlatforms, commitments, quotePackage, serviceLabel, leadPrices, LEAD_RULES, PAY_PER_LEAD_ID } from '@/lib/catalog'
+import { estimateMonthly } from '@/lib/leads'
+
+const PAY_PER_LEAD = 'Pay Per Lead'
 
 const timeSlots = ['9:00 AM', '10:00 AM', '11:00 AM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM']
 
@@ -35,12 +38,14 @@ export default function BookingPage() {
   const [adPlatform, setAdPlatform] = useState('none')
   const [adBudget, setAdBudget] = useState(0)
   const [commitment, setCommitment] = useState('monthly')
-  const [extraJobs, setExtraJobs] = useState<number[]>([])
+  const [monthlyCap, setMonthlyCap] = useState(LEAD_RULES.defaultMonthlyCap)
+  const [expected, setExpected] = useState({ enquiry: 8, call: 4, business: 0 })
 
   // Pre-select a service from /booking?service=<id>
   useEffect(() => {
     const id = Number(new URLSearchParams(window.location.search).get('service'))
-    const match = services.find(s => s.id === id) ?? paygJobs.find(j => j.id === id)
+    if (id === PAY_PER_LEAD_ID) { setForm(f => ({ ...f, service: PAY_PER_LEAD })); return }
+    const match = services.find(s => s.id === id)
     if (match) setForm(f => ({ ...f, service: match.name }))
   }, [])
 
@@ -56,18 +61,14 @@ export default function BookingPage() {
   // that includes the service and how the client chooses to pay.
   const quote = quotePackage(selectedService?.tier ?? 'Free', commitment)
   const isPaid = !!selectedService && selectedService.tier !== 'Free'
-  // Pay as you go: one-off jobs, no setup fee, bundle discount for 3+ jobs.
-  const selectedJob = paygJobs.find(j => j.name === form.service)
-  const jobs = selectedJob
-    ? [selectedJob, ...paygJobs.filter(j => j.id !== selectedJob.id && extraJobs.includes(j.id))]
-    : []
-  const jobsTotal = jobs.reduce((sum, j) => sum + j.price, 0)
-  const bundleDiscount = jobs.length >= PAYG_BUNDLE.jobs ? jobsTotal * PAYG_BUNDLE.discount : 0
-  const toggleJob = (id: number) =>
-    setExtraJobs(js => (js.includes(id) ? js.filter(j => j !== id) : [...js, id]))
+  // Pay as you go = pay per lead: nothing due today, no setup fee; leads are
+  // billed monthly as they arrive, never above the client's cap.
+  const isPerLead = form.service === PAY_PER_LEAD
+  const cap = Math.max(0, monthlyCap || 0)
+  const leadEstimate = estimateMonthly(expected, cap)
 
-  const basePrice = selectedJob ? jobsTotal - bundleDiscount : quote.fees
-  const setupFee = selectedJob ? 0 : quote.setup
+  const basePrice = isPerLead ? 0 : quote.fees
+  const setupFee = isPerLead ? 0 : quote.setup
   const rushFee = rush ? 50 : 0
 
   // Cloud platform fee (% of base)
@@ -132,33 +133,43 @@ export default function BookingPage() {
                     </option>
                   ))}
                 </optgroup>
-                <optgroup label="Pay as you go (one-off, no contract)">
-                  {paygJobs.map(j => (
-                    <option key={j.id} value={j.name}>
-                      {j.name} — ${j.price} one-off{j.note ? ` ${j.note}` : ''}
-                    </option>
-                  ))}
+                <optgroup label="Pay as you go (tiny & small business)">
+                  <option value={PAY_PER_LEAD}>
+                    {PAY_PER_LEAD} — from ${Math.min(...leadPrices.map(l => l.price))} per lead, no contract
+                  </option>
                 </optgroup>
               </select>
 
-              {selectedJob && (
-                <div className="mt-4 p-3 bg-green-50 rounded-lg">
-                  <p className="text-sm font-medium text-green-900 mb-1">Add more one-off jobs</p>
-                  <p className="text-xs text-green-700 mb-2">
-                    Book {PAYG_BUNDLE.jobs} or more together and take {PAYG_BUNDLE.discount * 100}% off. No setup fee, no contract.
-                  </p>
-                  <div className="space-y-1">
-                    {paygJobs.filter(j => j.id !== selectedJob.id).map(j => (
-                      <label key={j.id} className="flex items-center justify-between text-sm">
-                        <span className="flex items-center">
-                          <input type="checkbox" checked={extraJobs.includes(j.id)} onChange={() => toggleJob(j.id)}
-                            className="rounded border-gray-300 text-linkedin mr-2" />
-                          {j.icon} {j.name}
-                        </span>
-                        <span className="text-gray-700">${j.price}</span>
-                      </label>
+              {isPerLead && (
+                <div className="mt-4 p-4 bg-green-50 rounded-lg space-y-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm">
+                    {leadPrices.map(l => (
+                      <div key={l.type} className="bg-white rounded-lg p-2 border border-green-100">
+                        <p className="font-medium">{l.icon} {l.name}</p>
+                        <p className="text-green-800 font-bold">${l.price} per lead</p>
+                      </div>
                     ))}
                   </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">
+                    {leadPrices.map(l => (
+                      <label key={l.type} className="block">
+                        <span className="text-xs text-green-900">Expected {l.name.toLowerCase()}s / month</span>
+                        <input type="number" min="0" value={expected[l.type]}
+                          onChange={(e) => setExpected({ ...expected, [l.type]: Number(e.target.value) })}
+                          className="w-full px-2 py-1 border border-green-200 rounded" />
+                      </label>
+                    ))}
+                    <label className="block">
+                      <span className="text-xs text-green-900">Monthly cap ($)</span>
+                      <input type="number" min="0" step="50" value={monthlyCap}
+                        onChange={(e) => setMonthlyCap(Number(e.target.value))}
+                        className="w-full px-2 py-1 border border-green-200 rounded" />
+                    </label>
+                  </div>
+                  <p className="text-xs text-green-800">
+                    You pay when a lead arrives, whether or not it becomes a sale. First {LEAD_RULES.freeLeads} leads free.
+                    Spam, short calls, repeats within {LEAD_RULES.duplicateDays} days and existing customers are never charged.
+                  </p>
                 </div>
               )}
 
@@ -400,25 +411,23 @@ export default function BookingPage() {
                     )}
                   </span>
                   <span className="font-medium">
-                    {selectedJob ? `$${selectedJob.price.toFixed(2)}` : basePrice === 0 ? 'Free' : `$${basePrice.toFixed(2)}`}
+                    {isPerLead ? '$0 today' : basePrice === 0 ? 'Free' : `$${basePrice.toFixed(2)}`}
                   </span>
                 </div>
 
-                {/* Pay-as-you-go jobs */}
-                {jobs.length > 1 && jobs.slice(1).map(j => (
-                  <div key={j.id} className="flex justify-between">
-                    <span className="text-gray-600">+ {j.name}</span>
-                    <span className="font-medium">${j.price.toFixed(2)}</span>
+                {/* Pay per lead */}
+                {isPerLead && (
+                  <div className="bg-green-50 rounded-lg p-3 space-y-1">
+                    <div className="flex justify-between">
+                      <span className="text-gray-700">Estimated leads bill / month</span>
+                      <span className="font-semibold">${leadEstimate.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-700">Never more than (cap)</span>
+                      <span className="font-semibold">${cap.toFixed(2)}</span>
+                    </div>
+                    <p className="text-xs text-gray-500">Billed monthly per lead · first {LEAD_RULES.freeLeads} free · no setup fee · no contract</p>
                   </div>
-                ))}
-                {bundleDiscount > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">🎁 {PAYG_BUNDLE.jobs}+ jobs ({PAYG_BUNDLE.discount * 100}% off)</span>
-                    <span className="font-medium text-green-600">−${bundleDiscount.toFixed(2)}</span>
-                  </div>
-                )}
-                {selectedJob && (
-                  <p className="text-xs text-gray-500">One-off · no setup fee · no contract</p>
                 )}
 
                 {/* Setup fee */}
@@ -489,7 +498,7 @@ export default function BookingPage() {
                 {/* Total */}
                 <div className="flex justify-between text-base font-bold border-t-2 border-gray-300 pt-3 mt-2">
                   <span>Total</span>
-                  <span className="text-linkedin text-lg">{total === 0 ? 'Free' : `$${total.toFixed(2)}`}</span>
+                  <span className="text-linkedin text-lg">{total === 0 ? (isPerLead ? '$0 today' : 'Free') : `$${total.toFixed(2)}`}</span>
                 </div>
 
                 {/* Fee breakdown */}
@@ -497,7 +506,7 @@ export default function BookingPage() {
                   <div className="bg-blue-50 rounded-lg p-3 mt-2">
                     <p className="text-xs font-semibold text-blue-800 mb-1">Fee Breakdown:</p>
                     <div className="text-xs text-blue-700 space-y-0.5">
-                      <p>• {selectedJob ? 'One-off jobs' : 'Package'}: ${basePrice.toFixed(2)}</p>
+                      <p>• {isPerLead ? 'Leads (billed monthly)' : 'Package'}: ${basePrice.toFixed(2)}</p>
                       {setupFee > 0 && <p>• Setup: ${setupFee.toFixed(2)}</p>}
                       {rush && <p>• Rush: $50.00</p>}
                       {adBudgetAmount > 0 && <p>• Ad Budget: ${adBudgetAmount.toFixed(2)}</p>}

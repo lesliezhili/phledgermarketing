@@ -2,12 +2,14 @@
 
 import Link from 'next/link'
 import { useI18n } from '@/lib/i18n'
-import { packages, commitments, loyaltyPerks, paygJobs, paygPerks, SETUP_FEE, MIN_MONTHS } from '@/lib/catalog'
+import { packages, commitments, loyaltyPerks, leadPrices, leadNotCharged, paygPerks, LEAD_RULES, PAY_PER_LEAD_ID, SETUP_FEE, MIN_MONTHS } from '@/lib/catalog'
 
 const faqs = [
   { q: 'Is there anything free?', a: 'Yes. The Marketing Health Check is free for any business, with no obligation. It tells you what to fix first and which channels suit you.' },
   { q: 'What does the setup fee cover?', a: `A one-off $${SETUP_FEE}: fixing what blocks sales (offer, prices, contact details, print and profiles), one page to buy or enquire with QR codes and tracking, and connecting your channels. It is waived when you pay 6 or 12 months up front.` },
-  { q: 'Pay as you go or a monthly package?', a: 'Pay as you go suits tiny businesses that need one or two jobs done well. A package suits businesses that want marketing run for them every month. Start with PAYG and anything you spend in the last 60 days comes off the setup fee when you move to a package.' },
+  { q: 'What counts as a lead?', a: `A new customer reaching your business: an email, website form or social message asking to buy or book, or a phone call of ${LEAD_RULES.minCallSeconds} seconds or more to your tracked number. You pay when the lead arrives, whether or not it becomes a sale — you decide how to follow it up.` },
+  { q: 'How do you know a lead came from you?', a: 'We give you a tracked phone number and tracked enquiry form or email, and log every lead with its date, channel and contact. You see each one in your dashboard and can dispute it within 7 days.' },
+  { q: 'Pay per lead or a monthly package?', a: 'Pay per lead suits tiny businesses that want to pay only for results. A package suits businesses that want marketing run for them every month at a fixed price. Lead spend in the last 60 days comes off the setup fee when you move to a package.' },
   { q: 'Is ad spend included?', a: 'No. Ad spend is paid by you straight to the platform, so you see every dollar. A typical small-business budget is $300–$600 a month.' },
   { q: 'Can I change package or cancel?', a: `Yes. Move up or down any month. Monthly plans have a ${MIN_MONTHS}-month minimum, then 30 days' notice. Your price is locked while you stay.` },
   { q: 'How does PhLedgerTax integration work?', a: 'All billing, invoicing, and tax reporting is handled automatically through our PhLedgerTax agent. Prices exclude GST.' },
@@ -36,33 +38,42 @@ export default function PricingPage() {
 
       {/* Pay as you go */}
       <section id="payg" className="mb-16">
-        <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">Pay As You Go</h2>
-        <p className="text-center text-gray-600 mb-6 max-w-2xl mx-auto">
-          For tiny and small businesses. Pay only for the job you need, when you need it.
+        <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">Pay As You Go: Pay Per Lead</h2>
+        <p className="text-center text-gray-600 mb-8 max-w-2xl mx-auto">
+          For tiny and small businesses. We market your business; you pay only when a new customer emails, messages or calls you.
         </p>
-        <ul className="max-w-3xl mx-auto mb-8 grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-700">
-          {paygPerks.map(perk => (
-            <li key={perk} className="flex items-start">
-              <span className="text-green-500 mr-2">✓</span>{perk}
-            </li>
-          ))}
-        </ul>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {paygJobs.map(job => (
-            <div key={job.id} className="bg-white border border-gray-200 rounded-xl p-5 flex flex-col">
-              <p className="text-2xl mb-2">{job.icon}</p>
-              <h3 className="font-bold text-gray-900 mb-1">{job.name}</h3>
-              <p className="text-sm text-gray-600 flex-1">{job.desc}</p>
-              <p className="mt-3">
-                <span className="text-2xl font-bold text-gray-900">${job.price}</span>
-                <span className="text-sm text-gray-500"> one-off{job.note ? ` ${job.note}` : ''}</span>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          {leadPrices.map(l => (
+            <div key={l.type} className="bg-white border border-gray-200 rounded-xl p-6">
+              <p className="text-2xl mb-2">{l.icon}</p>
+              <h3 className="font-bold text-gray-900 mb-1">{l.name}</h3>
+              <p className="text-sm text-gray-600 mb-3">{l.desc}</p>
+              <p>
+                <span className="text-3xl font-bold text-gray-900">${l.price}</span>
+                <span className="text-sm text-gray-500"> per lead</span>
               </p>
-              <Link href={`/booking?service=${job.id}`}
-                className="block mt-3 text-center bg-gray-100 text-gray-900 py-2 rounded-lg text-sm font-semibold hover:bg-gray-200 transition-colors">
-                Book This Job
-              </Link>
             </div>
           ))}
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto mb-8">
+          <div className="bg-green-50 rounded-xl p-5">
+            <h3 className="font-bold text-green-900 mb-2">What you get</h3>
+            <ul className="space-y-1 text-sm text-green-900">
+              {paygPerks.map(perk => <li key={perk}>✓ {perk}</li>)}
+            </ul>
+          </div>
+          <div className="bg-gray-50 rounded-xl p-5">
+            <h3 className="font-bold text-gray-900 mb-2">Never charged</h3>
+            <ul className="space-y-1 text-sm text-gray-700">
+              {leadNotCharged.map(rule => <li key={rule}>✕ {rule}</li>)}
+            </ul>
+          </div>
+        </div>
+        <div className="text-center">
+          <Link href={`/booking?service=${PAY_PER_LEAD_ID}`}
+            className="inline-block bg-green-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors">
+            Start Pay Per Lead
+          </Link>
         </div>
       </section>
 
