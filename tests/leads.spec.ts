@@ -45,6 +45,13 @@ describe("pay-per-lead billing", () => {
     expect(bill.total).toBe(15)
   })
 
+  it("the monthly minimum counts toward leads", () => {
+    expect(billLeads([], { monthlyMinimum: 39 }).amountDue).toBe(39) // no leads: pay the minimum
+    expect(billLeads([lead("a")], { monthlyMinimum: 39 }).amountDue).toBe(39) // $15 of leads: still $39
+    const many = ["a", "b", "c", "d"].map((id, i) => lead(id, { receivedAt: `2026-12-0${i + 1}T09:00:00Z` }))
+    expect(billLeads(many, { monthlyMinimum: 39 }).amountDue).toBe(60) // $60 of leads: no extra
+  })
+
   it("never charges more than the monthly cap", () => {
     const leads = Array.from({ length: 10 }, (_, i) => lead(`b${i}`, { type: "business", receivedAt: `2026-12-${String(i + 1).padStart(2, "0")}T09:00:00Z` }))
     const bill = billLeads(leads, { monthlyCap: 100 })

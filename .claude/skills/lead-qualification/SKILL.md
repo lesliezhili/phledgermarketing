@@ -61,7 +61,9 @@ a happy client is worth more than $15.
 
 ## Month end
 
-Run `billLeads(leads, { monthlyCap, freeLeadsRemaining, history })` and report:
+Run `billLeads(leads, { monthlyCap, monthlyMinimum: PPL.monthlyMinimum, history })`
+and report (the client pays `amountDue`: the lead total, or the $39 minimum
+if that is higher — the minimum counts toward leads):
 
 ```
 Leads received: <n>   Chargeable: <n>   Free: <n>
@@ -70,5 +72,5 @@ Bill: $<total> (cap $<cap><, cap reached>)
 By channel: <channel: n leads>
 ```
 
-Then update the client's `free_leads_remaining` and pass the bill to
+Then pass `amountDue` to
 PhLedgerTax for the invoice.

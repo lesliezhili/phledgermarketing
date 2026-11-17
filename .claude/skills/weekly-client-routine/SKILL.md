@@ -6,7 +6,9 @@ description: Run one PhLedger Marketing client's weekly routine as the agent - p
 # Weekly client routine (the Agent layer)
 
 PhLedger Marketing is a one-person company. This routine is how Zhi Li serves
-each client in about 5.5 hours a week: the agent prepares everything, Zhi Li
+each client inside a strict monthly hour budget (Grace 1 h, Faithful 3 h,
+Abundant 7 h; pay per lead 15 minutes plus about 3 minutes a lead — see
+`HOURS` in `src/lib/economics.ts`): the agent prepares everything, Zhi Li
 approves, the scheduler and connectors publish.
 
 ## Inputs
@@ -49,6 +51,11 @@ Data gaps: <what was missing>
 ```
 
 ## Rules
+
+- Stay inside the client's hour budget. If a request needs more, quote it as
+  extra work or recommend the next package; never absorb it unpaid.
+- Batch approvals across clients (one sitting for all drafts) and let the
+  client send photos from their phone instead of on-site content days.
 
 - Package clients get the volume their package includes (posts, channels,
   outreach contacts); do not over-deliver one week and under-deliver the next.

@@ -45,7 +45,7 @@ export default function ServicesPage() {
 
       <div className="mb-12 bg-green-50 border border-green-200 rounded-xl p-5 text-center">
         <p className="font-bold text-gray-900">Not ready for a monthly package?</p>
-        <p className="text-sm text-gray-600 mb-3">Tiny businesses (aggregated annual turnover under $2 million) can pay as you go: pay only for each new customer enquiry or call. No setup fee, no contract.</p>
+        <p className="text-sm text-gray-600 mb-3">Tiny businesses (aggregated annual turnover under $2 million) can pay as you go: pay for each new customer enquiry or call, with a small start-up fee and monthly minimum. No contract.</p>
         <Link href="/pricing#payg" className="inline-block bg-green-600 text-white px-5 py-2 rounded-lg text-sm font-semibold hover:bg-green-700 transition-colors">
           See Pay-Per-Lead Prices
         </Link>

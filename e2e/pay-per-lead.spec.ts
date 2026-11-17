@@ -7,7 +7,9 @@ test('pricing explains pay per lead for tiny businesses', async ({ page, errors 
   await expect(section).toContainText('aggregated annual turnover under $2 million')
   for (const price of ['$15', '$25', '$40']) await expect(section.getByText(price, { exact: true })).toBeVisible()
   await expect(section).toContainText('Leads you already pay another platform for')
-  await expect(section).toContainText('Your first 3 leads are free.')
+  await expect(section).toContainText('One-off start-up fee $149')
+  await expect(section).toContainText('Minimum $39 a month, which counts toward your leads.')
+  await expect(section).not.toContainText('leads are free')
   void errors
 })
 
@@ -32,13 +34,19 @@ test('pay per lead is blocked unless the business is tiny, has a valid ABN and d
   void errors
 })
 
-test('pay per lead: nothing due today, estimate never above the cap', async ({ page, errors }) => {
+test('pay per lead: start-up fee + first minimum today, estimate between minimum and cap', async ({ page, errors }) => {
   await page.goto('/booking?service=100')
-  await expect.poll(() => orderSummary(page)).toContain('$0 today')
+  // $149 start-up fee + $39 first month's minimum, in advance
+  await expect.poll(() => orderSummary(page)).toContain('One-off start-up fee $149.00')
+  expect(await orderSummary(page)).toContain('Total $188.00')
   // default estimate: 8 enquiries x $15 + 4 calls x $25 = $220
   expect(await orderSummary(page)).toContain('Estimated leads bill / month $220.00')
   await page.getByLabel('Monthly cap ($)').fill('150')
   await expect.poll(() => orderSummary(page)).toContain('Estimated leads bill / month $150.00')
+  // the estimate never drops below the $39 minimum
+  await page.getByLabel(/Expected online enquiries/).fill('0')
+  await page.getByLabel(/Expected phone calls/).fill('0')
+  await expect.poll(() => orderSummary(page)).toContain('Estimated leads bill / month $39.00')
   void errors
 })
 

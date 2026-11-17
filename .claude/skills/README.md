@@ -1,7 +1,11 @@
 # PhLedger Marketing — automation skills
 
 PhLedger Marketing is run by one person, Zhi Li. These skills let Claude do
-the repeatable work so each client takes about 5.5 hours a week. They follow
+the repeatable work so each client fits a strict hour budget — Grace 1 h,
+Faithful 3 h, Abundant 7 h a month, pay per lead 15 minutes plus about 3
+minutes a lead (`HOURS` in `src/lib/economics.ts`). Those budgets keep every
+client profitable from day one; `tests/economics.spec.ts` fails if prices
+or budgets stop adding up. They follow
 the LLM → Agent → Skills → MCP layering:
 
 | Layer | What it is here |

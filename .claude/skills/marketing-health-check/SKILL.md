@@ -5,6 +5,11 @@ description: Run PhLedger Marketing's free Marketing Health Check for any busine
 
 # Marketing Health Check (free, any business)
 
+Budget: 30 minutes, mostly drafted by this skill. Offer at most 4 a week so
+free work stays a small marketing cost. Only recommend pay per lead when the
+business's tracked channels can realistically produce leads — otherwise
+PhLedger does the work and earns only the monthly minimum.
+
 This is step 1 of the method (Diagnose) and the way new clients find us. It
 must be genuinely useful even if the business never buys.
 

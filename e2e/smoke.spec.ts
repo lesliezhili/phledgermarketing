@@ -23,6 +23,9 @@ test('home page sells to any business, not one platform', async ({ page, errors 
     await expect(page.getByRole('heading', { name: type })).toBeVisible()
   }
   await expect(page.getByText('Tiny business (turnover under $2 million)? Pay only per lead.')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Why Businesses Choose PhLedger Marketing' })).toBeVisible()
+  // no unverified statistics on the home page
+  for (const claim of ['5,000+', '25,000+', '420%', '98%']) await expect(page.getByText(claim, { exact: true })).toHaveCount(0)
   void errors
 })
 

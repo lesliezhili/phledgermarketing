@@ -312,7 +312,7 @@ INSERT INTO dm_bible_verses (text, reference, category, platform_relevance) VALU
 -- message or a call of 60s+. Charged when it arrives, sale or not.
 -- Billing rules: src/lib/leads.ts (spam, short calls, repeats within
 -- 30 days, existing customers and upheld disputes are not charged;
--- first 3 leads free; never above the client's monthly cap).
+-- $149 start-up fee; $39 monthly minimum counts toward leads; never above the client's monthly cap).
 -- ============================================================
 CREATE TABLE IF NOT EXISTS dm_leads (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -336,7 +336,7 @@ CREATE INDEX IF NOT EXISTS dm_leads_user_month ON dm_leads (user_id, billing_mon
 
 -- Per-client pay-per-lead settings
 ALTER TABLE dm_profiles ADD COLUMN IF NOT EXISTS lead_monthly_cap DECIMAL(10,2) DEFAULT 300;
-ALTER TABLE dm_profiles ADD COLUMN IF NOT EXISTS free_leads_remaining INTEGER DEFAULT 3;
+ALTER TABLE dm_profiles ADD COLUMN IF NOT EXISTS free_leads_remaining INTEGER DEFAULT 0;
 
 ALTER TABLE dm_leads ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users view own leads" ON dm_leads FOR SELECT USING (auth.uid() = user_id);

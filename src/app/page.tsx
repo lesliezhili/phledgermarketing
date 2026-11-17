@@ -3,7 +3,18 @@
 import Link from 'next/link'
 import BibleVerse from '@/components/BibleVerse'
 import { useI18n } from '@/lib/i18n'
-import { businessTypes, channels, methodSteps, leadPrices } from '@/lib/catalog'
+import { businessTypes, channels, methodSteps, leadPrices, PPL } from '@/lib/catalog'
+
+const whyChoose = [
+  { icon: '🎯', title: 'Pay for results', desc: 'Tiny businesses pay per new enquiry or call, never for spam, repeats or leads you already paid a platform for.' },
+  { icon: '⚡', title: 'Never miss a job', desc: 'Every enquiry and missed call gets an honest reply within a minute while you stay on the tools.' },
+  { icon: '🏷️', title: 'Prices on the page', desc: 'One published price list for everyone. Your price is locked while you stay, and loyalty discounts grow.' },
+  { icon: '📂', title: 'You own everything', desc: 'Your accounts, photos and customer list stay yours. No lock-in: change plan any month.' },
+  { icon: '🧮', title: 'Break-even, in writing', desc: 'Every proposal and monthly report shows how many extra sales pay for the marketing — and whether you got them.' },
+  { icon: '🩺', title: 'Value before you pay', desc: 'A free health check gives you a fix list you can use even if you never buy.' },
+  { icon: '🛒', title: 'Any business, one method', desc: 'Café, tree lopper, accountant or church — the same 5 steps, with the channels that reach your buyers.' },
+  { icon: '✝', title: 'Honest by design', desc: 'No fake reviews, no spam, no pretending a bot is a person. Integrity and service, built into the code.' },
+]
 
 const channelName = (id: string) => channels.find(c => c.id === id)?.name ?? id
 
@@ -88,7 +99,7 @@ export default function Home() {
           <div className="mt-8 bg-white border border-green-200 rounded-xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
               <p className="font-bold text-gray-900">Tiny business (turnover under $2 million)? Pay only per lead.</p>
-              <p className="text-sm text-gray-600">We market your business and you pay only when a new customer emails or calls you — from ${Math.min(...leadPrices.map(l => l.price))} per lead. No setup fee, no contract.</p>
+              <p className="text-sm text-gray-600">We market your business and you pay only when a new customer emails or calls you — from ${Math.min(...leadPrices.map(l => l.price))} per lead, plus a ${PPL.startupFee} start-up fee and a ${PPL.monthlyMinimum} monthly minimum that counts toward your leads. No contract.</p>
             </div>
             <Link href="/pricing#payg" className="bg-green-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-green-700 transition-colors whitespace-nowrap">
               See Lead Prices
@@ -192,15 +203,19 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Metrics */}
+      {/* Why choose us — promises we can keep, no unverified statistics */}
       <section className="py-16 bg-gradient-to-r from-linkedin to-purple-700 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-bold text-center mb-10">{t('home.metrics')}</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            <div><p className="text-4xl font-bold">5,000+</p><p className="text-blue-200 mt-1">{t('home.metrics.users')}</p></div>
-            <div><p className="text-4xl font-bold">25,000+</p><p className="text-blue-200 mt-1">{t('home.metrics.campaigns')}</p></div>
-            <div><p className="text-4xl font-bold">420%</p><p className="text-blue-200 mt-1">{t('home.metrics.engagement')}</p></div>
-            <div><p className="text-4xl font-bold">98%</p><p className="text-blue-200 mt-1">{t('home.metrics.satisfaction')}</p></div>
+          <h2 className="text-3xl font-bold text-center mb-3">Why Businesses Choose PhLedger Marketing</h2>
+          <p className="text-center text-blue-100 mb-10 max-w-2xl mx-auto">No lock-in, no mystery invoices, no shared leads — just honest marketing you can measure.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {whyChoose.map(w => (
+              <div key={w.title} className="bg-white/10 rounded-xl p-5">
+                <p className="text-2xl mb-2">{w.icon}</p>
+                <h3 className="font-bold mb-1">{w.title}</h3>
+                <p className="text-sm text-blue-100">{w.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>

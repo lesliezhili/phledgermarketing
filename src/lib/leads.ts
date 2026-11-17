@@ -41,6 +41,7 @@ export interface LeadCharge {
 export interface BillOptions {
   monthlyCap?: number
   freeLeadsRemaining?: number
+  monthlyMinimum?: number // pay per lead: the client pays at least this; it counts toward leads
   history?: Lead[] // earlier leads (e.g. last month), used only to spot duplicates
 }
 
@@ -49,6 +50,7 @@ export interface Bill {
   total: number
   chargeable: number // leads that counted (charged, free or capped)
   freeLeadsUsed: number
+  amountDue: number // max(total, monthlyMinimum)
   capReached: boolean
 }
 
@@ -121,7 +123,9 @@ export function billLeads(leads: Lead[], opts: BillOptions = {}): Bill {
     charges.push({ lead, amount, reason: amount < price ? 'monthly cap' : 'charged' })
   }
 
-  return { charges, total: Math.round(total * 100) / 100, chargeable, freeLeadsUsed, capReached }
+  const rounded = Math.round(total * 100) / 100
+  const amountDue = Math.max(rounded, opts.monthlyMinimum ?? 0)
+  return { charges, total: rounded, chargeable, freeLeadsUsed, capReached, amountDue }
 }
 
 /**

@@ -98,7 +98,7 @@ export const commitments: Commitment[] = [
 export const loyaltyPerks = [
   { icon: '🔒', name: 'Price lock', desc: 'Your monthly price never goes up while you stay with us.' },
   { icon: '🎁', name: 'Loyalty discount', desc: '5% off from month 7 and 10% off from month 13, automatically. If you prepay, the bigger discount applies.' },
-  { icon: '🤝', name: 'Refer a business', desc: 'You and the business you refer each get one month free.' },
+  { icon: '🤝', name: 'Refer a business', desc: 'You and the business you refer each get one month free, once they have paid their first month.' },
   { icon: '🩺', name: 'Free health check, any time', desc: 'A free marketing review for any business, with no obligation to buy.' },
   { icon: '📂', name: 'You own everything', desc: 'Accounts, photos, designs and customer lists stay yours if you leave.' },
   { icon: '↕️', name: 'Change package any month', desc: 'Move up or down a package from your next billing month.' },
@@ -120,7 +120,7 @@ export function quotePackage(tier: Tier | 'Free', commitmentId = 'monthly') {
 //
 // The client pays only when a new customer reaches the business: an email,
 // form or message, or a phone call. A lead is charged when it arrives,
-// whether or not it turns into a sale. No setup fee, no monthly fee, no
+// whether or not it turns into a sale. A small start-up fee and monthly minimum (PPL below) keep it profitable; no
 // contract. Billing rules live in src/lib/leads.ts.
 // ---------------------------------------------------------------------------
 
@@ -145,7 +145,7 @@ export const leadPriceFor = (type: LeadType) => leadPrices.find(l => l.type === 
 export const LEAD_RULES = {
   minCallSeconds: 60, // shorter calls are not charged
   duplicateDays: 30, // the same person again within 30 days is not charged
-  freeLeads: 3, // a new client's first 3 chargeable leads are free
+  freeLeads: 0, // no free leads: every lead we deliver costs us time and SMS (see economics.ts)
   disputeDays: 7, // a lead can be disputed within 7 days
   defaultMonthlyCap: 300, // the client never pays more than their cap in a month
 }
@@ -175,9 +175,23 @@ export type TurnoverBand = (typeof turnoverBands)[number]['id']
 /** Only tiny businesses (ATO aggregated turnover under $2M) can pay per lead. */
 export const isPayPerLeadEligible = (band: TurnoverBand | '' | undefined) => band === 'under2m'
 
-// Booking id for the pay-per-lead option (services use 1–10).
+// Booking id for the pay-per-lead option (services use 1–11).
 export const PAY_PER_LEAD_ID = 100
 export const PAYG_CREDIT_DAYS = 60
+
+// Pay-per-lead terms that keep every client profitable from day one
+// (proved in tests/economics.spec.ts):
+// - a one-off start-up fee covers setting up the tracked number, form,
+//   Google profile and speed-to-lead replies
+// - a small monthly minimum covers the tracked number and automated work
+//   even in a month with no leads; it counts toward leads, so a client with
+//   enough leads pays nothing extra
+// - the credit toward a package setup fee is capped so upgrades stay profitable
+export const PPL = {
+  startupFee: 149,
+  monthlyMinimum: 39,
+  upgradeCreditMax: 150,
+}
 
 export const leadNotCharged = [
   'Spam, sales pitches, job seekers and wrong numbers',
@@ -191,10 +205,10 @@ export const leadNotCharged = [
 
 export const paygPerks = [
   `For tiny businesses only: ${TINY_BUSINESS.label} (ATO), including connected businesses.`,
-  'No setup fee, no monthly fee, no contract. Stop any time.',
-  `Your first ${LEAD_RULES.freeLeads} leads are free.`,
+  `One-off start-up fee $${PPL.startupFee}: your tracked number, enquiry form, Google profile tune-up and instant replies.`,
+  `Minimum $${PPL.monthlyMinimum} a month, which counts toward your leads. No contract — stop any time.`,
   `Set a monthly cap (default $${LEAD_RULES.defaultMonthlyCap}). You never pay more than your cap.`,
-  `Move to a package within ${PAYG_CREDIT_DAYS} days and your lead spend comes off the $${SETUP_FEE} setup fee.`,
+  `Move to a package within ${PAYG_CREDIT_DAYS} days and up to $${PPL.upgradeCreditMax} of your lead spend comes off the $${SETUP_FEE} setup fee.`,
   'Ad spend is optional, paid by you at cost, and only if you choose to run ads.',
 ]
 

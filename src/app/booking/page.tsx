@@ -3,10 +3,11 @@
 import { useEffect, useState } from 'react'
 import { useI18n } from '@/lib/i18n'
 import BibleVerse from '@/components/BibleVerse'
-import { services, businessTypes, channels, adPlatforms, commitments, quotePackage, serviceLabel, leadPrices, LEAD_RULES, PAY_PER_LEAD_ID, TINY_BUSINESS, turnoverBands, isPayPerLeadEligible, type TurnoverBand } from '@/lib/catalog'
+import { services, businessTypes, channels, adPlatforms, commitments, quotePackage, serviceLabel, leadPrices, LEAD_RULES, PPL, PAY_PER_LEAD_ID, TINY_BUSINESS, turnoverBands, isPayPerLeadEligible, type TurnoverBand } from '@/lib/catalog'
 import { estimateMonthly, isValidAbn } from '@/lib/leads'
 
 const PAY_PER_LEAD = 'Pay Per Lead'
+const LEAD_PLURAL = { enquiry: 'online enquiries', call: 'phone calls', business: 'business enquiries' } as const
 
 const timeSlots = ['9:00 AM', '10:00 AM', '11:00 AM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM']
 
@@ -64,18 +65,20 @@ export default function BookingPage() {
   // that includes the service and how the client chooses to pay.
   const quote = quotePackage(selectedService?.tier ?? 'Free', commitment)
   const isPaid = !!selectedService && selectedService.tier !== 'Free'
-  // Pay as you go = pay per lead: nothing due today, no setup fee; leads are
+  // Pay as you go = pay per lead: start-up fee + first month's minimum today; leads are
   // billed monthly as they arrive, never above the client's cap.
   const isPerLead = form.service === PAY_PER_LEAD
-  const cap = Math.max(0, monthlyCap || 0)
-  const leadEstimate = estimateMonthly(expected, cap)
+  // The cap can't go below the monthly minimum, which counts toward leads.
+  const cap = Math.max(PPL.monthlyMinimum, monthlyCap || 0)
+  const leadEstimate = Math.max(PPL.monthlyMinimum, estimateMonthly(expected, cap))
   const eligible = isPayPerLeadEligible(turnoverBand)
   const abnValid = isValidAbn(abn)
   // Pay per lead can only be booked by a tiny business with a valid ABN.
   const perLeadBlocked = isPerLead && (!eligible || !abnValid || !tinyDeclared)
 
-  const basePrice = isPerLead ? 0 : quote.fees
-  const setupFee = isPerLead ? 0 : quote.setup
+  // Day one for pay per lead: the start-up fee plus the first month's minimum, in advance.
+  const basePrice = isPerLead ? PPL.monthlyMinimum : quote.fees
+  const setupFee = isPerLead ? PPL.startupFee : quote.setup
   const rushFee = rush ? 50 : 0
 
   // Cloud platform fee (% of base)
@@ -198,7 +201,7 @@ export default function BookingPage() {
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">
                     {leadPrices.map(l => (
                       <label key={l.type} className="block">
-                        <span className="text-xs text-green-900">Expected {l.name.toLowerCase()}s / month</span>
+                        <span className="text-xs text-green-900">Expected {LEAD_PLURAL[l.type]} / month</span>
                         <input type="number" min="0" value={expected[l.type]}
                           onChange={(e) => setExpected({ ...expected, [l.type]: Number(e.target.value) })}
                           className="w-full px-2 py-1 border border-green-200 rounded" />
@@ -206,13 +209,13 @@ export default function BookingPage() {
                     ))}
                     <label className="block">
                       <span className="text-xs text-green-900">Monthly cap ($)</span>
-                      <input type="number" min="0" step="50" value={monthlyCap}
+                      <input type="number" min={PPL.monthlyMinimum} step="1" value={monthlyCap}
                         onChange={(e) => setMonthlyCap(Number(e.target.value))}
                         className="w-full px-2 py-1 border border-green-200 rounded" />
                     </label>
                   </div>
                   <p className="text-xs text-green-800">
-                    You pay when a lead arrives, whether or not it becomes a sale. First {LEAD_RULES.freeLeads} leads free.
+                    You pay when a lead arrives, whether or not it becomes a sale. Minimum ${PPL.monthlyMinimum} a month counts toward your leads.
                     Spam, short calls, repeats within {LEAD_RULES.duplicateDays} days and existing customers are never charged.
                   </p>
                 </div>
@@ -350,7 +353,7 @@ export default function BookingPage() {
                   {adPlatform !== 'none' && (
                     <div>
                       <label htmlFor="bk-ad-budget" className="block text-sm font-medium text-purple-800 mb-2">{t('booking.ads.budget')}</label>
-                      <input id="bk-ad-budget" type="number" min="0" step="50" value={adBudget}
+                      <input id="bk-ad-budget" type="number" min="0" step="1" value={adBudget}
                         onChange={(e) => setAdBudget(Number(e.target.value))}
                         placeholder="e.g. 400"
                         className="w-full px-3 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-400" />
@@ -455,9 +458,12 @@ export default function BookingPage() {
                         {quote.discount > 0 && ` (${Math.round(quote.discount * 100)}% off)`}
                       </span>
                     )}
+                    {isPerLead && (
+                      <span className="block text-xs text-gray-500">First month&apos;s minimum, in advance (counts toward leads)</span>
+                    )}
                   </span>
                   <span className="font-medium">
-                    {isPerLead ? '$0 today' : basePrice === 0 ? 'Free' : `$${basePrice.toFixed(2)}`}
+                    {basePrice === 0 ? 'Free' : `$${basePrice.toFixed(2)}`}
                   </span>
                 </div>
 
@@ -472,14 +478,14 @@ export default function BookingPage() {
                       <span className="text-gray-700">Never more than (cap)</span>
                       <span className="font-semibold">${cap.toFixed(2)}</span>
                     </div>
-                    <p className="text-xs text-gray-500">Billed monthly per lead · first {LEAD_RULES.freeLeads} free · no setup fee · no contract</p>
+                    <p className="text-xs text-gray-500">Billed monthly per lead · minimum ${PPL.monthlyMinimum}/month counts toward leads · no contract</p>
                   </div>
                 )}
 
                 {/* Setup fee */}
-                {isPaid && (
+                {(isPaid || isPerLead) && (
                   <div className="flex justify-between">
-                    <span className="text-gray-600">🛠️ One-off setup</span>
+                    <span className="text-gray-600">🛠️ {isPerLead ? 'One-off start-up fee' : 'One-off setup'}</span>
                     <span className={`font-medium ${setupFee === 0 ? 'text-green-600' : ''}`}>
                       {setupFee === 0 ? 'Waived' : `$${setupFee.toFixed(2)}`}
                     </span>
@@ -544,7 +550,7 @@ export default function BookingPage() {
                 {/* Total */}
                 <div className="flex justify-between text-base font-bold border-t-2 border-gray-300 pt-3 mt-2">
                   <span>Total</span>
-                  <span className="text-linkedin text-lg">{total === 0 ? (isPerLead ? '$0 today' : 'Free') : `$${total.toFixed(2)}`}</span>
+                  <span className="text-linkedin text-lg">{total === 0 ? 'Free' : `$${total.toFixed(2)}`}</span>
                 </div>
 
                 {/* Fee breakdown */}

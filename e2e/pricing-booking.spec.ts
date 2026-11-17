@@ -53,8 +53,10 @@ test('choosing a business type pre-selects its usual channels', async ({ page, e
 test('ad budget is added at cost to the booking total', async ({ page, errors }) => {
   await page.goto('/booking?service=6')
   await page.getByLabel('Paid Ads').selectOption('meta')
-  await page.getByLabel('Monthly Ad Budget ($)').fill('400')
-  await expect.poll(() => orderSummary(page)).toContain('Total $1239.00')
+  await page.getByLabel('Monthly Ad Budget ($)').fill('425') // any whole-dollar amount is accepted
+  await expect.poll(() => orderSummary(page)).toContain('Total $1264.00')
+  // the browser must accept the amount (no step mismatch blocking submit)
+  expect(await page.getByLabel('Monthly Ad Budget ($)').evaluate(i => (i as HTMLInputElement).validity.valid)).toBe(true)
   void errors
 })
 
