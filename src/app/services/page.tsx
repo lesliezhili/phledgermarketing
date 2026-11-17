@@ -35,6 +35,14 @@ export default function ServicesPage() {
         ))}
       </div>
 
+      <div className="mb-6 bg-blue-50 border border-blue-200 rounded-xl p-5 text-center">
+        <p className="font-bold text-gray-900">⚡ On the tools all day and missing calls?</p>
+        <p className="text-sm text-gray-600 mb-3">See the instant reply we send your customers within 60 seconds.</p>
+        <Link href="/speed-to-lead" className="inline-block bg-linkedin text-white px-5 py-2 rounded-lg text-sm font-semibold hover:bg-linkedin-dark transition-colors">
+          Try the Speed-to-Lead Demo
+        </Link>
+      </div>
+
       <div className="mb-12 bg-green-50 border border-green-200 rounded-xl p-5 text-center">
         <p className="font-bold text-gray-900">Not ready for a monthly package?</p>
         <p className="text-sm text-gray-600 mb-3">Tiny businesses (aggregated annual turnover under $2 million) can pay as you go: pay only for each new customer enquiry or call. No setup fee, no contract.</p>

@@ -6,6 +6,7 @@
 // client pays for a billing month. Prices and limits come from catalog.ts.
 
 import { LEAD_RULES, leadPriceFor, type LeadType } from './catalog'
+import { PLATFORM_SOURCES, isChargeableSource, type LeadSource } from './speed-to-lead'
 
 export interface Lead {
   id: string
@@ -16,6 +17,7 @@ export interface Lead {
   spam?: boolean // spam, sales pitch, job seeker, wrong number
   existingCustomer?: boolean
   disputeUpheld?: boolean // client disputed it in time and we could not show it was genuine
+  source?: LeadSource // where it came from; platform leads are never charged per lead
 }
 
 export type ChargeReason =
@@ -27,6 +29,8 @@ export type ChargeReason =
   | 'short call'
   | 'duplicate'
   | 'disputed'
+  | 'platform lead'
+  | 'untracked'
 
 export interface LeadCharge {
   lead: Lead
@@ -62,6 +66,11 @@ export function normaliseContact(contact: string): string {
 /** Why a lead is not chargeable at all, or null if it is a genuine new lead. */
 function excludedReason(lead: Lead, seen: Map<string, number>): ChargeReason | null {
   if (lead.spam) return 'spam'
+  // The client already pays hipages, Airtasker, Bark, ServiceSeeking or the
+  // franchise for these; charging again would be double-charging.
+  if (lead.source && PLATFORM_SOURCES.includes(lead.source)) return 'platform lead'
+  // Only leads that came through a source PhLedger tracks can be charged.
+  if (!isChargeableSource(lead.source)) return 'untracked'
   if (lead.existingCustomer) return 'existing customer'
   if (lead.type === 'call' && (lead.callSeconds ?? 0) < LEAD_RULES.minCallSeconds) return 'short call'
   const last = seen.get(normaliseContact(lead.contact))

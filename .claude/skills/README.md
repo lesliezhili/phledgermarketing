@@ -22,6 +22,7 @@ the LLM → Agent → Skills → MCP layering:
 | `google-business-profile` | Google profile, posts, review replies | Grace and up |
 | `ad-campaign` | Paid ads on Meta, Google, LinkedIn, TikTok | Faithful and up |
 | `loyalty-emails` | Birthday, win-back, thank-you, referral emails | Faithful and up |
+| `speed-to-lead` | Instant honest reply to every enquiry and missed call | Grace and up (AI Speed-to-Lead Replies) |
 | `lead-qualification` | Eligibility, logging and billing leads | Pay per lead (tiny businesses only) |
 | `monthly-report` | One-page results against break-even | Every plan |
 

@@ -239,13 +239,13 @@ export default function BookingPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('booking.date')}</label>
-                  <input type="date" required value={form.date} onChange={(e) => setForm({...form, date: e.target.value})}
+                  <label htmlFor="bk-date" className="block text-sm font-medium text-gray-700 mb-1">{t('booking.date')}</label>
+                  <input id="bk-date" type="date" required value={form.date} onChange={(e) => setForm({...form, date: e.target.value})}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-linkedin" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('booking.time')}</label>
-                  <select value={form.time} onChange={(e) => setForm({...form, time: e.target.value})} required
+                  <label htmlFor="bk-time" className="block text-sm font-medium text-gray-700 mb-1">{t('booking.time')}</label>
+                  <select id="bk-time" value={form.time} onChange={(e) => setForm({...form, time: e.target.value})} required
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-linkedin">
                     <option value="">{t('booking.time')}...</option>
                     {timeSlots.map(s => <option key={s} value={s}>{s}</option>)}
@@ -254,8 +254,8 @@ export default function BookingPage() {
               </div>
 
               <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t('booking.goals')}</label>
-                <textarea rows={2} value={form.goals} onChange={(e) => setForm({...form, goals: e.target.value})}
+                <label htmlFor="bk-goals" className="block text-sm font-medium text-gray-700 mb-1">{t('booking.goals')}</label>
+                <textarea id="bk-goals" rows={2} value={form.goals} onChange={(e) => setForm({...form, goals: e.target.value})}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-linkedin" />
               </div>
 
@@ -285,21 +285,21 @@ export default function BookingPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('booking.business.name')}</label>
-                  <input type="text" value={form.business} onChange={(e) => setForm({...form, business: e.target.value})}
+                  <label htmlFor="bk-business" className="block text-sm font-medium text-gray-700 mb-1">{t('booking.business.name')}</label>
+                  <input id="bk-business" type="text" value={form.business} onChange={(e) => setForm({...form, business: e.target.value})}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-linkedin" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('booking.business.website')}</label>
-                  <input type="url" value={form.website} onChange={(e) => setForm({...form, website: e.target.value})}
+                  <label htmlFor="bk-website" className="block text-sm font-medium text-gray-700 mb-1">{t('booking.business.website')}</label>
+                  <input id="bk-website" type="url" value={form.website} onChange={(e) => setForm({...form, website: e.target.value})}
                     placeholder="https://"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-linkedin" />
                 </div>
               </div>
 
               <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t('booking.business.offer')}</label>
-                <input type="text" value={form.offer} onChange={(e) => setForm({...form, offer: e.target.value})}
+                <label htmlFor="bk-offer" className="block text-sm font-medium text-gray-700 mb-1">{t('booking.business.offer')}</label>
+                <input id="bk-offer" type="text" value={form.offer} onChange={(e) => setForm({...form, offer: e.target.value})}
                   placeholder="e.g. whole cakes and function bookings"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-linkedin" />
               </div>
@@ -341,16 +341,16 @@ export default function BookingPage() {
               <div className="mt-4 p-3 bg-purple-50 rounded-lg">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-purple-800 mb-2">{t('booking.ads.platform')}</label>
-                    <select value={adPlatform} onChange={(e) => setAdPlatform(e.target.value)}
+                    <label htmlFor="bk-ad-platform" className="block text-sm font-medium text-purple-800 mb-2">{t('booking.ads.platform')}</label>
+                    <select id="bk-ad-platform" value={adPlatform} onChange={(e) => setAdPlatform(e.target.value)}
                       className="w-full px-3 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-400 bg-white">
                       {adPlatforms.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
                     </select>
                   </div>
                   {adPlatform !== 'none' && (
                     <div>
-                      <label className="block text-sm font-medium text-purple-800 mb-2">{t('booking.ads.budget')}</label>
-                      <input type="number" min="0" step="50" value={adBudget}
+                      <label htmlFor="bk-ad-budget" className="block text-sm font-medium text-purple-800 mb-2">{t('booking.ads.budget')}</label>
+                      <input id="bk-ad-budget" type="number" min="0" step="50" value={adBudget}
                         onChange={(e) => setAdBudget(Number(e.target.value))}
                         placeholder="e.g. 400"
                         className="w-full px-3 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-400" />

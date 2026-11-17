@@ -43,9 +43,10 @@ inputs honestly; the code does the maths.
      or wholesale (signature, company domain, or says so)
    - `call` — a phone call; record `callSeconds` from the call log
    - `enquiry` — anything else: email, website form, social message
-4. **Channel:** where it came from (tracked number, form, QR code, "how did you
+4. **Source:** set `source` (see `LeadSource` in `src/lib/speed-to-lead.ts`). Only PhLedger's tracked sources (tracked number, tracked form, Meta lead form, our listing) can be charged. Leads from hipages, Airtasker, Bark, ServiceSeeking or franchise head office, and untracked leads, are never charged per lead.
+5. **Channel:** where it came from (tracked number, form, QR code, "how did you
    hear about us?"). Use `unknown` rather than guess.
-5. **Contact:** the email or phone exactly as received. The code normalises
+6. **Contact:** the email or phone exactly as received. The code normalises
    formats and spots repeats within 30 days, including from earlier months
    (pass last month's leads as `history`).
 

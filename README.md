@@ -78,6 +78,24 @@ npm start
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
+## Testing
+
+```bash
+# Unit tests: pricing engine, pay-per-lead billing, speed-to-lead replies
+npm test
+
+# End-to-end browser tests (Playwright) against the production build
+npm run build
+npx playwright install chromium   # first time only
+npm run test:e2e
+```
+
+The e2e suite (`e2e/`) checks every page loads without browser errors,
+package and commitment totals on the booking page, the tiny-business gate on
+pay per lead (ABN, turnover under $2 million, declaration), the
+speed-to-lead demo and `POST /api/leads/reply`, and that key pages have no
+sideways scroll on a phone. CI runs both suites (`.github/workflows/tests.yml`).
+
 ## Project Structure
 
 ```

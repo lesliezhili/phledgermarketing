@@ -3,7 +3,7 @@ import { billLeads, estimateMonthly, normaliseContact, isValidAbn, type Lead } f
 import { isPayPerLeadEligible, TINY_BUSINESS } from "../src/lib/catalog"
 
 const lead = (id: string, over: Partial<Lead> = {}): Lead => ({
-  id, type: "enquiry", contact: `${id}@example.com`, receivedAt: "2026-12-01T09:00:00Z", ...over,
+  id, type: "enquiry", contact: `${id}@example.com`, receivedAt: "2026-12-01T09:00:00Z", source: "tracked_form", ...over,
 })
 
 describe("pay-per-lead billing", () => {
@@ -51,6 +51,19 @@ describe("pay-per-lead billing", () => {
     expect(bill.total).toBe(100)
     expect(bill.capReached).toBe(true)
     expect(bill.charges.filter(c => c.reason === "monthly cap").length).toBe(8)
+  })
+
+  it("never charges platform leads the client already pays for, or untracked leads", () => {
+    const bill = billLeads([
+      lead("hp", { source: "hipages" }),
+      lead("at", { source: "airtasker" }),
+      lead("jim", { source: "franchise_hq", type: "call", contact: "0400 000 009", callSeconds: 300 }),
+      lead("un", { source: "unknown" }),
+      lead("none", { source: undefined }),
+      lead("ours", { source: "our_listing" }),
+    ], { monthlyCap: 1000 })
+    expect(bill.charges.map(c => c.reason)).toEqual(["platform lead", "platform lead", "platform lead", "untracked", "untracked", "charged"])
+    expect(bill.total).toBe(15)
   })
 
   it("limits pay per lead to tiny businesses (ATO aggregated turnover under $2M)", () => {
