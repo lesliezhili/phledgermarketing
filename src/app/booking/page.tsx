@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useI18n } from '@/lib/i18n'
 import BibleVerse from '@/components/BibleVerse'
-import { services, businessTypes, channels, adPlatforms } from '@/lib/catalog'
+import { services, businessTypes, channels, adPlatforms, commitments, quotePackage, serviceLabel } from '@/lib/catalog'
 
 const timeSlots = ['9:00 AM', '10:00 AM', '11:00 AM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM']
 
@@ -34,6 +34,7 @@ export default function BookingPage() {
   const [selectedChannels, setSelectedChannels] = useState<string[]>([])
   const [adPlatform, setAdPlatform] = useState('none')
   const [adBudget, setAdBudget] = useState(0)
+  const [commitment, setCommitment] = useState('monthly')
 
   // Pre-select a service from /booking?service=<id>
   useEffect(() => {
@@ -50,7 +51,12 @@ export default function BookingPage() {
     setSelectedChannels(cs => (cs.includes(id) ? cs.filter(c => c !== id) : [...cs, id]))
 
   const selectedService = services.find(s => s.name === form.service)
-  const basePrice = selectedService?.price || 0
+  // Services are delivered through packages; price comes from the package
+  // that includes the service and how the client chooses to pay.
+  const quote = quotePackage(selectedService?.tier ?? 'Free', commitment)
+  const isPaid = !!selectedService && selectedService.tier !== 'Free'
+  const basePrice = quote.fees
+  const setupFee = quote.setup
   const rushFee = rush ? 50 : 0
 
   // Cloud platform fee (% of base)
@@ -62,7 +68,7 @@ export default function BookingPage() {
   const adBudgetAmount = adPlatform === 'none' ? 0 : Math.max(0, adBudget)
 
   // Subtotal before bank fee
-  const subtotal = basePrice + rushFee + cloudFeeAmount + adBudgetAmount
+  const subtotal = basePrice + setupFee + rushFee + cloudFeeAmount + adBudgetAmount
 
   // Bank/payment processing fee
   const selectedPayment = paymentMethods.find(p => p.id === paymentMethod)
@@ -110,10 +116,29 @@ export default function BookingPage() {
                 <option value="">{t('booking.select')}...</option>
                 {services.map(s => (
                   <option key={s.id} value={s.name}>
-                    {s.name} — {s.price === 0 ? 'Free' : `$${s.price}/mo`} ({s.tier})
+                    {s.name} — {serviceLabel(s)}
                   </option>
                 ))}
               </select>
+
+              {isPaid && (
+                <div className="mt-4">
+                  <p className="text-sm font-medium text-gray-700 mb-2">{t('booking.commitment')}</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    {commitments.map(c => (
+                      <label key={c.id}
+                        className={`p-3 rounded-lg border-2 cursor-pointer transition-colors text-sm ${
+                          commitment === c.id ? 'border-linkedin bg-blue-50' : 'border-gray-200 hover:border-gray-300'
+                        }`}>
+                        <input type="radio" name="commitment" value={c.id} checked={commitment === c.id}
+                          onChange={() => setCommitment(c.id)} className="sr-only" />
+                        <span className="font-semibold block">{c.name}</span>
+                        <span className="text-xs text-gray-500">{c.note}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                 <div>
@@ -324,10 +349,28 @@ export default function BookingPage() {
               <div className="space-y-3 text-sm">
                 {/* Service */}
                 <div className="flex justify-between">
-                  <span className="text-gray-600">{form.service}</span>
+                  <span className="text-gray-600">
+                    {form.service}
+                    {isPaid && (
+                      <span className="block text-xs text-gray-500">
+                        {selectedService?.tier} package · ${quote.monthly.toFixed(2)}/mo × {quote.months}
+                        {quote.discount > 0 && ` (${Math.round(quote.discount * 100)}% off)`}
+                      </span>
+                    )}
+                  </span>
                   <span className="font-medium">{basePrice === 0 ? 'Free' : `$${basePrice.toFixed(2)}`}</span>
                 </div>
-                
+
+                {/* Setup fee */}
+                {isPaid && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">🛠️ One-off setup</span>
+                    <span className={`font-medium ${setupFee === 0 ? 'text-green-600' : ''}`}>
+                      {setupFee === 0 ? 'Waived' : `$${setupFee.toFixed(2)}`}
+                    </span>
+                  </div>
+                )}
+
                 {/* Rush */}
                 {rush && (
                   <div className="flex justify-between">
@@ -394,7 +437,8 @@ export default function BookingPage() {
                   <div className="bg-blue-50 rounded-lg p-3 mt-2">
                     <p className="text-xs font-semibold text-blue-800 mb-1">Fee Breakdown:</p>
                     <div className="text-xs text-blue-700 space-y-0.5">
-                      <p>• Service: ${basePrice.toFixed(2)}</p>
+                      <p>• Package: ${basePrice.toFixed(2)}</p>
+                      {setupFee > 0 && <p>• Setup: ${setupFee.toFixed(2)}</p>}
                       {rush && <p>• Rush: $50.00</p>}
                       {adBudgetAmount > 0 && <p>• Ad Budget: ${adBudgetAmount.toFixed(2)}</p>}
                       {cloudFeeAmount > 0 && <p>• Cloud ({selectedCloud?.fee}%): ${cloudFeeAmount.toFixed(2)}</p>}

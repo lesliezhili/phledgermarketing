@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useI18n } from '@/lib/i18n'
 import BibleVerse from '@/components/BibleVerse'
-import { services, channels } from '@/lib/catalog'
+import { services, channels, serviceLabel } from '@/lib/catalog'
 
 export default function ServicesPage() {
   const { t } = useI18n()
@@ -23,8 +23,7 @@ export default function ServicesPage() {
             <h3 className="font-bold text-gray-900 mb-1">{service.name}</h3>
             <p className="text-sm text-gray-600 mb-3 flex-1">{service.desc}</p>
             <div className="flex items-center justify-between">
-              <span className="text-linkedin font-bold">{service.price === 0 ? t('common.free') : `$${service.price}${t('common.month')}`}</span>
-              <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">{service.tier}</span>
+              <span className="text-linkedin font-bold">{serviceLabel(service)}</span>
             </div>
             <Link
               href={`/booking?service=${service.id}`}

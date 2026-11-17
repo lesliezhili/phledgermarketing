@@ -5,12 +5,12 @@ import { useI18n } from '@/lib/i18n'
 import BibleVerse from '@/components/BibleVerse'
 
 const services = [
-  { name: 'Profile & Bio Optimization', desc: 'Craft a compelling bio, highlights, and aesthetic that attracts your target audience.', price: 'Free', icon: '✨' },
-  { name: 'Content Calendar & Reels Strategy', desc: '30-day content plan with Reels, Stories, and carousel templates aligned with your brand.', price: '$59/mo', icon: '🎬' },
-  { name: 'Hashtag & SEO Research', desc: 'Data-driven hashtag sets and SEO captions for maximum discoverability.', price: '$39/mo', icon: '#️⃣' },
-  { name: 'Engagement & Community Growth', desc: 'Authentic engagement strategy, comment templates, and DM funnels.', price: '$79/mo', icon: '💬' },
-  { name: 'Instagram Ads Management', desc: 'Story ads, reel ads, and carousel campaigns with faith-aligned messaging.', price: '$149/mo', icon: '📢' },
-  { name: 'Influencer Collaboration', desc: 'Connect with faith-aligned micro-influencers for brand partnerships.', price: '$199/mo', icon: '🤝' },
+  { name: 'Profile & Bio Optimization', desc: 'Craft a compelling bio, highlights, and aesthetic that attracts your target audience.', price: 'Included in setup', icon: '✨' },
+  { name: 'Content Calendar & Reels Strategy', desc: '30-day content plan with Reels, Stories, and carousel templates aligned with your brand.', price: 'Grace · $149/mo', icon: '🎬' },
+  { name: 'Hashtag & SEO Research', desc: 'Data-driven hashtag sets and SEO captions for maximum discoverability.', price: 'Grace · $149/mo', icon: '#️⃣' },
+  { name: 'Engagement & Community Growth', desc: 'Authentic engagement strategy, comment templates, and DM funnels.', price: 'Grace · $149/mo', icon: '💬' },
+  { name: 'Instagram Ads Management', desc: 'Story ads, reel ads, and carousel campaigns with faith-aligned messaging.', price: 'Faithful · $349/mo', icon: '📢' },
+  { name: 'Influencer Collaboration', desc: 'Connect with faith-aligned micro-influencers for brand partnerships.', price: 'Abundant · $799/mo', icon: '🤝' },
 ]
 
 const stats = [
@@ -34,7 +34,7 @@ export default function InstagramPage() {
             Visual storytelling with purpose. Grow your brand on Instagram through authentic, faith-driven content that connects and converts.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/booking" className="bg-white text-purple-700 px-8 py-3 rounded-lg font-semibold text-lg hover:bg-purple-50 transition-colors">
+            <Link href="/booking?service=1" className="bg-white text-purple-700 px-8 py-3 rounded-lg font-semibold text-lg hover:bg-purple-50 transition-colors">
               Get Started Free
             </Link>
             <Link href="/pricing" className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold text-lg hover:bg-white/10 transition-colors">

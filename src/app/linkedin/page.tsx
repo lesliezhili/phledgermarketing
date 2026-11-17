@@ -7,12 +7,12 @@ import BibleVerse from '@/components/BibleVerse'
 // other businesses (corporate catering, consulting, B2B services) and
 // professionals building a personal brand.
 const services = [
-  { name: 'Profile & Company Page Optimization', desc: 'A personal profile and company page that say clearly what you sell and who it is for.', price: 'Free', icon: '👤' },
-  { name: 'B2B Content Strategy', desc: '30-day plan of posts that show your work, results and expertise to decision-makers.', price: '$49/mo', icon: '📝' },
-  { name: 'Lead Generation & Outreach', desc: 'Targeted connection and message sequences to the companies most likely to buy.', price: '$49/mo', icon: '🎯' },
-  { name: 'LinkedIn Ads Management', desc: 'Ethical ad campaigns aimed by industry, job title and company size.', price: '$199/mo', icon: '🚀' },
-  { name: 'Thought Leadership Program', desc: 'Position the founder or team as trusted voices in their field.', price: '$199/mo', icon: '👑' },
-  { name: 'Corporate Client Campaigns', desc: 'Win office and team orders for local businesses: events, catering, gifts, services.', price: '$199/mo', icon: '🏢' },
+  { name: 'Profile & Company Page Optimization', desc: 'A personal profile and company page that say clearly what you sell and who it is for.', price: 'Included in setup', icon: '👤' },
+  { name: 'B2B Content Strategy', desc: '30-day plan of posts that show your work, results and expertise to decision-makers.', price: 'Grace · $149/mo', icon: '📝' },
+  { name: 'Lead Generation & Outreach', desc: 'Targeted connection and message sequences to the companies most likely to buy.', price: 'Grace · $149/mo', icon: '🎯' },
+  { name: 'LinkedIn Ads Management', desc: 'Ethical ad campaigns aimed by industry, job title and company size.', price: 'Abundant · $799/mo', icon: '🚀' },
+  { name: 'Thought Leadership Program', desc: 'Position the founder or team as trusted voices in their field.', price: 'Abundant · $799/mo', icon: '👑' },
+  { name: 'Corporate Client Campaigns', desc: 'Win office and team orders for local businesses: events, catering, gifts, services.', price: 'Abundant · $799/mo', icon: '🏢' },
 ]
 
 export default function LinkedInPage() {
