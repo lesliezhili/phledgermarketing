@@ -2,11 +2,12 @@
 
 import Link from 'next/link'
 import { useI18n } from '@/lib/i18n'
-import { packages, commitments, loyaltyPerks, SETUP_FEE, MIN_MONTHS } from '@/lib/catalog'
+import { packages, commitments, loyaltyPerks, paygJobs, paygPerks, SETUP_FEE, MIN_MONTHS } from '@/lib/catalog'
 
 const faqs = [
   { q: 'Is there anything free?', a: 'Yes. The Marketing Health Check is free for any business, with no obligation. It tells you what to fix first and which channels suit you.' },
   { q: 'What does the setup fee cover?', a: `A one-off $${SETUP_FEE}: fixing what blocks sales (offer, prices, contact details, print and profiles), one page to buy or enquire with QR codes and tracking, and connecting your channels. It is waived when you pay 6 or 12 months up front.` },
+  { q: 'Pay as you go or a monthly package?', a: 'Pay as you go suits tiny businesses that need one or two jobs done well. A package suits businesses that want marketing run for them every month. Start with PAYG and anything you spend in the last 60 days comes off the setup fee when you move to a package.' },
   { q: 'Is ad spend included?', a: 'No. Ad spend is paid by you straight to the platform, so you see every dollar. A typical small-business budget is $300–$600 a month.' },
   { q: 'Can I change package or cancel?', a: `Yes. Move up or down any month. Monthly plans have a ${MIN_MONTHS}-month minimum, then 30 days' notice. Your price is locked while you stay.` },
   { q: 'How does PhLedgerTax integration work?', a: 'All billing, invoicing, and tax reporting is handled automatically through our PhLedgerTax agent. Prices exclude GST.' },
@@ -32,6 +33,41 @@ export default function PricingPage() {
           Book Free Check
         </Link>
       </div>
+
+      {/* Pay as you go */}
+      <section id="payg" className="mb-16">
+        <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">Pay As You Go</h2>
+        <p className="text-center text-gray-600 mb-6 max-w-2xl mx-auto">
+          For tiny and small businesses. Pay only for the job you need, when you need it.
+        </p>
+        <ul className="max-w-3xl mx-auto mb-8 grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-700">
+          {paygPerks.map(perk => (
+            <li key={perk} className="flex items-start">
+              <span className="text-green-500 mr-2">✓</span>{perk}
+            </li>
+          ))}
+        </ul>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {paygJobs.map(job => (
+            <div key={job.id} className="bg-white border border-gray-200 rounded-xl p-5 flex flex-col">
+              <p className="text-2xl mb-2">{job.icon}</p>
+              <h3 className="font-bold text-gray-900 mb-1">{job.name}</h3>
+              <p className="text-sm text-gray-600 flex-1">{job.desc}</p>
+              <p className="mt-3">
+                <span className="text-2xl font-bold text-gray-900">${job.price}</span>
+                <span className="text-sm text-gray-500"> one-off{job.note ? ` ${job.note}` : ''}</span>
+              </p>
+              <Link href={`/booking?service=${job.id}`}
+                className="block mt-3 text-center bg-gray-100 text-gray-900 py-2 rounded-lg text-sm font-semibold hover:bg-gray-200 transition-colors">
+                Book This Job
+              </Link>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">Monthly Packages</h2>
+      <p className="text-center text-gray-600 mb-10">We run your marketing for you, every month.</p>
 
       {/* Plans Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-6">

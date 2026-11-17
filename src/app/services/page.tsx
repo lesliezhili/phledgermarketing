@@ -35,6 +35,14 @@ export default function ServicesPage() {
         ))}
       </div>
 
+      <div className="mb-12 bg-green-50 border border-green-200 rounded-xl p-5 text-center">
+        <p className="font-bold text-gray-900">Not ready for a monthly package?</p>
+        <p className="text-sm text-gray-600 mb-3">Tiny and small businesses can pay as you go — one-off jobs, no setup fee, no contract.</p>
+        <Link href="/pricing#payg" className="inline-block bg-green-600 text-white px-5 py-2 rounded-lg text-sm font-semibold hover:bg-green-700 transition-colors">
+          See Pay-As-You-Go Jobs
+        </Link>
+      </div>
+
       <div className="mb-12 text-center">
         <h2 className="text-xl font-bold text-gray-900 mb-4">Delivered on the channels that fit your business</h2>
         <div className="flex flex-wrap justify-center gap-3">

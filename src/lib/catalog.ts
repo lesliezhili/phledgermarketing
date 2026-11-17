@@ -115,6 +115,43 @@ export function quotePackage(tier: Tier | 'Free', commitmentId = 'monthly') {
   return { monthly, months: c.months, fees, setup, dueToday: fees + setup, discount: c.discount }
 }
 
+// ---------------------------------------------------------------------------
+// Pay as you go — for tiny and small businesses that aren't ready for a
+// monthly package. One-off jobs at a fixed price: no setup fee, no minimum
+// term, no contract. Ids start at 101 so they never clash with services.
+// ---------------------------------------------------------------------------
+
+export interface PaygJob {
+  id: number
+  name: string
+  desc: string
+  price: number // one-off, AUD excl. GST
+  icon: string
+  note?: string
+}
+
+export const paygJobs: PaygJob[] = [
+  { id: 101, name: 'Marketing Coaching Call', desc: 'One hour with Zhi Li on your offer, prices and next steps. Bring your questions.', price: 79, icon: '☎️' },
+  { id: 102, name: 'Flyer or Poster Refresh', desc: 'Your flyer, menu or poster fixed and redesigned: name, prices, QR code, print-ready file.', price: 99, icon: '🖨️' },
+  { id: 103, name: 'Google Business Profile Tune-Up', desc: 'Photos, hours, services, categories and a review-request card for your counter.', price: 129, icon: '📍' },
+  { id: 104, name: 'Social Media Starter Pack', desc: '8 ready-to-post images or videos with captions, made from your own photos.', price: 149, icon: '📱' },
+  { id: 105, name: 'Order or Enquiry Page', desc: 'One simple page to buy or enquire, with a QR code and "how did you hear about us?" tracking.', price: 199, icon: '🛒' },
+  { id: 106, name: 'Ad Campaign Setup', desc: 'One campaign on Meta, Google, LinkedIn or TikTok, built and watched for 30 days.', price: 199, icon: '📢', note: 'plus your ad spend' },
+  { id: 107, name: 'Photo & Video Session', desc: 'Three hours at your business, edited into 20 photos and 6 short clips you own.', price: 249, icon: '📸' },
+]
+
+// Pay-as-you-go spend is credited toward a package, so small businesses
+// can grow into one without paying twice.
+export const PAYG_CREDIT_DAYS = 60
+export const PAYG_BUNDLE = { jobs: 3, discount: 0.1 }
+
+export const paygPerks = [
+  `No setup fee, no minimum term, no contract.`,
+  `Book 3 or more jobs at once and take ${PAYG_BUNDLE.discount * 100}% off.`,
+  `Move to a package within ${PAYG_CREDIT_DAYS} days and what you spent comes off the $${SETUP_FEE} setup fee.`,
+  `Same loyalty perks: free health check any time, and you own everything we make.`,
+]
+
 export interface Service {
   id: number
   name: string

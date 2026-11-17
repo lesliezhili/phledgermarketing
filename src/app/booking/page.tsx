@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useI18n } from '@/lib/i18n'
 import BibleVerse from '@/components/BibleVerse'
-import { services, businessTypes, channels, adPlatforms, commitments, quotePackage, serviceLabel } from '@/lib/catalog'
+import { services, businessTypes, channels, adPlatforms, commitments, quotePackage, serviceLabel, paygJobs, PAYG_BUNDLE } from '@/lib/catalog'
 
 const timeSlots = ['9:00 AM', '10:00 AM', '11:00 AM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM']
 
@@ -35,11 +35,12 @@ export default function BookingPage() {
   const [adPlatform, setAdPlatform] = useState('none')
   const [adBudget, setAdBudget] = useState(0)
   const [commitment, setCommitment] = useState('monthly')
+  const [extraJobs, setExtraJobs] = useState<number[]>([])
 
   // Pre-select a service from /booking?service=<id>
   useEffect(() => {
     const id = Number(new URLSearchParams(window.location.search).get('service'))
-    const match = services.find(s => s.id === id)
+    const match = services.find(s => s.id === id) ?? paygJobs.find(j => j.id === id)
     if (match) setForm(f => ({ ...f, service: match.name }))
   }, [])
 
@@ -55,8 +56,18 @@ export default function BookingPage() {
   // that includes the service and how the client chooses to pay.
   const quote = quotePackage(selectedService?.tier ?? 'Free', commitment)
   const isPaid = !!selectedService && selectedService.tier !== 'Free'
-  const basePrice = quote.fees
-  const setupFee = quote.setup
+  // Pay as you go: one-off jobs, no setup fee, bundle discount for 3+ jobs.
+  const selectedJob = paygJobs.find(j => j.name === form.service)
+  const jobs = selectedJob
+    ? [selectedJob, ...paygJobs.filter(j => j.id !== selectedJob.id && extraJobs.includes(j.id))]
+    : []
+  const jobsTotal = jobs.reduce((sum, j) => sum + j.price, 0)
+  const bundleDiscount = jobs.length >= PAYG_BUNDLE.jobs ? jobsTotal * PAYG_BUNDLE.discount : 0
+  const toggleJob = (id: number) =>
+    setExtraJobs(js => (js.includes(id) ? js.filter(j => j !== id) : [...js, id]))
+
+  const basePrice = selectedJob ? jobsTotal - bundleDiscount : quote.fees
+  const setupFee = selectedJob ? 0 : quote.setup
   const rushFee = rush ? 50 : 0
 
   // Cloud platform fee (% of base)
@@ -114,12 +125,42 @@ export default function BookingPage() {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-linkedin"
               >
                 <option value="">{t('booking.select')}...</option>
-                {services.map(s => (
-                  <option key={s.id} value={s.name}>
-                    {s.name} — {serviceLabel(s)}
-                  </option>
-                ))}
+                <optgroup label="Monthly packages">
+                  {services.map(s => (
+                    <option key={s.id} value={s.name}>
+                      {s.name} — {serviceLabel(s)}
+                    </option>
+                  ))}
+                </optgroup>
+                <optgroup label="Pay as you go (one-off, no contract)">
+                  {paygJobs.map(j => (
+                    <option key={j.id} value={j.name}>
+                      {j.name} — ${j.price} one-off{j.note ? ` ${j.note}` : ''}
+                    </option>
+                  ))}
+                </optgroup>
               </select>
+
+              {selectedJob && (
+                <div className="mt-4 p-3 bg-green-50 rounded-lg">
+                  <p className="text-sm font-medium text-green-900 mb-1">Add more one-off jobs</p>
+                  <p className="text-xs text-green-700 mb-2">
+                    Book {PAYG_BUNDLE.jobs} or more together and take {PAYG_BUNDLE.discount * 100}% off. No setup fee, no contract.
+                  </p>
+                  <div className="space-y-1">
+                    {paygJobs.filter(j => j.id !== selectedJob.id).map(j => (
+                      <label key={j.id} className="flex items-center justify-between text-sm">
+                        <span className="flex items-center">
+                          <input type="checkbox" checked={extraJobs.includes(j.id)} onChange={() => toggleJob(j.id)}
+                            className="rounded border-gray-300 text-linkedin mr-2" />
+                          {j.icon} {j.name}
+                        </span>
+                        <span className="text-gray-700">${j.price}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {isPaid && (
                 <div className="mt-4">
@@ -358,8 +399,27 @@ export default function BookingPage() {
                       </span>
                     )}
                   </span>
-                  <span className="font-medium">{basePrice === 0 ? 'Free' : `$${basePrice.toFixed(2)}`}</span>
+                  <span className="font-medium">
+                    {selectedJob ? `$${selectedJob.price.toFixed(2)}` : basePrice === 0 ? 'Free' : `$${basePrice.toFixed(2)}`}
+                  </span>
                 </div>
+
+                {/* Pay-as-you-go jobs */}
+                {jobs.length > 1 && jobs.slice(1).map(j => (
+                  <div key={j.id} className="flex justify-between">
+                    <span className="text-gray-600">+ {j.name}</span>
+                    <span className="font-medium">${j.price.toFixed(2)}</span>
+                  </div>
+                ))}
+                {bundleDiscount > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">🎁 {PAYG_BUNDLE.jobs}+ jobs ({PAYG_BUNDLE.discount * 100}% off)</span>
+                    <span className="font-medium text-green-600">−${bundleDiscount.toFixed(2)}</span>
+                  </div>
+                )}
+                {selectedJob && (
+                  <p className="text-xs text-gray-500">One-off · no setup fee · no contract</p>
+                )}
 
                 {/* Setup fee */}
                 {isPaid && (
@@ -437,7 +497,7 @@ export default function BookingPage() {
                   <div className="bg-blue-50 rounded-lg p-3 mt-2">
                     <p className="text-xs font-semibold text-blue-800 mb-1">Fee Breakdown:</p>
                     <div className="text-xs text-blue-700 space-y-0.5">
-                      <p>• Package: ${basePrice.toFixed(2)}</p>
+                      <p>• {selectedJob ? 'One-off jobs' : 'Package'}: ${basePrice.toFixed(2)}</p>
                       {setupFee > 0 && <p>• Setup: ${setupFee.toFixed(2)}</p>}
                       {rush && <p>• Rush: $50.00</p>}
                       {adBudgetAmount > 0 && <p>• Ad Budget: ${adBudgetAmount.toFixed(2)}</p>}
