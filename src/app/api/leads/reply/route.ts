@@ -8,10 +8,11 @@ import {
 } from '@/lib/speed-to-lead'
 
 const SOURCES: LeadSource[] = [
-  'tracked_number', 'tracked_form', 'meta_lead_form', 'our_listing',
+  'tracked_number', 'tracked_form', 'meta_lead_form', 'our_listing', 'wechat_account',
   'hipages', 'airtasker', 'bark', 'serviceseeking', 'franchise_hq', 'unknown',
 ]
-const CHANNELS = ['sms', 'email', 'messenger'] as const
+const CHANNELS = ['sms', 'email', 'messenger', 'wechat'] as const
+const LANGUAGES = ['en', 'zh'] as const
 
 export async function POST(req: Request) {
   let body: Record<string, unknown>
@@ -38,9 +39,14 @@ export async function POST(req: Request) {
   if (!(trade in QUALIFYING_QUESTIONS)) {
     return NextResponse.json({ error: `trade must be one of ${Object.keys(QUALIFYING_QUESTIONS).join(', ')}` }, { status: 400 })
   }
+  // WeChat customers usually prefer Chinese; any channel can ask for either language.
+  const language = (body.language ?? (channel === 'wechat' ? 'zh' : 'en')) as (typeof LANGUAGES)[number]
+  if (!LANGUAGES.includes(language)) {
+    return NextResponse.json({ error: `language must be one of ${LANGUAGES.join(', ')}` }, { status: 400 })
+  }
   const bookingLink = typeof body.bookingLink === 'string' && /^https:\/\//.test(body.bookingLink) ? body.bookingLink : undefined
 
-  const reply = firstReply({ business, trade, channel, missedCall: body.missedCall === true, bookingLink })
+  const reply = firstReply({ business, trade, channel, language, missedCall: body.missedCall === true, bookingLink })
   const chargeable = isChargeableSource(source)
   const reason = chargeable
     ? 'tracked PhLedger source'
@@ -48,5 +54,5 @@ export async function POST(req: Request) {
       ? 'platform lead: the client already pays this platform'
       : 'untracked source'
 
-  return NextResponse.json({ reply, chargeable, reason })
+  return NextResponse.json({ reply, chargeable, reason, language })
 }

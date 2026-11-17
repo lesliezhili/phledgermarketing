@@ -199,7 +199,7 @@ export const leadNotCharged = [
   `The same person contacting you again within ${LEAD_RULES.duplicateDays} days`,
   'Your existing customers',
   'Leads you already pay another platform for (hipages, Airtasker, Bark, ServiceSeeking, franchise head office)',
-  'Leads that did not come through your tracked number, form or listing',
+  'Leads that did not come through your tracked number, form, listing or WeChat account',
   `Any lead you dispute within ${LEAD_RULES.disputeDays} days that we can't show was genuine`,
 ]
 
@@ -231,7 +231,7 @@ export const services: Service[] = [
   { id: 7, name: 'Outreach & Partnerships', desc: 'Direct outreach to businesses, creators and community partners who can send you customers.', tier: 'Faithful', icon: '🤝' },
   { id: 8, name: 'Analytics & Reporting', desc: 'Monthly results against break-even: what sold, which channel, what to change.', tier: 'Grace', icon: '📊' },
   { id: 9, name: 'Customer Loyalty Program', desc: 'Birthday offers, repeat-customer emails and review requests that bring your customers back.', tier: 'Faithful', icon: '💌' },
-  { id: 11, name: 'AI Speed-to-Lead Replies', desc: 'Every enquiry and missed call gets an honest automated reply within a minute that asks the questions you need to quote — while you stay on the job. Works for leads from hipages, Airtasker, Bark and franchise head office too.', tier: 'Grace', icon: '⚡' },
+  { id: 11, name: 'AI Speed-to-Lead Replies', desc: 'Every enquiry and missed call gets an honest automated reply within a minute — by SMS, email or WeChat, in English or Chinese — that asks the questions you need to quote — while you stay on the job. Works for leads from hipages, Airtasker, Bark and franchise head office too.', tier: 'Grace', icon: '⚡' },
   { id: 10, name: 'Creator & B2B Campaigns', desc: 'Creator partnerships and LinkedIn campaigns to win bigger and corporate customers.', tier: 'Abundant', icon: '👑' },
 ]
 

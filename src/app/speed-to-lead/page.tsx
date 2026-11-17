@@ -2,7 +2,13 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { QUALIFYING_QUESTIONS, REPLY_TARGET_SECONDS, type Trade } from '@/lib/speed-to-lead'
+import { QUALIFYING_QUESTIONS, REPLY_TARGET_SECONDS, type Trade, type ReplyLanguage } from '@/lib/speed-to-lead'
+
+const replyChannels = [
+  { id: 'sms', name: 'SMS', bubbleLabel: 'SMS to your customer' },
+  { id: 'wechat', name: 'WeChat (微信)', bubbleLabel: 'WeChat message to your customer' },
+] as const
+type DemoChannel = (typeof replyChannels)[number]['id']
 
 const trades: { id: Trade; name: string }[] = [
   { id: 'mowing', name: 'Mowing & lawns' },
@@ -16,6 +22,14 @@ export default function SpeedToLeadPage() {
   const [business, setBusiness] = useState('')
   const [trade, setTrade] = useState<Trade>('mowing')
   const [missedCall, setMissedCall] = useState(true)
+  const [channel, setChannel] = useState<DemoChannel>('sms')
+  const [language, setLanguage] = useState<ReplyLanguage>('en')
+  const chooseChannel = (c: DemoChannel) => {
+    setChannel(c)
+    setLanguage(c === 'wechat' ? 'zh' : 'en') // sensible default; either language works on either channel
+    setReply('')
+  }
+  const channelInfo = replyChannels.find(c => c.id === channel)!
   const [reply, setReply] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -29,7 +43,10 @@ export default function SpeedToLeadPage() {
       const res = await fetch('/api/leads/reply', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ business, trade, channel: 'sms', missedCall, source: 'tracked_number' }),
+        body: JSON.stringify({
+          business, trade, channel, language, missedCall,
+          source: channel === 'wechat' ? 'wechat_account' : 'tracked_number',
+        }),
       })
       const data = await res.json()
       if (!res.ok) setError(data.error || 'Something went wrong')
@@ -68,6 +85,23 @@ export default function SpeedToLeadPage() {
               {trades.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
             </select>
           </label>
+          <div className="grid grid-cols-2 gap-3">
+            <label className="block">
+              <span className="block text-sm font-medium text-gray-700 mb-1">Reply by</span>
+              <select value={channel} onChange={(e) => chooseChannel(e.target.value as DemoChannel)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white">
+                {replyChannels.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+            </label>
+            <label className="block">
+              <span className="block text-sm font-medium text-gray-700 mb-1">Reply language</span>
+              <select value={language} onChange={(e) => { setLanguage(e.target.value as ReplyLanguage); setReply('') }}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white">
+                <option value="en">English</option>
+                <option value="zh">中文 (Simplified Chinese)</option>
+              </select>
+            </label>
+          </div>
           <label className="flex items-center text-sm text-gray-700">
             <input type="checkbox" checked={missedCall} onChange={(e) => setMissedCall(e.target.checked)}
               className="rounded border-gray-300 text-linkedin mr-2" />
@@ -78,13 +112,13 @@ export default function SpeedToLeadPage() {
             {loading ? 'Writing reply…' : 'Preview the reply'}
           </button>
           <p className="text-xs text-gray-500">
-            Questions for this trade: {QUALIFYING_QUESTIONS[trade].length}. Every SMS says it&apos;s automated and includes an opt-out.
+            Questions for this trade: {QUALIFYING_QUESTIONS[trade].length}. Every SMS and WeChat reply says it&apos;s automated and includes an opt-out.
           </p>
         </form>
 
         <div className="space-y-4">
           <div className="bg-gray-100 rounded-2xl p-4 min-h-[16rem]" aria-live="polite">
-            <p className="text-xs text-gray-500 mb-2">SMS to your customer</p>
+            <p className="text-xs text-gray-500 mb-2">{channelInfo.bubbleLabel}</p>
             {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
             {reply ? (
               <p data-testid="reply" className="bg-green-500 text-white rounded-2xl rounded-tl-sm p-3 text-sm whitespace-pre-line max-w-sm">{reply}</p>
@@ -95,7 +129,7 @@ export default function SpeedToLeadPage() {
           <div className="bg-green-50 border border-green-200 rounded-xl p-5 text-sm">
             <p className="font-semibold text-green-900 mb-1">Included from Grace ($149/mo)</p>
             <p className="text-green-800 mb-3">
-              Works for leads from your own number and form, and from hipages, Airtasker, Bark and franchise head office.
+              Works for leads from your own number, form and WeChat account, and from hipages, Airtasker, Bark and franchise head office.
               Tiny businesses on pay per lead get it too, and platform leads are never charged per lead.
             </p>
             <div className="flex flex-wrap gap-3">

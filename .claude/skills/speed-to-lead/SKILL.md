@@ -24,15 +24,26 @@ text.
    lead's `source`. Only PhLedger's tracked sources can be charged per lead;
    hipages, Airtasker, Bark, ServiceSeeking and franchise head-office leads
    still get the instant reply but are **never** charged per lead.
-4. Missed calls: forward unanswered calls to call tracking, which posts
+4. WeChat (微信): for clients whose customers use WeChat (common with
+   Chinese-speaking Australians), set up the client's WeChat Official Account
+   or WeCom customer contact, record its leads as `source: 'wechat_account'`,
+   and call the API with `channel: 'wechat'`. The reply defaults to Simplified
+   Chinese (`language: 'zh'`); pass `language: 'en'` for English. Check
+   WeChat's current rules before launch: an overseas business needs a
+   verified account, and Official Accounts can usually only send customer
+   service replies for a limited time after the customer messages first.
+5. Missed calls: forward unanswered calls to call tracking, which posts
    `{ missedCall: true }` so the reply starts with an apology.
-5. Test it: send one enquiry and one missed call, and check the reply arrives
+6. Test it: send one enquiry and one missed call, and check the reply arrives
    within 60 seconds (`metReplyTarget`).
 
 ## Rules (already in the code; don't remove)
 
 - Say it is the business's automated assistant; the owner follows up personally.
-- Every SMS names the business and says "Reply STOP to opt out" (Spam Act 2003).
+- Every SMS and WeChat reply names the business and includes an opt-out
+  ("Reply STOP" / 回复“退订”) — the Spam Act 2003 covers instant messages too.
+- Chinese wording is in `QUALIFYING_QUESTIONS_ZH`. Have a native speaker check it
+  before the first live WeChat client, and for any new trade.
 - One reply only. No chasing sequences without the owner's approval.
 - Never quote a price or promise a time the owner hasn't approved.
 

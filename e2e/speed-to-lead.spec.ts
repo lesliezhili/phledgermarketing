@@ -13,6 +13,25 @@ test('demo shows the instant reply a customer receives', async ({ page, errors }
   void errors
 })
 
+test('demo shows a WeChat reply in Chinese by default', async ({ page, errors }) => {
+  await page.goto('/speed-to-lead')
+  await page.getByLabel('Business name').fill('金牌清洁')
+  await page.getByLabel('Your trade').selectOption('cleaning')
+  await page.getByLabel('Reply by').selectOption('wechat')
+  await expect(page.getByLabel('Reply language')).toHaveValue('zh')
+  await page.getByRole('button', { name: 'Preview the reply' }).click()
+  await expect(page.getByText('WeChat message to your customer')).toBeVisible()
+  const reply = page.getByTestId('reply')
+  await expect(reply).toContainText('抱歉错过了您打给金牌清洁的电话')
+  await expect(reply).toContainText('几个卧室、几个卫生间？')
+  await expect(reply).toContainText('回复“退订”')
+  // switch to English on WeChat
+  await page.getByLabel('Reply language').selectOption('en')
+  await page.getByRole('button', { name: 'Preview the reply' }).click()
+  await expect(page.getByTestId('reply')).toContainText('How many bedrooms and bathrooms?')
+  void errors
+})
+
 test('services page links to the demo', async ({ page, errors }) => {
   await page.goto('/services')
   await page.getByRole('link', { name: 'Try the Speed-to-Lead Demo' }).click()
@@ -41,7 +60,19 @@ test.describe('POST /api/leads/reply', () => {
     expect(body.reply).not.toContain('Reply STOP') // email, not SMS
   })
 
+  test('WeChat lead: Chinese by default, chargeable from our WeChat account', async ({ request }) => {
+    const res = await request.post('/api/leads/reply', {
+      data: { business: '金牌清洁', trade: 'cleaning', channel: 'wechat', source: 'wechat_account' },
+    })
+    expect(res.status()).toBe(200)
+    const body = await res.json()
+    expect(body.language).toBe('zh')
+    expect(body.chargeable).toBe(true)
+    expect(body.reply).toContain('回复“退订”')
+  })
+
   test('rejects bad input', async ({ request }) => {
+    expect((await request.post('/api/leads/reply', { data: { business: 'X', channel: 'wechat', language: 'fr' } })).status()).toBe(400)
     expect((await request.post('/api/leads/reply', { data: { channel: 'sms' } })).status()).toBe(400)
     expect((await request.post('/api/leads/reply', { data: { business: 'X', channel: 'fax' } })).status()).toBe(400)
     expect((await request.post('/api/leads/reply', { data: { business: 'X', channel: 'sms', source: 'nope' } })).status()).toBe(400)
