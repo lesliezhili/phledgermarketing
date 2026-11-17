@@ -1,7 +1,7 @@
 {
   "name": "phledgermarketing",
   "version": "1.0.0",
-  "description": "PhLedger Digital Marketing Platform - Faith-driven growth across LinkedIn, Instagram, Facebook, X, and Google Maps",
+  "description": "PhLedger Marketing Platform - Faith-driven marketing for any business, on the channels that reach its buyers",
   "private": true,
   "scripts": {
     "dev": "next dev",

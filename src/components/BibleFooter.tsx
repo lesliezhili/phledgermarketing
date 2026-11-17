@@ -55,7 +55,7 @@ export default function BibleFooter() {
           <div className="flex items-center justify-center space-x-4 text-xs text-amber-400">
             <span>SilverConnect</span>
             <span className="text-amber-600">&bull;</span>
-            <span className="font-semibold text-white">LinkedIn Marketing</span>
+            <span className="font-semibold text-white">PhLedger Marketing</span>
             <span className="text-amber-600">&bull;</span>
             <span>PhLedgerTax</span>
           </div>

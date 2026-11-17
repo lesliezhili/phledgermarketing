@@ -3,14 +3,9 @@
 import Link from 'next/link'
 import BibleVerse from '@/components/BibleVerse'
 import { useI18n } from '@/lib/i18n'
+import { businessTypes, channels, methodSteps } from '@/lib/catalog'
 
-const platforms = [
-  { name: 'LinkedIn', desc: 'Professional networking, B2B growth, thought leadership', icon: '💼', color: 'from-blue-600 to-blue-800', href: '/services' },
-  { name: 'Instagram', desc: 'Visual storytelling, reels, community building', icon: '📸', color: 'from-purple-500 to-pink-500', href: '/instagram' },
-  { name: 'Facebook', desc: 'Community groups, ads, marketplace, events', icon: '👥', color: 'from-blue-500 to-indigo-600', href: '/facebook' },
-  { name: 'X (Twitter)', desc: 'Real-time engagement, threads, thought leadership', icon: '𝕏', color: 'from-gray-700 to-black', href: '/x-twitter' },
-  { name: 'Google Maps', desc: 'Local SEO, reviews, foot traffic, business profile', icon: '📍', color: 'from-green-500 to-emerald-700', href: '/google-maps' },
-]
+const channelName = (id: string) => channels.find(c => c.id === id)?.name ?? id
 
 export default function Home() {
   const { t } = useI18n()
@@ -21,21 +16,22 @@ export default function Home() {
       <section className="bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl md:text-6xl font-bold mb-4">
-            Faith-Driven <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">Digital Marketing</span>
+            {t('home.hero.title')}
           </h1>
           <p className="text-xl md:text-2xl text-blue-200 mb-6">
-            Grow Your Brand Across Every Platform
+            {t('home.hero.subtitle')}
           </p>
           <p className="text-lg text-gray-300 max-w-3xl mx-auto mb-8">
-            LinkedIn, Instagram, Facebook, X, and Google Maps — all powered by Biblical principles. Part of the PhLedger ecosystem.
+            {t('home.hero.description')}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/signup" className="bg-white text-gray-900 px-8 py-3 rounded-lg font-semibold text-lg hover:bg-gray-100 transition-colors">
+            <Link href="/booking?service=1" className="bg-white text-gray-900 px-8 py-3 rounded-lg font-semibold text-lg hover:bg-gray-100 transition-colors">
               {t('home.hero.cta')}
             </Link>
-            <Link href="/pricing" className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold text-lg hover:bg-white/10 transition-colors">
-              {t('nav.pricing')}
+            <Link href="/services" className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold text-lg hover:bg-white/10 transition-colors">
+              {t('home.hero.services')}
             </Link>
+          </div>
 
           {/* Country & Language Selection */}
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -66,79 +62,62 @@ export default function Home() {
                 <option value="ko" className="text-gray-900">한국어 (Korean)</option>
                 <option value="ja" className="text-gray-900">日本語 (Japanese)</option>
                 <option value="hi" className="text-gray-900">हिन्दी (Hindi)</option>
-              </select>
-            </div>
-
-          {/* Country & Language Selection */}
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <div className="flex items-center gap-2 bg-white/10 backdrop-blur rounded-lg px-4 py-2">
-              <span className="text-sm text-gray-300">🌐 Region:</span>
-              <select className="bg-transparent text-white border border-white/30 rounded px-3 py-1 text-sm focus:outline-none focus:border-white cursor-pointer"
-                onChange={(e) => { localStorage.setItem('phledger_country', e.target.value) }}
-                defaultValue="AU">
-                <option value="AU" className="text-gray-900">🇦🇺 Australia</option>
-                <option value="US" className="text-gray-900">🇺🇸 United States</option>
-                <option value="GB" className="text-gray-900">🇬🇧 United Kingdom</option>
-                <option value="CA" className="text-gray-900">🇨🇦 Canada</option>
-                <option value="NZ" className="text-gray-900">🇳🇿 New Zealand</option>
-                <option value="SG" className="text-gray-900">🇸🇬 Singapore</option>
-                <option value="IN" className="text-gray-900">🇮🇳 India</option>
-                <option value="PH" className="text-gray-900">🇵🇭 Philippines</option>
-              </select>
-            </div>
-            <div className="flex items-center gap-2 bg-white/10 backdrop-blur rounded-lg px-4 py-2">
-              <span className="text-sm text-gray-300">🗣️ Language:</span>
-              <select className="bg-transparent text-white border border-white/30 rounded px-3 py-1 text-sm focus:outline-none focus:border-white cursor-pointer"
-                onChange={(e) => { localStorage.setItem('phledger_locale', e.target.value); window.location.reload() }}
-                defaultValue="en">
-                <option value="en" className="text-gray-900">English</option>
-                <option value="zh" className="text-gray-900">中文 (Chinese)</option>
-                <option value="es" className="text-gray-900">Español (Spanish)</option>
-                <option value="fr" className="text-gray-900">Français (French)</option>
-                <option value="ko" className="text-gray-900">한국어 (Korean)</option>
-                <option value="ja" className="text-gray-900">日本語 (Japanese)</option>
-                <option value="hi" className="text-gray-900">हिन्दी (Hindi)</option>
-              </select>
-            </div>
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <div className="flex items-center gap-2 bg-white/10 backdrop-blur rounded-lg px-4 py-2">
-              <span className="text-sm text-gray-300">Region:</span>
-              <select className="bg-transparent text-white border border-white/30 rounded px-3 py-1 text-sm focus:outline-none focus:border-white" defaultValue="AU">
-                <option value="AU" className="text-gray-900">Australia</option>
-                <option value="US" className="text-gray-900">United States</option>
-                <option value="GB" className="text-gray-900">United Kingdom</option>
-                <option value="CA" className="text-gray-900">Canada</option>
-                <option value="NZ" className="text-gray-900">New Zealand</option>
-                <option value="SG" className="text-gray-900">Singapore</option>
-                <option value="IN" className="text-gray-900">India</option>
-                <option value="PH" className="text-gray-900">Philippines</option>
-              </select>
-            </div>
-            <div className="flex items-center gap-2 bg-white/10 backdrop-blur rounded-lg px-4 py-2">
-              <span className="text-sm text-gray-300">Language:</span>
-              <select className="bg-transparent text-white border border-white/30 rounded px-3 py-1 text-sm focus:outline-none focus:border-white" defaultValue="en">
-                <option value="en" className="text-gray-900">English</option>
-                <option value="zh" className="text-gray-900">Chinese</option>
-                <option value="es" className="text-gray-900">Spanish</option>
-                <option value="fr" className="text-gray-900">French</option>
-                <option value="ko" className="text-gray-900">Korean</option>
-                <option value="ja" className="text-gray-900">Japanese</option>
-                <option value="hi" className="text-gray-900">Hindi</option>
               </select>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Platform Cards */}
+      {/* Who we help */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-4">5 Platforms. One Faith-Driven Strategy.</h2>
-          <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">Every platform has unique strengths. We help you leverage each one with integrity and purpose.</p>
-          
+          <h2 className="text-3xl font-bold text-center text-gray-900 mb-4">Whatever You Sell, One Proven Method</h2>
+          <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">We pick the channels that reach your buyers. You don&apos;t need to know which ones — that&apos;s our job.</p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            {businessTypes.map((b) => (
+              <div key={b.id} className="bg-white rounded-xl border border-gray-200 p-5">
+                <div className="text-3xl mb-2">{b.icon}</div>
+                <h3 className="font-bold text-gray-900 mb-1">{b.name}</h3>
+                <p className="text-xs text-gray-500 mb-3">{b.examples}</p>
+                <p className="text-xs text-gray-700"><span className="font-semibold">Usually:</span> {b.channels.map(channelName).join(', ')}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Method */}
+      <section className="py-16">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-center text-gray-900 mb-4">The Same 5 Steps in 90 Days</h2>
+          <p className="text-center text-gray-600 mb-10 max-w-2xl mx-auto">Only the channels and the timing change from business to business.</p>
+          <ol className="space-y-3">
+            {methodSteps.map((s, i) => (
+              <li key={s.name} className={`flex items-start gap-4 rounded-xl border p-4 ${i === 1 ? 'border-linkedin bg-blue-50' : 'border-gray-200 bg-white'}`}>
+                <span className="bg-linkedin text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">{i + 1}</span>
+                <div className="flex-1">
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <h3 className="font-bold text-gray-900">{s.name}</h3>
+                    <span className="text-xs text-gray-500">{s.when}</span>
+                  </div>
+                  <p className="text-sm text-gray-600 mt-1">{s.desc}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      {/* Channels */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-center text-gray-900 mb-4">Channels We Run</h2>
+          <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">Every channel has unique strengths. We use the 2–4 that fit your business, with integrity and purpose.</p>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {platforms.map((p) => (
-              <Link key={p.name} href={p.href}
+            {channels.map((p) => (
+              <Link key={p.id} href={p.href}
                 className="group relative bg-white rounded-2xl overflow-hidden border border-gray-200 hover:shadow-xl transition-all hover:-translate-y-1">
                 <div className={`h-2 bg-gradient-to-r ${p.color}`} />
                 <div className="p-6">
@@ -146,7 +125,7 @@ export default function Home() {
                   <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-linkedin transition-colors">{p.name}</h3>
                   <p className="text-sm text-gray-600">{p.desc}</p>
                   <div className="mt-4 text-linkedin font-medium text-sm flex items-center">
-                    Explore Services →
+                    Explore →
                   </div>
                 </div>
               </Link>
@@ -189,10 +168,10 @@ export default function Home() {
       <section className="py-12 bg-amber-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl font-bold text-center text-gray-900 mb-6">{t('home.inspiration')}</h2>
-          
-        {/* Investor Relations */}
-        <section className="mt-16 mb-12">
-          <div className="bg-gradient-to-r from-gray-900 to-purple-900 rounded-2xl p-8 text-white text-center">
+          <BibleVerse />
+
+          {/* Investor Relations */}
+          <div className="mt-12 bg-gradient-to-r from-gray-900 to-purple-900 rounded-2xl p-8 text-white text-center">
             <h2 className="text-2xl font-bold mb-2">Investor Relations</h2>
             <p className="text-gray-300 mb-4">Pitch decks, email templates, and investment body contacts for SilverConnect and GraceCovenant.</p>
             <div className="flex justify-center gap-4">
@@ -200,8 +179,6 @@ export default function Home() {
               <a href="/finance/gracecovenant" className="bg-white/10 hover:bg-white/20 px-5 py-2 rounded-lg transition-colors">⛪ GraceCovenant</a>
             </div>
           </div>
-        </section>
-        <BibleVerse />
         </div>
       </section>
 
@@ -223,7 +200,7 @@ export default function Home() {
         <div className="max-w-3xl mx-auto px-4">
           <h2 className="text-3xl font-bold mb-4">{t('home.cta.title')}</h2>
           <p className="text-gray-300 mb-8">{t('home.cta.subtitle')}</p>
-          <Link href="/signup" className="bg-gradient-to-r from-linkedin to-purple-600 text-white px-8 py-3 rounded-lg font-semibold text-lg hover:opacity-90 transition-opacity inline-block">
+          <Link href="/booking?service=1" className="bg-gradient-to-r from-linkedin to-purple-600 text-white px-8 py-3 rounded-lg font-semibold text-lg hover:opacity-90 transition-opacity inline-block">
             {t('home.hero.cta')}
           </Link>
         </div>

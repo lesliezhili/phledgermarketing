@@ -52,37 +52,37 @@ export const MARKETING_WISDOM = [
   {
     title: "The Power of Your Personal Brand",
     verse: "A good name is to be chosen rather than great riches (Proverbs 22:1)",
-    lesson: "Your LinkedIn profile IS your professional brand. Just as Scripture teaches that reputation is more valuable than wealth, invest in building an authentic, trustworthy presence.",
-    application: "Optimize your LinkedIn headline to reflect your core values and unique value proposition. Be authentic — don't oversell."
+    lesson: "Your reputation IS your brand — online and at the counter. Just as Scripture teaches that reputation is more valuable than wealth, invest in building an authentic, trustworthy presence.",
+    application: "Make sure every profile, flyer and page says clearly what you offer and why it matters. Be authentic — don't oversell."
   },
   {
     title: "Content That Speaks Life",
     verse: "The tongue has the power of life and death (Proverbs 18:21)",
-    lesson: "Every post you publish on LinkedIn has the power to inspire, educate, or discourage. Choose words that build up your audience.",
-    application: "Before posting, ask: Does this content serve others? Does it speak life into their careers?"
+    lesson: "Every post, review reply and advert has the power to inspire, educate, or discourage. Choose words that build up your audience.",
+    application: "Before posting, ask: Does this content serve others? Does it speak life into their day?"
   },
   {
     title: "The Networking Principle",
     verse: "Iron sharpens iron, and one man sharpens another (Proverbs 27:17)",
-    lesson: "LinkedIn networking isn't about collecting connections — it's about building mutual growth relationships.",
-    application: "Send personalized connection requests. Engage meaningfully with others' content. Offer help before asking for favors."
+    lesson: "Networking isn't about collecting followers — it's about building relationships where both sides grow, with customers, partners and neighbours.",
+    application: "Reach out personally. Engage meaningfully with local businesses and partners. Offer help before asking for favors."
   },
   {
     title: "Strategic Planning",
     verse: "For which of you, desiring to build a tower, does not first count the cost (Luke 14:28)",
-    lesson: "Effective LinkedIn marketing requires planning. Don't post randomly — develop a content calendar and track metrics.",
+    lesson: "Effective marketing requires planning. Don't post randomly — know your break-even, develop a content calendar and track results.",
     application: "Create a 30-day content plan. Define your KPIs. Review weekly."
   },
   {
     title: "Perseverance in Marketing",
     verse: "Let us not grow weary of doing good, for in due season we will reap (Galatians 6:9)",
-    lesson: "LinkedIn success doesn't happen overnight. Consistent engagement builds compound trust and authority.",
-    application: "Commit to posting 3-5x/week for 90 days. Engage with 10 posts daily. The harvest will come."
+    lesson: "Marketing success doesn't happen overnight. Consistent effort builds compound trust and loyal customers.",
+    application: "Commit to a 90-day plan on the channels that fit your business. Show up every week. The harvest will come."
   },
   {
     title: "Servant Leadership in Business",
     verse: "Do nothing out of selfish ambition. In humility value others above yourselves (Philippians 2:3)",
-    lesson: "The most effective LinkedIn marketers are those who serve their audience first. Give value freely.",
+    lesson: "The most effective marketers are those who serve their customers first. Give value freely.",
     application: "Share knowledge without gatekeeping. Celebrate others' wins. Recommend competitors when it serves the client better."
   },
 ]

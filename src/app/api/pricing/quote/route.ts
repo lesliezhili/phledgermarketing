@@ -1,4 +1,4 @@
-// app/api/pricing/quote/route.ts -- POST a booking context, get a smart quote.
+// src/app/api/pricing/quote/route.ts -- POST a booking context, get a smart quote.
 import { NextResponse } from 'next/server'
 import { computeSmartQuote, type QuoteInput } from '@/lib/pricing/smart-pricing'
 

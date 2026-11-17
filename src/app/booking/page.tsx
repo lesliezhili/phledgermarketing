@@ -1,19 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useI18n } from '@/lib/i18n'
 import BibleVerse from '@/components/BibleVerse'
-
-const services = [
-  { name: 'Profile Optimization', price: 0, tier: 'Grace' },
-  { name: 'Content Strategy', price: 49, tier: 'Faithful' },
-  { name: 'Audience Growth', price: 49, tier: 'Faithful' },
-  { name: 'Engagement Boost', price: 49, tier: 'Faithful' },
-  { name: 'Brand Messaging', price: 0, tier: 'Grace' },
-  { name: 'Analytics & Reporting', price: 199, tier: 'Abundant' },
-  { name: 'LinkedIn Ads Management', price: 199, tier: 'Abundant' },
-  { name: 'Executive Thought Leadership', price: 199, tier: 'Abundant' },
-]
+import { services, businessTypes, channels, adPlatforms } from '@/lib/catalog'
 
 const timeSlots = ['9:00 AM', '10:00 AM', '11:00 AM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM']
 
@@ -33,23 +23,31 @@ const platformFees = [
   { id: 'cloud_vercel', name: 'Vercel Edge Network', fee: 0, icon: '▲', desc: 'Zero fee — included with PhLedger' },
 ]
 
-const linkedinFees = [
-  { id: 'li_basic', name: 'LinkedIn Basic (Organic)', fee: 0, icon: '🔗', desc: 'Free organic reach only' },
-  { id: 'li_premium', name: 'LinkedIn Premium Business', fee: 59.99, feeType: 'flat', icon: '💎', desc: 'InMail, profile insights, learning' },
-  { id: 'li_sales', name: 'LinkedIn Sales Navigator', fee: 99.99, feeType: 'flat', icon: '🎯', desc: 'Advanced lead search, CRM integration' },
-  { id: 'li_recruiter', name: 'LinkedIn Recruiter Lite', fee: 170, feeType: 'flat', icon: '👥', desc: 'Talent sourcing, pipeline management' },
-  { id: 'li_ads', name: 'LinkedIn Ads Budget', fee: 0, feeType: 'custom', icon: '📢', desc: 'Set your own daily/total ad spend' },
-]
-
 export default function BookingPage() {
   const { t } = useI18n()
   const [submitted, setSubmitted] = useState(false)
-  const [form, setForm] = useState({ service: '', date: '', time: '', linkedin: '', goals: '' })
+  const [form, setForm] = useState({ service: '', date: '', time: '', business: '', offer: '', website: '', goals: '' })
   const [rush, setRush] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState('bank')
   const [cloudPlatform, setCloudPlatform] = useState('cloud_vercel')
-  const [linkedinTier, setLinkedinTier] = useState('li_basic')
+  const [businessType, setBusinessType] = useState('')
+  const [selectedChannels, setSelectedChannels] = useState<string[]>([])
+  const [adPlatform, setAdPlatform] = useState('none')
   const [adBudget, setAdBudget] = useState(0)
+
+  // Pre-select a service from /booking?service=<id>
+  useEffect(() => {
+    const id = Number(new URLSearchParams(window.location.search).get('service'))
+    const match = services.find(s => s.id === id)
+    if (match) setForm(f => ({ ...f, service: match.name }))
+  }, [])
+
+  const chooseBusinessType = (id: string) => {
+    setBusinessType(id)
+    setSelectedChannels(businessTypes.find(b => b.id === id)?.channels ?? [])
+  }
+  const toggleChannel = (id: string) =>
+    setSelectedChannels(cs => (cs.includes(id) ? cs.filter(c => c !== id) : [...cs, id]))
 
   const selectedService = services.find(s => s.name === form.service)
   const basePrice = selectedService?.price || 0
@@ -59,13 +57,12 @@ export default function BookingPage() {
   const selectedCloud = platformFees.find(p => p.id === cloudPlatform)
   const cloudFeeAmount = basePrice * ((selectedCloud?.fee || 0) / 100)
 
-  // LinkedIn fee (flat add-on)
-  const selectedLinkedin = linkedinFees.find(l => l.id === linkedinTier)
-  const linkedinFeeAmount = selectedLinkedin?.feeType === 'flat' ? (selectedLinkedin?.fee || 0) : 0
-  const adBudgetAmount = linkedinTier === 'li_ads' ? adBudget : 0
+  // Paid ad budget (any platform), passed through at cost
+  const selectedAdPlatform = adPlatforms.find(a => a.id === adPlatform)
+  const adBudgetAmount = adPlatform === 'none' ? 0 : Math.max(0, adBudget)
 
   // Subtotal before bank fee
-  const subtotal = basePrice + rushFee + cloudFeeAmount + linkedinFeeAmount + adBudgetAmount
+  const subtotal = basePrice + rushFee + cloudFeeAmount + adBudgetAmount
 
   // Bank/payment processing fee
   const selectedPayment = paymentMethods.find(p => p.id === paymentMethod)
@@ -112,7 +109,7 @@ export default function BookingPage() {
               >
                 <option value="">{t('booking.select')}...</option>
                 {services.map(s => (
-                  <option key={s.name} value={s.name}>
+                  <option key={s.id} value={s.name}>
                     {s.name} — {s.price === 0 ? 'Free' : `$${s.price}/mo`} ({s.tier})
                   </option>
                 ))}
@@ -132,13 +129,6 @@ export default function BookingPage() {
                     {timeSlots.map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </div>
-              </div>
-
-              <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t('booking.linkedin.url')}</label>
-                <input type="url" value={form.linkedin} onChange={(e) => setForm({...form, linkedin: e.target.value})}
-                  placeholder="https://linkedin.com/in/yourprofile"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-linkedin" />
               </div>
 
               <div className="mt-4">
@@ -164,55 +154,89 @@ export default function BookingPage() {
               </div>
             </div>
 
-            {/* LinkedIn Tier Selection */}
+            {/* Your Business & Channels */}
             <div className="bg-white border border-gray-200 rounded-xl p-6">
               <h2 className="font-bold text-gray-900 mb-4 flex items-center">
                 <span className="bg-linkedin text-white w-6 h-6 rounded-full flex items-center justify-center text-xs mr-2">2</span>
-                LinkedIn Account Tier
+                {t('booking.business.title')}
               </h2>
-              <p className="text-sm text-gray-500 mb-3">Choose your LinkedIn subscription level for enhanced features.</p>
-              <div className="space-y-2">
-                {linkedinFees.map(tier => (
-                  <label
-                    key={tier.id}
-                    className={`flex items-center justify-between p-3 rounded-lg border-2 cursor-pointer transition-colors ${
-                      linkedinTier === tier.id ? 'border-linkedin bg-blue-50' : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    <div className="flex items-center">
-                      <input type="radio" name="linkedin" value={tier.id}
-                        checked={linkedinTier === tier.id}
-                        onChange={(e) => setLinkedinTier(e.target.value)}
-                        className="text-linkedin mr-3" />
-                      <span className="mr-2">{tier.icon}</span>
-                      <div>
-                        <span className="font-medium text-sm">{tier.name}</span>
-                        <p className="text-xs text-gray-500">{tier.desc}</p>
-                      </div>
-                    </div>
-                    <span className={`text-xs px-2 py-1 rounded font-medium ${
-                      tier.fee === 0 && tier.feeType !== 'custom'
-                        ? 'bg-green-100 text-green-700'
-                        : tier.feeType === 'custom'
-                        ? 'bg-purple-100 text-purple-700'
-                        : 'bg-blue-100 text-blue-700'
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('booking.business.name')}</label>
+                  <input type="text" value={form.business} onChange={(e) => setForm({...form, business: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-linkedin" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('booking.business.website')}</label>
+                  <input type="url" value={form.website} onChange={(e) => setForm({...form, website: e.target.value})}
+                    placeholder="https://"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-linkedin" />
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('booking.business.offer')}</label>
+                <input type="text" value={form.offer} onChange={(e) => setForm({...form, offer: e.target.value})}
+                  placeholder="e.g. whole cakes and function bookings"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-linkedin" />
+              </div>
+
+              <p className="text-sm font-medium text-gray-700 mt-4 mb-2">{t('booking.business.type')}</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {businessTypes.map(b => (
+                  <label key={b.id}
+                    className={`flex items-start p-3 rounded-lg border-2 cursor-pointer transition-colors ${
+                      businessType === b.id ? 'border-linkedin bg-blue-50' : 'border-gray-200 hover:border-gray-300'
                     }`}>
-                      {tier.fee === 0 && tier.feeType !== 'custom' ? 'Free' : tier.feeType === 'custom' ? 'Custom' : `+$${tier.fee}/mo`}
-                    </span>
+                    <input type="radio" name="businessType" value={b.id}
+                      checked={businessType === b.id}
+                      onChange={() => chooseBusinessType(b.id)}
+                      className="text-linkedin mr-3 mt-1" />
+                    <span className="mr-2">{b.icon}</span>
+                    <div>
+                      <span className="font-medium text-sm">{b.name}</span>
+                      <p className="text-xs text-gray-500">{b.examples}</p>
+                    </div>
                   </label>
                 ))}
               </div>
 
-              {linkedinTier === 'li_ads' && (
-                <div className="mt-4 p-3 bg-purple-50 rounded-lg">
-                  <label className="block text-sm font-medium text-purple-800 mb-2">Monthly Ad Budget ($)</label>
-                  <input type="number" min="0" step="50" value={adBudget}
-                    onChange={(e) => setAdBudget(Number(e.target.value))}
-                    placeholder="e.g. 500"
-                    className="w-full px-3 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-400" />
-                  <p className="text-xs text-purple-600 mt-1">LinkedIn minimum: $10/day. We recommend $300-$1000/month for B2B.</p>
+              <p className="text-sm font-medium text-gray-700 mt-4 mb-1">{t('booking.channels')}</p>
+              <p className="text-xs text-gray-500 mb-2">{t('booking.channels.hint')}</p>
+              <div className="flex flex-wrap gap-2">
+                {channels.map(c => (
+                  <label key={c.id}
+                    className={`flex items-center px-3 py-2 rounded-full border text-sm cursor-pointer transition-colors ${
+                      selectedChannels.includes(c.id) ? 'border-linkedin bg-blue-50 text-linkedin' : 'border-gray-200 text-gray-700 hover:border-gray-300'
+                    }`}>
+                    <input type="checkbox" className="sr-only" checked={selectedChannels.includes(c.id)} onChange={() => toggleChannel(c.id)} />
+                    {c.icon} <span className="ml-1">{c.name}</span>
+                  </label>
+                ))}
+              </div>
+
+              <div className="mt-4 p-3 bg-purple-50 rounded-lg">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-purple-800 mb-2">{t('booking.ads.platform')}</label>
+                    <select value={adPlatform} onChange={(e) => setAdPlatform(e.target.value)}
+                      className="w-full px-3 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-400 bg-white">
+                      {adPlatforms.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+                    </select>
+                  </div>
+                  {adPlatform !== 'none' && (
+                    <div>
+                      <label className="block text-sm font-medium text-purple-800 mb-2">{t('booking.ads.budget')}</label>
+                      <input type="number" min="0" step="50" value={adBudget}
+                        onChange={(e) => setAdBudget(Number(e.target.value))}
+                        placeholder="e.g. 400"
+                        className="w-full px-3 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-400" />
+                    </div>
+                  )}
                 </div>
-              )}
+                <p className="text-xs text-purple-600 mt-2">{t('booking.ads.hint')}</p>
+              </div>
             </div>
 
             {/* Cloud Platform Fee */}
@@ -312,19 +336,18 @@ export default function BookingPage() {
                   </div>
                 )}
 
-                {/* LinkedIn Fee */}
-                {(linkedinFeeAmount > 0 || adBudgetAmount > 0) && (
-                  <div className="flex justify-between border-t border-gray-100 pt-2">
-                    <span className="text-gray-600">🔗 {selectedLinkedin?.name}</span>
-                    <span className="font-medium text-blue-700">
-                      {linkedinTier === 'li_ads' ? `$${adBudgetAmount.toFixed(2)}` : `$${linkedinFeeAmount.toFixed(2)}`}
-                    </span>
+                {/* Channels */}
+                {selectedChannels.length > 0 && (
+                  <div className="border-t border-gray-100 pt-2">
+                    <span className="text-gray-600">📣 {selectedChannels.map(id => channels.find(c => c.id === id)?.name).join(', ')}</span>
                   </div>
                 )}
-                {linkedinFeeAmount === 0 && adBudgetAmount === 0 && linkedinTier === 'li_basic' && (
+
+                {/* Ad Budget */}
+                {adBudgetAmount > 0 && (
                   <div className="flex justify-between border-t border-gray-100 pt-2">
-                    <span className="text-gray-600">🔗 LinkedIn (Organic)</span>
-                    <span className="font-medium text-green-600">Free</span>
+                    <span className="text-gray-600">📢 Ads: {selectedAdPlatform?.name}</span>
+                    <span className="font-medium text-blue-700">${adBudgetAmount.toFixed(2)}</span>
                   </div>
                 )}
 
@@ -373,7 +396,6 @@ export default function BookingPage() {
                     <div className="text-xs text-blue-700 space-y-0.5">
                       <p>• Service: ${basePrice.toFixed(2)}</p>
                       {rush && <p>• Rush: $50.00</p>}
-                      {linkedinFeeAmount > 0 && <p>• LinkedIn: ${linkedinFeeAmount.toFixed(2)}</p>}
                       {adBudgetAmount > 0 && <p>• Ad Budget: ${adBudgetAmount.toFixed(2)}</p>}
                       {cloudFeeAmount > 0 && <p>• Cloud ({selectedCloud?.fee}%): ${cloudFeeAmount.toFixed(2)}</p>}
                       {bankFeeAmount > 0 && <p>• Bank ({selectedPayment?.fee}%): ${bankFeeAmount.toFixed(2)}</p>}
