@@ -116,7 +116,7 @@ export function quotePackage(tier: Tier | 'Free', commitmentId = 'monthly') {
 }
 
 // ---------------------------------------------------------------------------
-// Pay as you go = pay per lead — for tiny and small businesses.
+// Pay as you go = pay per lead — for tiny businesses (see TINY_BUSINESS).
 //
 // The client pays only when a new customer reaches the business: an email,
 // form or message, or a phone call. A lead is charged when it arrives,
@@ -150,6 +150,31 @@ export const LEAD_RULES = {
   defaultMonthlyCap: 300, // the client never pays more than their cap in a month
 }
 
+// Pay per lead is for TINY businesses only. Australia has no official
+// "tiny" or "micro" label, so we use the ATO's lowest business-size
+// threshold: aggregated annual turnover under $2 million — the test for a
+// CGT small business entity. Aggregated turnover = the business's gross
+// annual turnover plus that of its affiliates and connected entities.
+// (ATO: under $10M is a small business entity; ASIC's small proprietary
+// company test is far broader, so neither fits "tiny".)
+export const TINY_BUSINESS = {
+  maxAggregatedTurnover: 2_000_000,
+  label: 'aggregated annual turnover under $2 million',
+  source: 'ATO aggregated turnover test, as used for CGT small business entities',
+  url: 'https://www.ato.gov.au/businesses-and-organisations/income-deductions-and-concessions/incentives-and-concessions/small-business-cgt-concessions/small-business-cgt-concessions-eligibility-conditions/cgt-small-business-entity-eligibility',
+}
+
+export const turnoverBands = [
+  { id: 'under2m', name: 'Under $2 million', max: 2_000_000 },
+  { id: '2to10m', name: '$2 million to under $10 million', max: 10_000_000 },
+  { id: '10mplus', name: '$10 million or more', max: Infinity },
+] as const
+
+export type TurnoverBand = (typeof turnoverBands)[number]['id']
+
+/** Only tiny businesses (ATO aggregated turnover under $2M) can pay per lead. */
+export const isPayPerLeadEligible = (band: TurnoverBand | '' | undefined) => band === 'under2m'
+
 // Booking id for the pay-per-lead option (services use 1–10).
 export const PAY_PER_LEAD_ID = 100
 export const PAYG_CREDIT_DAYS = 60
@@ -163,6 +188,7 @@ export const leadNotCharged = [
 ]
 
 export const paygPerks = [
+  `For tiny businesses only: ${TINY_BUSINESS.label} (ATO), including connected businesses.`,
   'No setup fee, no monthly fee, no contract. Stop any time.',
   `Your first ${LEAD_RULES.freeLeads} leads are free.`,
   `Set a monthly cap (default $${LEAD_RULES.defaultMonthlyCap}). You never pay more than your cap.`,

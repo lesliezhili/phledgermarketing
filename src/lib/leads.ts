@@ -115,6 +115,20 @@ export function billLeads(leads: Lead[], opts: BillOptions = {}): Bill {
   return { charges, total: Math.round(total * 100) / 100, chargeable, freeLeadsUsed, capReached }
 }
 
+/**
+ * ABN check-digit test (Australian Business Register algorithm): subtract 1
+ * from the first digit, weight the 11 digits, and the sum must divide by 89.
+ * Confirms the number is well formed; whether it is active is checked
+ * separately on ABN Lookup.
+ */
+export function isValidAbn(abn: string): boolean {
+  const digits = abn.replace(/\s/g, '')
+  if (!/^\d{11}$/.test(digits)) return false
+  const weights = [10, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19]
+  const sum = digits.split('').reduce((s, d, i) => s + (Number(d) - (i === 0 ? 1 : 0)) * weights[i], 0)
+  return sum % 89 === 0
+}
+
 /** Rough monthly estimate shown before a client signs up. */
 export function estimateMonthly(counts: Partial<Record<LeadType, number>>, monthlyCap = LEAD_RULES.defaultMonthlyCap) {
   const raw = (Object.entries(counts) as [LeadType, number][])

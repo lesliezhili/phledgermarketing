@@ -343,3 +343,9 @@ CREATE POLICY "Users view own leads" ON dm_leads FOR SELECT USING (auth.uid() = 
 CREATE POLICY "Admins manage leads" ON dm_leads FOR ALL USING (
   EXISTS (SELECT 1 FROM dm_profiles WHERE id = auth.uid() AND role = 'admin')
 );
+
+-- Pay per lead eligibility: tiny businesses only — ATO aggregated annual
+-- turnover under $2 million (the CGT small business entity test).
+ALTER TABLE dm_profiles ADD COLUMN IF NOT EXISTS abn TEXT;
+ALTER TABLE dm_profiles ADD COLUMN IF NOT EXISTS turnover_band TEXT CHECK (turnover_band IN ('under2m', '2to10m', '10mplus'));
+ALTER TABLE dm_profiles ADD COLUMN IF NOT EXISTS tiny_declared_at TIMESTAMPTZ; -- when the owner declared turnover under $2M

@@ -87,7 +87,7 @@ export default function Home() {
 
           <div className="mt-8 bg-white border border-green-200 rounded-xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
-              <p className="font-bold text-gray-900">Tiny or small business? Pay only per lead.</p>
+              <p className="font-bold text-gray-900">Tiny business (turnover under $2 million)? Pay only per lead.</p>
               <p className="text-sm text-gray-600">We market your business and you pay only when a new customer emails or calls you — from ${Math.min(...leadPrices.map(l => l.price))} per lead. No setup fee, no contract.</p>
             </div>
             <Link href="/pricing#payg" className="bg-green-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-green-700 transition-colors whitespace-nowrap">

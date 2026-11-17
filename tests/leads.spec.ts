@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest"
-import { billLeads, estimateMonthly, normaliseContact, type Lead } from "../src/lib/leads"
+import { billLeads, estimateMonthly, normaliseContact, isValidAbn, type Lead } from "../src/lib/leads"
+import { isPayPerLeadEligible, TINY_BUSINESS } from "../src/lib/catalog"
 
 const lead = (id: string, over: Partial<Lead> = {}): Lead => ({
   id, type: "enquiry", contact: `${id}@example.com`, receivedAt: "2026-12-01T09:00:00Z", ...over,
@@ -50,6 +51,20 @@ describe("pay-per-lead billing", () => {
     expect(bill.total).toBe(100)
     expect(bill.capReached).toBe(true)
     expect(bill.charges.filter(c => c.reason === "monthly cap").length).toBe(8)
+  })
+
+  it("limits pay per lead to tiny businesses (ATO aggregated turnover under $2M)", () => {
+    expect(TINY_BUSINESS.maxAggregatedTurnover).toBe(2_000_000)
+    expect(isPayPerLeadEligible("under2m")).toBe(true)
+    expect(isPayPerLeadEligible("2to10m")).toBe(false)
+    expect(isPayPerLeadEligible("10mplus")).toBe(false)
+    expect(isPayPerLeadEligible("")).toBe(false)
+  })
+
+  it("validates ABN check digits", () => {
+    expect(isValidAbn("51 824 753 556")).toBe(true) // the ATO's own ABN
+    expect(isValidAbn("51 824 753 557")).toBe(false)
+    expect(isValidAbn("1234")).toBe(false)
   })
 
   it("normalises contacts and caps estimates", () => {

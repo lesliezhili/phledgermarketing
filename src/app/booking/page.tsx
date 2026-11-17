@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react'
 import { useI18n } from '@/lib/i18n'
 import BibleVerse from '@/components/BibleVerse'
-import { services, businessTypes, channels, adPlatforms, commitments, quotePackage, serviceLabel, leadPrices, LEAD_RULES, PAY_PER_LEAD_ID } from '@/lib/catalog'
-import { estimateMonthly } from '@/lib/leads'
+import { services, businessTypes, channels, adPlatforms, commitments, quotePackage, serviceLabel, leadPrices, LEAD_RULES, PAY_PER_LEAD_ID, TINY_BUSINESS, turnoverBands, isPayPerLeadEligible, type TurnoverBand } from '@/lib/catalog'
+import { estimateMonthly, isValidAbn } from '@/lib/leads'
 
 const PAY_PER_LEAD = 'Pay Per Lead'
 
@@ -40,6 +40,9 @@ export default function BookingPage() {
   const [commitment, setCommitment] = useState('monthly')
   const [monthlyCap, setMonthlyCap] = useState(LEAD_RULES.defaultMonthlyCap)
   const [expected, setExpected] = useState({ enquiry: 8, call: 4, business: 0 })
+  const [abn, setAbn] = useState('')
+  const [turnoverBand, setTurnoverBand] = useState<TurnoverBand | ''>('')
+  const [tinyDeclared, setTinyDeclared] = useState(false)
 
   // Pre-select a service from /booking?service=<id>
   useEffect(() => {
@@ -66,6 +69,10 @@ export default function BookingPage() {
   const isPerLead = form.service === PAY_PER_LEAD
   const cap = Math.max(0, monthlyCap || 0)
   const leadEstimate = estimateMonthly(expected, cap)
+  const eligible = isPayPerLeadEligible(turnoverBand)
+  const abnValid = isValidAbn(abn)
+  // Pay per lead can only be booked by a tiny business with a valid ABN.
+  const perLeadBlocked = isPerLead && (!eligible || !abnValid || !tinyDeclared)
 
   const basePrice = isPerLead ? 0 : quote.fees
   const setupFee = isPerLead ? 0 : quote.setup
@@ -111,7 +118,7 @@ export default function BookingPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Main Form */}
         <div className="lg:col-span-2">
-          <form onSubmit={(e) => { e.preventDefault(); setSubmitted(true) }} className="space-y-8">
+          <form onSubmit={(e) => { e.preventDefault(); if (!perLeadBlocked) setSubmitted(true) }} className="space-y-8">
             
             {/* Service Selection */}
             <div className="bg-white border border-gray-200 rounded-xl p-6">
@@ -133,7 +140,7 @@ export default function BookingPage() {
                     </option>
                   ))}
                 </optgroup>
-                <optgroup label="Pay as you go (tiny & small business)">
+                <optgroup label="Pay as you go (tiny business: turnover under $2M)">
                   <option value={PAY_PER_LEAD}>
                     {PAY_PER_LEAD} — from ${Math.min(...leadPrices.map(l => l.price))} per lead, no contract
                   </option>
@@ -142,6 +149,44 @@ export default function BookingPage() {
 
               {isPerLead && (
                 <div className="mt-4 p-4 bg-green-50 rounded-lg space-y-3">
+                  {/* Eligibility: tiny businesses only (ATO aggregated turnover under $2M) */}
+                  <div className="bg-white rounded-lg p-3 border border-green-200 space-y-2 text-sm">
+                    <p className="font-semibold text-gray-900">Pay per lead is for tiny businesses only</p>
+                    <p className="text-xs text-gray-600">
+                      Your {TINY_BUSINESS.label}, using the{' '}
+                      <a href={TINY_BUSINESS.url} target="_blank" rel="noopener noreferrer" className="underline">ATO aggregated turnover test</a>{' '}
+                      (your gross turnover plus that of any affiliated or connected business).
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <label className="block">
+                        <span className="text-xs text-gray-700">ABN</span>
+                        <input type="text" inputMode="numeric" value={abn} onChange={(e) => setAbn(e.target.value)}
+                          required placeholder="11 digits"
+                          className="w-full px-2 py-1 border border-gray-300 rounded" />
+                      </label>
+                      <label className="block">
+                        <span className="text-xs text-gray-700">Aggregated annual turnover</span>
+                        <select value={turnoverBand} onChange={(e) => setTurnoverBand(e.target.value as TurnoverBand)} required
+                          className="w-full px-2 py-1 border border-gray-300 rounded bg-white">
+                          <option value="">Select...</option>
+                          {turnoverBands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+                        </select>
+                      </label>
+                    </div>
+                    {abn && !abnValid && <p className="text-xs text-red-600">Please enter a valid 11-digit ABN.</p>}
+                    {turnoverBand && !eligible && (
+                      <p className="text-xs text-red-600">
+                        Pay per lead is only for businesses with {TINY_BUSINESS.label}. Please choose a monthly package instead — the free Marketing Health Check will tell you which fits.
+                      </p>
+                    )}
+                    {eligible && (
+                      <label className="flex items-start text-xs text-gray-700">
+                        <input type="checkbox" required checked={tinyDeclared} onChange={(e) => setTinyDeclared(e.target.checked)}
+                          className="rounded border-gray-300 text-linkedin mr-2 mt-0.5" />
+                        I declare my business&apos;s aggregated annual turnover is under $2 million, and I will tell PhLedger Marketing if it reaches $2 million.
+                      </label>
+                    )}
+                  </div>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm">
                     {leadPrices.map(l => (
                       <div key={l.type} className="bg-white rounded-lg p-2 border border-green-100">
@@ -386,7 +431,8 @@ export default function BookingPage() {
               </div>
             </div>
 
-            <button type="submit" className="w-full bg-linkedin text-white py-4 rounded-xl font-bold text-lg hover:bg-linkedin-dark transition-colors shadow-lg">
+            <button type="submit" disabled={perLeadBlocked}
+              className="w-full bg-linkedin text-white py-4 rounded-xl font-bold text-lg hover:bg-linkedin-dark transition-colors shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
               {t('booking.confirm')} — ${total.toFixed(2)}
             </button>
           </form>

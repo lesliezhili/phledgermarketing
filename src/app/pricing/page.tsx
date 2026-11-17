@@ -7,6 +7,7 @@ import { packages, commitments, loyaltyPerks, leadPrices, leadNotCharged, paygPe
 const faqs = [
   { q: 'Is there anything free?', a: 'Yes. The Marketing Health Check is free for any business, with no obligation. It tells you what to fix first and which channels suit you.' },
   { q: 'What does the setup fee cover?', a: `A one-off $${SETUP_FEE}: fixing what blocks sales (offer, prices, contact details, print and profiles), one page to buy or enquire with QR codes and tracking, and connecting your channels. It is waived when you pay 6 or 12 months up front.` },
+  { q: 'Who can use pay per lead?', a: 'Tiny businesses only: aggregated annual turnover under $2 million, the lowest business-size threshold the ATO uses (it is the test for a CGT small business entity). Aggregated turnover is your gross annual turnover plus that of any affiliated or connected business. You give your ABN and declare your turnover band when you sign up, and tell us if you reach $2 million — then we move you to a monthly package with your lead spend credited.' },
   { q: 'What counts as a lead?', a: `A new customer reaching your business: an email, website form or social message asking to buy or book, or a phone call of ${LEAD_RULES.minCallSeconds} seconds or more to your tracked number. You pay when the lead arrives, whether or not it becomes a sale — you decide how to follow it up.` },
   { q: 'How do you know a lead came from you?', a: 'We give you a tracked phone number and tracked enquiry form or email, and log every lead with its date, channel and contact. You see each one in your dashboard and can dispute it within 7 days.' },
   { q: 'Pay per lead or a monthly package?', a: 'Pay per lead suits tiny businesses that want to pay only for results. A package suits businesses that want marketing run for them every month at a fixed price. Lead spend in the last 60 days comes off the setup fee when you move to a package.' },
@@ -40,7 +41,7 @@ export default function PricingPage() {
       <section id="payg" className="mb-16">
         <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">Pay As You Go: Pay Per Lead</h2>
         <p className="text-center text-gray-600 mb-8 max-w-2xl mx-auto">
-          For tiny and small businesses. We market your business; you pay only when a new customer emails, messages or calls you.
+          For tiny businesses only — aggregated annual turnover under $2 million, using the ATO turnover test. We market your business; you pay only when a new customer emails, messages or calls you.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           {leadPrices.map(l => (
