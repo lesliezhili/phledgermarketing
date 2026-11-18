@@ -32,6 +32,7 @@ the LLM → Agent → Skills → MCP layering:
 | `daily-maps-routine` | Daily ads budget and alerts (投流), review replies and escalation, daily owner summary | Faithful + SEO & Reputation |
 | `local-seo` | Website schema, titles, local keywords, name/address/phone match with Google | SEO & Reputation add-on |
 | `order-automation` | Orders from Instagram, Facebook, RedNote, WeChat, phone and website | Order Automation add-on |
+| `brand-autopilot` | PhLedger's own brands (Marketing + Consulting at phledger.com) on every social channel, cross-linked | PhLedger itself |
 | `business-ops` | Service agreement, PhLedger's monthly scorecard (cash break-even first), case studies | PhLedger itself |
 | `client-quote` | Quote, message, checklist, agenda and actions for a prospect | Every new client |
 | `monthly-report` | One-page results against break-even | Every plan |

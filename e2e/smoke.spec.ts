@@ -3,7 +3,7 @@ import { test, expect } from './fixtures'
 const routes = [
   '/', '/services', '/pricing', '/booking', '/speed-to-lead', '/signup', '/login', '/about',
   '/linkedin', '/instagram', '/facebook', '/x-twitter', '/google-maps', '/bible', '/feedback',
-  '/phledgertax', '/finance', '/geo',
+  '/phledgertax', '/finance', '/geo', '/consulting',
 ]
 
 for (const route of routes) {
@@ -35,5 +35,18 @@ test('channels menu lists every channel', async ({ page, errors }) => {
   for (const name of ['Google Maps & Search', 'Instagram', 'Facebook', 'LinkedIn', 'X (Twitter)']) {
     await expect(page.getByRole('link', { name: new RegExp(name.replace(/[()&]/g, '.')) }).first()).toBeVisible()
   }
+  void errors
+})
+
+test('consulting page links to phledger.com with referral tracking', async ({ page, errors }) => {
+  await page.goto('/consulting')
+  const link = page.getByRole('link', { name: 'Visit phledger.com' })
+  const href = await link.getAttribute('href')
+  expect(href).toContain('https://phledger.com/')
+  expect(href).toContain('utm_source=phledger-marketing')
+  expect(href).toContain('utm_medium=referral')
+  await page.goto('/services')
+  await page.getByRole('link', { name: 'Data, BI & AI Consulting' }).click()
+  await expect(page).toHaveURL(/\/consulting$/)
   void errors
 })

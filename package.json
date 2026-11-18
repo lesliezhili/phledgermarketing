@@ -13,7 +13,8 @@
     "quote": "tsx scripts/quote.ts",
     "agreement": "tsx scripts/agreement.ts",
     "scorecard": "tsx scripts/report.ts scorecard",
-    "case-study": "tsx scripts/report.ts case-study"
+    "case-study": "tsx scripts/report.ts case-study",
+    "social": "tsx scripts/social.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0",

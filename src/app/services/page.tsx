@@ -51,6 +51,14 @@ export default function ServicesPage() {
         </Link>
       </div>
 
+      <div className="mb-12 bg-slate-50 border border-slate-200 rounded-xl p-5 text-center">
+        <p className="font-bold text-gray-900">Need dashboards, clean data or a custom AI workflow?</p>
+        <p className="text-sm text-gray-600 mb-3">PhLedger Consulting puts a forward-deployed engineer inside your business and ships in weeks.</p>
+        <Link href="/consulting" className="inline-block bg-slate-800 text-white px-5 py-2 rounded-lg text-sm font-semibold hover:bg-slate-900 transition-colors">
+          Data, BI &amp; AI Consulting
+        </Link>
+      </div>
+
       <div className="mb-12 text-center">
         <h2 className="text-xl font-bold text-gray-900 mb-4">Delivered on the channels that fit your business</h2>
         <div className="flex flex-wrap justify-center gap-3">
