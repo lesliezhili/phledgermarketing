@@ -47,5 +47,7 @@ are in the brief only, never in the message.
   confirmed store count) and re-run to get a final quote and dates.
 - Work starts only after the first invoice is paid through PhLedgerTax —
   this is what keeps every client profitable from day one.
+- When they say yes, generate the service agreement (`business-ops`) and get it
+  signed before paid work starts.
 - Then hand over to `google-business-profile` for setup and
   `weekly-client-routine` for the weekly work.

@@ -1,0 +1,19 @@
+{
+  "month": "2026-12",
+  "pipeline": {
+    "healthChecks": 0,
+    "quotesSent": 0,
+    "pilotsStarted": 0,
+    "pilotsConverted": 0,
+    "newPaying": 0,
+    "churned": 0,
+    "referrals": 0
+  },
+  "clients": [
+    { "name": "Example client", "plan": "Grace", "cashIn": 149, "hoursUsed": 1, "hoursBudget": 1, "satisfaction": 9 }
+  ],
+  "cashOut": { "tools": 15, "trackedNumbers": 15, "sms": 0, "other": 0 },
+  "correctedActions": 0,
+  "quoteReplyHours": [],
+  "audit": []
+}

@@ -11,3 +11,5 @@ playwright-report/
 clients/*
 !clients/_template.json
 !clients/README.md
+!clients/_scorecard-template.json
+!clients/_case-template.json
