@@ -7,10 +7,18 @@
   "commitment": "monthly",
   "storeCount": 1,
   "stores": [
-    { "name": "Example Bakery", "address": "1 Example St, Suburb VIC 3000", "phone": "03 9000 0000", "hours": "Tue-Sun 8am-4pm" }
+    {
+      "name": "Example Bakery",
+      "address": "1 Example St, Suburb VIC 3000",
+      "phone": "03 9000 0000",
+      "hours": "Tue-Sun 8am-4pm"
+    }
   ],
   "products": [
-    { "name": "Strawberry Shortcake", "price": "6in $65 / 8in $85" }
+    {
+      "name": "Strawberry Shortcake",
+      "price": "6in $65 / 8in $85"
+    }
   ],
   "assets": {
     "googleAccount": "examplebakery@gmail.com",
@@ -19,7 +27,15 @@
     "website": "",
     "sameCompany": true
   },
-  "nextBusyPeriod": { "en": "Christmas orders", "zh": "圣诞订单" },
+  "nextBusyPeriod": {
+    "en": "Christmas orders",
+    "zh": "圣诞订单"
+  },
   "docLink": "",
-  "meetingDate": ""
+  "meetingDate": "",
+  "approvals": {
+    "mode": "zhi_li",
+    "clientApproves": [],
+    "maxDailyAdBudget": 20
+  }
 }

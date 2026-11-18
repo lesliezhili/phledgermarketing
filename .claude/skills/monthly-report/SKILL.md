@@ -22,6 +22,13 @@ month's report.
 - **Break-even sales** = cost ÷ (average sale × margin)
 - **Cost per lead** = cost ÷ chargeable leads
 
+## Funnel (the goal)
+
+Run `funnel(...)` from `src/lib/funnel.ts` with leads, orders, customers,
+repeat customers, Google rating and reply speed. Report the conversion and
+repeat rates against `FUNNEL_TARGETS`, and make `focus` (the weakest step)
+next month's first change.
+
 ## Write
 
 ```

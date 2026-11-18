@@ -8,6 +8,22 @@ description: Run a client's daily Google Maps routine - today's ad budget and al
 Ten minutes a day, mostly automated. Each step uses tested code; never
 work numbers out by hand.
 
+## Who approves (check before every action)
+
+Run `decide(action, client.approvals)` from `src/lib/approvals.ts` before
+anything is published, sent or spent, and log it with `auditEntry`:
+
+- `auto` — do it now (replies, confirmations, budget within plan, pausing ads;
+  in `auto_simple` mode also thank-you replies, Google posts, loyalty messages).
+- `zhi_li` — put it in Zhi Li's approval batch.
+- `zhi_li_then_client` — Zhi Li, then the client (prices, offers, extra ad
+  spend, and anything the client asked to see).
+- `person_sends` — RedNote: draft only, a person posts.
+- `escalate_owner` — critical review or allergy order: tell the owner now.
+
+The goal behind every action: more leads, more purchases, loyal customers,
+by beating expectations on price and quality — never by cutting corners.
+
 ## 1. Ads (daily 投流) — `src/lib/daily-ads.ts`
 
 Pull yesterday's results from the client's Google Ads account (spend,

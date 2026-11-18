@@ -21,6 +21,7 @@ npm run quote -- clients/my-client.json            # prints the message, writes 
 | `assets` | Google account, profile exists, phone, website, same company | Unknowns go on the checklist |
 | `nextBusyPeriod` | `{ en, zh }` | Optional: what the first push aims at |
 | `docLink`, `meetingDate` | link, `YYYY-MM-DD` | Optional |
+| `approvals` | `{ mode, clientApproves, maxDailyAdBudget }` | `mode`: `zhi_li` (default), `zhi_li_and_client`, or `auto_simple` (full automation for simple ads and thank-you replies). Hard safety rules apply in every mode — see `src/lib/approvals.ts` |
 
 Unknown fields can be left out; the quote asks for them in the checklist. A
 quote that would lose money is refused (exit code 2).

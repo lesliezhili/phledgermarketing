@@ -14,6 +14,7 @@ the LLM → Agent → Skills → MCP layering:
 | **Agent** | `weekly-client-routine`: perceive (orders, leads, ad results) → plan → act (drafts for Zhi Li to approve) |
 | **Skills** | The folders below: one per service, each giving the same quality every time |
 | **MCP** | Connectors to the systems the work runs through (table below) |
+| **Harness** | `src/lib/approvals.ts`: per-client approval mode (Zhi Li / Zhi Li + client / full automation for simple work) plus hard rules no mode can switch off; every action logged with `auditEntry` |
 
 ## Skills
 

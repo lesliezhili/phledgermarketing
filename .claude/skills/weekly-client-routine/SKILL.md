@@ -11,6 +11,23 @@ Abundant 7 h; pay per lead 15 minutes plus about 3 minutes a lead — see
 `HOURS` in `src/lib/economics.ts`): the agent prepares everything, Zhi Li
 approves, the scheduler and connectors publish.
 
+
+## Who approves (check before every action)
+
+Run `decide(action, client.approvals)` from `src/lib/approvals.ts` before
+anything is published, sent or spent, and log it with `auditEntry`:
+
+- `auto` — do it now (replies, confirmations, budget within plan, pausing ads;
+  in `auto_simple` mode also thank-you replies, Google posts, loyalty messages).
+- `zhi_li` — put it in Zhi Li's approval batch.
+- `zhi_li_then_client` — Zhi Li, then the client (prices, offers, extra ad
+  spend, and anything the client asked to see).
+- `person_sends` — RedNote: draft only, a person posts.
+- `escalate_owner` — critical review or allergy order: tell the owner now.
+
+The goal behind every action: more leads, more purchases, loyal customers,
+by beating expectations on price and quality — never by cutting corners.
+
 ## Inputs
 
 - The client profile (`client-profile.md` in this folder shows the fields).

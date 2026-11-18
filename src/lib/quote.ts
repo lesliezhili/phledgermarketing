@@ -12,6 +12,7 @@
 
 import { FOUNDING_OFFER, MULTI_STORE, SETUP_FEE, packages, type Tier } from './catalog'
 import { storeQuoteEconomics } from './economics'
+import type { ApprovalPolicy } from './approvals'
 
 export type QuoteLanguage = 'zh' | 'en'
 export type QuoteChannel = 'wechat' | 'email'
@@ -49,6 +50,7 @@ export interface QuoteInput {
   }
   nextBusyPeriod?: { en: string; zh: string }
   docLink?: string
+  approvals?: ApprovalPolicy // who approves what (src/lib/approvals.ts); default zhi_li
   meetingDate?: string // YYYY-MM-DD
   today: string // YYYY-MM-DD (passed in so output is repeatable)
 }
