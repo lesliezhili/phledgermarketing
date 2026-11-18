@@ -36,6 +36,7 @@ export const HOURS = {
   upgradeSetup: 4, // package setup after PPL: profile, number and page already exist
   healthCheck: 0.5, // free check, mostly drafted by the skill
   extraStoreSetup: 2, // claim/verify profile, categories, hours, products, photos, review card
+  afterPilotExtraSetup: 2, // Faithful/Abundant after a Google-only pilot: ads and social connections
   extraStoreMonthly: 0.5, // local posts reuse the first store's content; review replies
   seoRepSetup: 2, // SEO audit, schema, titles, review automation
   seoRepMonthly: 1, // SEO updates, approving negative-review replies
@@ -156,7 +157,16 @@ export function storeQuoteEconomics(tier: Tier, stores: number, commitmentId: st
   const listMonthly = pkg.price + extra * MULTI_STORE.extraStoreMonthly
 
   let setupFee: number, monthlyFee: number, months: number, discount: number
-  if (commitmentId === 'founding') {
+  if (commitmentId === 'after_pilot') {
+    // Founding client continuing after the free pilot: the first store's Google
+    // set-up was done in the pilot (Grace: no setup fee; bigger packages pay half
+    // for the extra set-up); extra stores pay half; billed monthly in advance.
+    setupFee = (tier === 'Grace' ? 0 : SETUP_FEE * (1 - FOUNDING_OFFER.setupDiscount))
+      + extra * MULTI_STORE.extraStoreSetup * (1 - FOUNDING_OFFER.setupDiscount)
+    discount = FOUNDING_OFFER.monthlyDiscount
+    monthlyFee = listMonthly * (1 - discount)
+    months = 1
+  } else if (commitmentId === 'founding') {
     setupFee = listSetup * (1 - FOUNDING_OFFER.setupDiscount)
     discount = FOUNDING_OFFER.monthlyDiscount
     monthlyFee = listMonthly * (1 - discount)
@@ -170,7 +180,8 @@ export function storeQuoteEconomics(tier: Tier, stores: number, commitmentId: st
     months = c.months
   }
 
-  const setupCost = packageSetupCost() + extra * HOURS.extraStoreSetup * COSTS.hourlyCost
+  const firstStoreSetupHours = commitmentId === 'after_pilot' ? (tier === 'Grace' ? 0 : HOURS.afterPilotExtraSetup) : HOURS.packageSetup
+  const setupCost = firstStoreSetupHours * COSTS.hourlyCost + extra * HOURS.extraStoreSetup * COSTS.hourlyCost
   const monthlyCost = packageMonthlyCost(tier) + extra * extraStoreMonthlyCost()
   const dueToday = setupFee + months * monthlyFee
   const worstFee = listMonthly * (1 - Math.max(discount, LOYALTY_MAX_DISCOUNT))
@@ -197,10 +208,11 @@ export function storeQuoteEconomics(tier: Tier, stores: number, commitmentId: st
  * founding monthly price (after the pilot) it takes to earn it back.
  */
 export function foundingPilotEconomics(tier: Tier = 'Grace') {
-  const cost = FOUNDING_PILOT.maxHours * COSTS.hourlyCost + COSTS.trackedNumberPerMonth + COSTS.toolsPerPackageClient
+  // Time is the only real cost: the pilot uses free tools (FOUNDING_PILOT.cashCost).
+  const cost = FOUNDING_PILOT.maxHours * COSTS.hourlyCost + FOUNDING_PILOT.cashCost
   const pkg = packages.find(p => p.tier === tier)!
   const monthlyProfit = pkg.price * (1 - FOUNDING_OFFER.monthlyDiscount) - packageMonthlyCost(tier)
-  return { cost: r2(cost), monthlyProfitAfter: r2(monthlyProfit), paybackMonths: r2(cost / monthlyProfit) }
+  return { cost: r2(cost), cashCost: FOUNDING_PILOT.cashCost, monthlyProfitAfter: r2(monthlyProfit), paybackMonths: r2(cost / monthlyProfit) }
 }
 
 /** Local SEO & Reputation add-on for `stores` stores. */
@@ -229,6 +241,9 @@ export function orderAutomationEconomics(orders: number) {
     monthlyMargin: r2((worstFee - cost) / worstFee),
   }
 }
+
+/** Cash PhLedger pays out per client per month (not time): tools and tracked number. */
+export const cashCostPerClient = () => COSTS.toolsPerPackageClient + COSTS.trackedNumberPerMonth
 
 /** How many clients of one kind fill the available hours, and what that earns. */
 export function capacity(tier: Tier) {

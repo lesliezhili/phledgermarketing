@@ -10,7 +10,8 @@
     "lint": "next lint",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "quote": "tsx scripts/quote.ts"
+    "quote": "tsx scripts/quote.ts",
+    "agreement": "tsx scripts/agreement.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0",

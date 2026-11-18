@@ -16,7 +16,7 @@ import type { ApprovalPolicy } from './approvals'
 
 export type QuoteLanguage = 'zh' | 'en'
 export type QuoteChannel = 'wechat' | 'email'
-export type QuoteCommitment = 'monthly' | '6m' | '12m' | 'founding'
+export type QuoteCommitment = 'monthly' | '6m' | '12m' | 'founding' | 'after_pilot'
 
 export interface StoreInput {
   name?: string
@@ -121,7 +121,7 @@ export function buildQuote(input: QuoteInput): QuoteOutput {
   const stores = input.stores ?? []
   const storeCount = Math.max(1, stores.length, input.storeCount ?? 0)
 
-  if (input.commitment === 'founding') {
+  if (input.commitment === 'founding' || input.commitment === 'after_pilot') {
     const n = input.foundingClientNumber ?? Infinity
     if (n > FOUNDING_OFFER.maxClients) {
       throw new Error(`The founding offer is only for the first ${FOUNDING_OFFER.maxClients} clients`)
@@ -212,6 +212,14 @@ type Numbers = QuoteOutput['numbers']
 
 function priceLinesZh(input: QuoteInput, n: Numbers): string[] {
   const pkg = packages.find(p => p.tier === input.tier)!
+  if (input.commitment === 'after_pilot') {
+    const m = 1 - FOUNDING_OFFER.monthlyDiscount
+    return [
+      `• 第一家店：${n.setupFee === 0 || input.tier === 'Grace' ? '开通费全免（试点里已做完）' : '开通费半价'}，每月 ${money(pkg.price * m)}（原价 ${money(pkg.price)}）`,
+      `• 每多一家店：开通费 ${money(MULTI_STORE.extraStoreSetup * (1 - FOUNDING_OFFER.setupDiscount))}（原价 ${money(MULTI_STORE.extraStoreSetup)}），每月 ${money(MULTI_STORE.extraStoreMonthly * m)}（原价 ${money(MULTI_STORE.extraStoreMonthly)}）`,
+      `• 按月提前付，第一次付款 ${money(n.dueToday)}。价格锁定，不涨价。`,
+    ]
+  }
   if (input.commitment === 'founding') {
     const s = 1 - FOUNDING_OFFER.setupDiscount
     const m = 1 - FOUNDING_OFFER.monthlyDiscount
@@ -232,6 +240,14 @@ function priceLinesZh(input: QuoteInput, n: Numbers): string[] {
 
 function priceLinesEn(input: QuoteInput, n: Numbers): string[] {
   const pkg = packages.find(p => p.tier === input.tier)!
+  if (input.commitment === 'after_pilot') {
+    const m = 1 - FOUNDING_OFFER.monthlyDiscount
+    return [
+      `• First store: ${input.tier === 'Grace' ? 'no setup fee (done in the pilot)' : 'half-price setup'}, ${money(pkg.price * m)} a month (normally ${money(pkg.price)})`,
+      `• Each extra store: setup ${money(MULTI_STORE.extraStoreSetup * (1 - FOUNDING_OFFER.setupDiscount))} (normally ${money(MULTI_STORE.extraStoreSetup)}), ${money(MULTI_STORE.extraStoreMonthly * m)} a month (normally ${money(MULTI_STORE.extraStoreMonthly)})`,
+      `• Billed monthly in advance; first payment ${money(n.dueToday)}. Your price is locked.`,
+    ]
+  }
   if (input.commitment === 'founding') {
     const s = 1 - FOUNDING_OFFER.setupDiscount
     const m = 1 - FOUNDING_OFFER.monthlyDiscount
@@ -251,7 +267,7 @@ function priceLinesEn(input: QuoteInput, n: Numbers): string[] {
 }
 
 function messageZh(input: QuoteInput, n: Numbers, storeCount: number, fixes: ProductFix[], missing: string[]): string {
-  const founding = input.commitment === 'founding'
+  const founding = input.commitment === 'founding' || input.commitment === 'after_pilot'
   const lines: string[] = []
   lines.push(`${input.contactName} 老板您好！${founding ? '谢谢您愿意做 PhLedger Marketing 的创始客户 🙏' : '谢谢您的信任 🙏'}`)
   lines.push('')
@@ -281,7 +297,7 @@ function messageZh(input: QuoteInput, n: Numbers, storeCount: number, fixes: Pro
 }
 
 function messageEn(input: QuoteInput, n: Numbers, storeCount: number, fixes: ProductFix[], missing: string[]): string {
-  const founding = input.commitment === 'founding'
+  const founding = input.commitment === 'founding' || input.commitment === 'after_pilot'
   const lines: string[] = []
   lines.push(`Hi ${input.contactName}, ${founding ? 'thank you for being PhLedger Marketing\'s founding client 🙏' : 'thank you for your trust 🙏'}`)
   lines.push('')

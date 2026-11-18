@@ -240,6 +240,10 @@ export const FOUNDING_PILOT = {
   maxHours: 6, // hard cap on Zhi Li's time during the pilot
   maxStaffMinutesPerWeek: 10, // store manager's time, at most
   paybackMonths: 12, // pilot cost must be recovered within this many paid months
+  // Free tools only, so the pilot costs PhLedger no cash (only time): the
+  // client's own phone number and Google profile insights instead of a paid
+  // tracked number; free QR codes; ads in the client's own Google Ads account.
+  cashCost: 0,
 }
 
 export const FOUNDING_OFFER = {

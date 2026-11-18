@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest"
 import {
   packageEconomics, payPerLeadEconomics, upgradeEconomics, capacity, costPerLead,
-  packageSetupCost, extraStoreEconomics, foundingOfferEconomics, storeQuoteEconomics, foundingPilotEconomics, seoReputationEconomics, orderAutomationEconomics, MIN_MARGIN, COSTS,
+  packageSetupCost, extraStoreEconomics, foundingOfferEconomics, storeQuoteEconomics, foundingPilotEconomics, seoReputationEconomics, orderAutomationEconomics, cashCostPerClient, payPerLeadEconomics as ppl, MIN_MARGIN, COSTS,
 } from "../src/lib/economics"
 import { packages, commitments, leadPrices, PPL, SETUP_FEE, LEAD_RULES } from "../src/lib/catalog"
 
@@ -75,7 +75,7 @@ describe("profitable from day one", () => {
 
 describe("every quote the agent can send is profitable", () => {
   for (const pkg of packages) {
-    for (const commitment of ["monthly", "6m", "12m", "founding"]) {
+    for (const commitment of ["monthly", "6m", "12m", "founding", "after_pilot"]) {
       it(`${pkg.tier}, ${commitment}, 1 to 10 stores`, () => {
         for (let stores = 1; stores <= 10; stores++) {
           expect(storeQuoteEconomics(pkg.tier, stores, commitment).profitable, `${stores} stores`).toBe(true)
@@ -111,6 +111,24 @@ describe("Order Automation add-on is profitable at any order volume", () => {
       const e = orderAutomationEconomics(orders)
       expect(e.dayOneProfit, `${orders} orders`).toBeGreaterThan(0)
       expect(e.monthlyMargin, `${orders} orders`).toBeGreaterThanOrEqual(MIN_MARGIN)
+    }
+  })
+})
+
+describe("break even on day one: the business, not just each client", () => {
+  it("the pilot costs no cash, only capped time", () => {
+    expect(foundingPilotEconomics().cashCost).toBe(0)
+  })
+
+  it("the first paying client's first payment covers a month of overhead in cash", () => {
+    const entryOffers = [
+      ...packages.map(p => storeQuoteEconomics(p.tier, 1, "monthly").dueToday),
+      ...packages.map(p => storeQuoteEconomics(p.tier, 1, "after_pilot").dueToday),
+      ...packages.map(p => storeQuoteEconomics(p.tier, 1, "founding").dueToday),
+      ppl().dayOneCash,
+    ]
+    for (const cash of entryOffers) {
+      expect(cash - cashCostPerClient()).toBeGreaterThanOrEqual(COSTS.monthlyOverhead)
     }
   })
 })
