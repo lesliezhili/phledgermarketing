@@ -55,7 +55,7 @@ export function packageEconomics(tier: Tier, commitmentId = 'monthly') {
   const pkg = packages.find(p => p.tier === tier)!
   const c = commitments.find(x => x.id === commitmentId)!
   const monthlyFee = pkg.price * (1 - c.discount)
-  const dayOneCash = monthlyFee * c.months + (c.setupWaived ? 0 : SETUP_FEE)
+  const dayOneCash = monthlyFee * c.months + SETUP_FEE * (1 - c.setupDiscount)
   const dayOneCost = packageSetupCost() + packageMonthlyCost(tier) // setup + first month's work
   const worstFee = pkg.price * (1 - Math.max(c.discount, LOYALTY_MAX_DISCOUNT))
   const monthlyCost = packageMonthlyCost(tier)
@@ -132,6 +132,57 @@ export function foundingOfferEconomics(tier: Tier, stores: number) {
     prepaidPeriodProfit: r2(dayOneCash - setupCost - f.prepayMonths * monthlyCost),
     monthlyMargin: r2((monthlyFee - monthlyCost) / monthlyFee),
     savingVsStandard: r2(standardDayOne - dayOneCash),
+  }
+}
+
+export const extraStoreMonthlyCost = () =>
+  r2(HOURS.extraStoreMonthly * COSTS.hourlyCost + COSTS.trackedNumberPerMonth + COSTS.toolsPerPackageClient)
+
+/**
+ * A full quote for an owner with one or more stores on a package — the one
+ * calculation every proposal and message uses. `commitmentId` is a
+ * commitment from the catalog, or 'founding' for the founding-customer offer.
+ */
+export function storeQuoteEconomics(tier: Tier, stores: number, commitmentId: string) {
+  const pkg = packages.find(p => p.tier === tier)!
+  const extra = Math.max(0, Math.floor(stores) - 1)
+  const listSetup = SETUP_FEE + extra * MULTI_STORE.extraStoreSetup
+  const listMonthly = pkg.price + extra * MULTI_STORE.extraStoreMonthly
+
+  let setupFee: number, monthlyFee: number, months: number, discount: number
+  if (commitmentId === 'founding') {
+    setupFee = listSetup * (1 - FOUNDING_OFFER.setupDiscount)
+    discount = FOUNDING_OFFER.monthlyDiscount
+    monthlyFee = listMonthly * (1 - discount)
+    months = FOUNDING_OFFER.prepayMonths
+  } else {
+    const c = commitments.find(x => x.id === commitmentId)
+    if (!c) throw new Error(`unknown commitment ${commitmentId}`)
+    setupFee = listSetup * (1 - c.setupDiscount)
+    discount = c.discount
+    monthlyFee = listMonthly * (1 - discount)
+    months = c.months
+  }
+
+  const setupCost = packageSetupCost() + extra * HOURS.extraStoreSetup * COSTS.hourlyCost
+  const monthlyCost = packageMonthlyCost(tier) + extra * extraStoreMonthlyCost()
+  const dueToday = setupFee + months * monthlyFee
+  const worstFee = listMonthly * (1 - Math.max(discount, LOYALTY_MAX_DISCOUNT))
+  const prepaidPeriodProfit = dueToday - setupCost - months * monthlyCost
+  const monthlyMargin = (worstFee - monthlyCost) / worstFee
+  return {
+    stores: extra + 1,
+    listSetup: r2(listSetup),
+    listMonthly: r2(listMonthly),
+    setupFee: r2(setupFee),
+    monthlyFee: r2(monthlyFee),
+    months,
+    dueToday: r2(dueToday),
+    standardDueToday: r2(listSetup + months * listMonthly),
+    saving: r2(listSetup + months * listMonthly - dueToday),
+    prepaidPeriodProfit: r2(prepaidPeriodProfit),
+    monthlyMargin: r2(monthlyMargin),
+    profitable: prepaidPeriodProfit > 0 && monthlyMargin >= MIN_MARGIN,
   }
 }
 

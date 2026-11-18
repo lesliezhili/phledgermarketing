@@ -25,8 +25,8 @@ test('booking a Faithful service: monthly, 6 and 12 months up front', async ({ p
 
   await page.getByText('6 months up front').click()
   const six = await orderSummary(page)
-  expect(six).toContain('Waived')
-  expect(six).toContain('Total $2094.00')
+  expect(six).toContain('One-off setup $245.00') // half-price setup
+  expect(six).toContain('Total $2339.00')
 
   await page.getByText('12 months up front').click()
   const twelve = await orderSummary(page)

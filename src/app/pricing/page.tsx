@@ -6,7 +6,7 @@ import { packages, commitments, loyaltyPerks, leadPrices, leadNotCharged, paygPe
 
 const faqs = [
   { q: 'Is there anything free?', a: 'Yes. The Marketing Health Check is free for any business, with no obligation. It tells you what to fix first and which channels suit you.' },
-  { q: 'What does the setup fee cover?', a: `A one-off $${SETUP_FEE}: fixing what blocks sales (offer, prices, contact details, print and profiles), one page to buy or enquire with QR codes and tracking, and connecting your channels. It is waived when you pay 6 or 12 months up front.` },
+  { q: 'What does the setup fee cover?', a: `A one-off $${SETUP_FEE}: fixing what blocks sales (offer, prices, contact details, print and profiles), one page to buy or enquire with QR codes and tracking, and connecting your channels. It is half price when you pay 6 months up front, and waived for 12 months up front.` },
   { q: 'Who can use pay per lead?', a: 'Tiny businesses only: aggregated annual turnover under $2 million, the lowest business-size threshold the ATO uses (it is the test for a CGT small business entity). Aggregated turnover is your gross annual turnover plus that of any affiliated or connected business. You give your ABN and declare your turnover band when you sign up, and tell us if you reach $2 million — then we move you to a monthly package with your lead spend credited.' },
   { q: 'What counts as a lead?', a: `A new customer reaching your business: an email, website form or social message asking to buy or book, or a phone call of ${LEAD_RULES.minCallSeconds} seconds or more to your tracked number. You pay when the lead arrives, whether or not it becomes a sale — you decide how to follow it up.` },
   { q: 'How do you know a lead came from you?', a: 'We give you a tracked phone number and tracked enquiry form or email, and log every lead with its date, channel and contact. You see each one in your dashboard and can dispute it within 7 days.' },
@@ -132,7 +132,7 @@ export default function PricingPage() {
       {/* Commitment options */}
       <section className="max-w-4xl mx-auto mb-16">
         <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">Stay Longer, Pay Less</h2>
-        <p className="text-center text-gray-600 mb-6">Pay up front and we waive the setup fee.</p>
+        <p className="text-center text-gray-600 mb-6">Pay 6 months up front for half-price setup, or 12 months and we waive it.</p>
         <div className="overflow-x-auto">
           <table className="w-full text-sm bg-white border border-gray-200 rounded-xl overflow-hidden">
             <thead className="bg-gray-50 text-gray-700">

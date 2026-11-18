@@ -83,15 +83,15 @@ export interface Commitment {
   id: string
   name: string
   months: number // months paid up front
-  setupWaived: boolean
+  setupDiscount: number // 0 = full setup fee, 0.5 = half, 1 = waived
   discount: number // fraction off the monthly fee
   note: string
 }
 
 export const commitments: Commitment[] = [
-  { id: 'monthly', name: 'Monthly', months: 1, setupWaived: false, discount: 0, note: MIN_MONTHS + "-month minimum, then cancel with 30 days' notice" },
-  { id: '6m', name: '6 months up front', months: 6, setupWaived: true, discount: 0, note: 'Setup fee ($' + SETUP_FEE + ') waived' },
-  { id: '12m', name: '12 months up front', months: 12, setupWaived: true, discount: 0.1, note: 'Setup fee waived + 10% off every month' },
+  { id: 'monthly', name: 'Monthly', months: 1, setupDiscount: 0, discount: 0, note: MIN_MONTHS + "-month minimum, then cancel with 30 days' notice" },
+  { id: '6m', name: '6 months up front', months: 6, setupDiscount: 0.5, discount: 0, note: 'Half-price setup ($' + SETUP_FEE / 2 + ' instead of $' + SETUP_FEE + ')' },
+  { id: '12m', name: '12 months up front', months: 12, setupDiscount: 1, discount: 0.1, note: 'Setup fee waived + 10% off every month' },
 ]
 
 // Rewards for staying and for sending friends.
@@ -111,7 +111,7 @@ export function quotePackage(tier: Tier | 'Free', commitmentId = 'monthly') {
   if (!pkg) return { monthly: 0, months: 0, fees: 0, setup: 0, dueToday: 0, discount: 0 }
   const monthly = pkg.price * (1 - c.discount)
   const fees = monthly * c.months
-  const setup = c.setupWaived ? 0 : SETUP_FEE
+  const setup = SETUP_FEE * (1 - c.setupDiscount)
   return { monthly, months: c.months, fees, setup, dueToday: fees + setup, discount: c.discount }
 }
 

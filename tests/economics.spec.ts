@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest"
 import {
   packageEconomics, payPerLeadEconomics, upgradeEconomics, capacity, costPerLead,
-  packageSetupCost, extraStoreEconomics, foundingOfferEconomics, MIN_MARGIN, COSTS,
+  packageSetupCost, extraStoreEconomics, foundingOfferEconomics, storeQuoteEconomics, MIN_MARGIN, COSTS,
 } from "../src/lib/economics"
 import { packages, commitments, leadPrices, PPL, SETUP_FEE, LEAD_RULES } from "../src/lib/catalog"
 
@@ -71,4 +71,16 @@ describe("profitable from day one", () => {
       expect(cap.effectiveHourly + COSTS.hourlyCost).toBeGreaterThan(COSTS.hourlyCost)
     }
   })
+})
+
+describe("every quote the agent can send is profitable", () => {
+  for (const pkg of packages) {
+    for (const commitment of ["monthly", "6m", "12m", "founding"]) {
+      it(`${pkg.tier}, ${commitment}, 1 to 10 stores`, () => {
+        for (let stores = 1; stores <= 10; stores++) {
+          expect(storeQuoteEconomics(pkg.tier, stores, commitment).profitable, `${stores} stores`).toBe(true)
+        }
+      })
+    }
+  }
 })
