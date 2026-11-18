@@ -367,3 +367,23 @@ create table if not exists dm_front_desk_applications (
 );
 alter table dm_front_desk_applications enable row level security;
 create policy "anyone can apply" on dm_front_desk_applications for insert to anon, authenticated with check (status = 'new');
+
+-- Website chat hand-overs (from phledger.com's chat agent via
+-- POST /api/chat/handover). Anyone may submit; only staff can read.
+create table if not exists dm_chat_handovers (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+  client text not null,
+  name text,
+  contact text not null,
+  language text not null default 'en',
+  stage text,
+  intent text,
+  within_hours int not null default 24,
+  note text,
+  transcript text,
+  source text,
+  status text not null default 'new'
+);
+alter table dm_chat_handovers enable row level security;
+create policy "anyone can hand over" on dm_chat_handovers for insert to anon, authenticated with check (status = 'new');

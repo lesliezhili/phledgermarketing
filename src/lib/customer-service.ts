@@ -59,6 +59,10 @@ export interface Knowledge {
   reviewLink?: string
   returnsPolicy?: string // the client's own words; never overrides consumer law
   faqs?: { keywords: string[]; answer: string }[]
+  /** Professional services (no shop orders): "I want…" is an enquiry, not an order. */
+  professional?: boolean
+  /** Reply to an open enquiry no FAQ matches (instead of the trade questions). */
+  enquiryFallback?: string
 }
 
 export interface CsMessage {
@@ -87,6 +91,8 @@ export interface CsResult {
   reply: string // the instant reply (route: auto)
   replyDecision: Decision
   answeredByAi: boolean // fully answered from approved facts, no person needed
+  /** The reply is a generic fallback (no approved fact matched): a grounded AI answer may replace it. */
+  generic: boolean
   handover: Handover | null
   optOut: boolean
   /** Phone only: links can't be spoken, so they follow by SMS straight after the call. */
@@ -176,9 +182,15 @@ function matchPrices(text: string, k: Knowledge) {
   return hits.length ? hits : all.slice(0, 3)
 }
 
-function matchFaq(text: string, k: Knowledge) {
+export function matchFaq(text: string, k: Knowledge) {
   const t = text.toLowerCase()
-  return k.faqs?.find(f => f.keywords.some(w => t.includes(w.toLowerCase())))?.answer
+  // English keywords match whole words ("bi" must not match "ambition"); Chinese has no spaces, so it matches anywhere.
+  const hit = (w: string) => {
+    const kw = w.toLowerCase()
+    if (/[一-鿿]/.test(kw)) return t.includes(kw)
+    return new RegExp(`(^|[^a-z0-9])${kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}($|[^a-z0-9])`).test(t)
+  }
+  return k.faqs?.find(f => f.keywords.some(hit))?.answer
 }
 
 export function handleMessage(m: CsMessage): CsResult {
@@ -189,6 +201,7 @@ export function handleMessage(m: CsMessage): CsResult {
   const k = m.knowledge
   let reply: string
   let answeredByAi = true
+  let generic = false
   let handover: { action: ActionType; to: 'owner' | 'zhi_li'; withinHours: number; note: string } | null = null
   const toPerson = (action: ActionType, to: 'owner' | 'zhi_li', withinHours: number, note: string) => {
     answeredByAi = false
@@ -197,7 +210,7 @@ export function handleMessage(m: CsMessage): CsResult {
 
   switch (intent) {
     case 'opt_out':
-      return { intent, stage: STAGE[intent], language, reply: t.stopped(b), replyDecision: decide({ type: 'cs_instant_reply' }, m.policy), answeredByAi: true, handover: null, optOut: true }
+      return { intent, stage: STAGE[intent], language, reply: t.stopped(b), replyDecision: decide({ type: 'cs_instant_reply' }, m.policy), answeredByAi: true, generic: false, handover: null, optOut: true }
     case 'critical':
       reply = t.critical(b)
       toPerson('cs_critical', 'owner', 1, 'SAFETY OR LEGAL: call the customer now. Do not admit fault or offer money in writing before the owner decides.')
@@ -227,7 +240,7 @@ export function handleMessage(m: CsMessage): CsResult {
     case 'how_to': {
       const faq = matchFaq(m.text, k)
       if (faq) reply = faq
-      else { reply = t.handover(b); toPerson('cs_support_reply', 'zhi_li', 24, 'How-to question with no approved answer: draft one and add it to the FAQs.') }
+      else { reply = t.handover(b); generic = true; toPerson('cs_support_reply', 'zhi_li', 24, 'How-to question with no approved answer: draft one and add it to the FAQs.') }
       break
     }
     case 'reorder':
@@ -253,11 +266,16 @@ export function handleMessage(m: CsMessage): CsResult {
       else { reply = t.handover(b); toPerson('cs_support_reply', 'owner', 2, 'Booking request: confirm a time with the customer.') }
       break
     case 'order':
-      reply = k.orderLink ? t.order(k.orderLink) : t.orderNoLink
+      if (k.professional) {
+        const faq = matchFaq(m.text, k)
+        if (faq) reply = faq
+        else { reply = k.enquiryFallback ?? t.handover(b); generic = true }
+      } else reply = k.orderLink ? t.order(k.orderLink) : t.orderNoLink
       break
     default: { // enquiry
       const faq = matchFaq(m.text, k)
       if (faq) reply = faq
+      else if (k.enquiryFallback) { reply = k.enquiryFallback; generic = true }
       else reply = firstReply({ business: b, trade: m.trade, channel: m.channel === 'wechat' ? 'wechat' : m.channel === 'email' ? 'email' : 'sms', language, bookingLink: k.bookingLink })
         .split('\n').filter(l => !l.startsWith('(') && !l.startsWith('（') && !/STOP|退订/.test(l)).join('\n')
     }
@@ -286,6 +304,7 @@ export function handleMessage(m: CsMessage): CsResult {
     reply,
     replyDecision: decide({ type: 'cs_instant_reply' }, m.policy),
     answeredByAi,
+    generic,
     handover: ho ? { ...ho, decision: decide({ type: ho.action }, m.policy) } : null,
     optOut: false,
     smsFollowUp,

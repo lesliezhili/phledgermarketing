@@ -76,3 +76,15 @@ phledger.com keeps its `/frontdesk` page and integrates through the API
 
 Check new applications daily; at month end run `billFrontDesk` and list every
 order with its reason (charged, duplicate, spam, disputed, pilot, over cap).
+
+## Website chat agent (phledger.com first)
+
+`src/lib/chat-agent.ts` + `src/lib/chat-clients.ts`, API `POST /api/chat` and
+`POST /api/chat/handover` (Supabase `dm_chat_handovers`, email fallback).
+Rules answer first (prices, FAQs, complaints, refunds, safety). Claude
+(`claude-opus-5-5`, low effort, server-side refusal fallback) answers only
+open questions the rules can't, from the client's approved facts; an answer
+naming a dollar amount not in the facts is discarded. Without
+`ANTHROPIC_API_KEY` on the server, the rules answer alone. Each site's
+facts live in `CHAT_CLIENTS` (server-side), with the origins allowed to call
+it. Review new hand-overs daily; turn repeated questions into FAQs.
