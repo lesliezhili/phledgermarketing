@@ -43,6 +43,7 @@ export interface PostIdea {
   hashtags?: string[]
   language?: 'en' | 'zh'
   campaign: string
+  path?: string // page on the brand's site the link opens (default: its contact path)
 }
 
 export interface ChannelPost {
@@ -59,7 +60,7 @@ const truncate = (s: string, max: number) => (s.length <= max ? s : s.slice(0, m
 /** One idea → the text for one channel. */
 export function formatForChannel(idea: PostIdea, brand: Brand, channel: SocialChannel): { text: string; link?: string } {
   const spec = CHANNEL_SPECS[channel]
-  const link = trackedLink(brand, channel, idea.campaign)
+  const link = trackedLink(brand, channel, idea.campaign, idea.path)
   const cta = idea.cta ?? brand.pilotOffer.cta
   const tags = (idea.hashtags ?? []).slice(0, spec.hashtags).map(t => '#' + t.replace(/^#/, '').replace(/\s+/g, ''))
   const linkLine = spec.clickableLinks ? `${cta}: ${link}` : `${cta} — link in bio`

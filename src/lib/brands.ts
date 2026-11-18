@@ -2,13 +2,14 @@
 // ("PhLedger is its own first client").
 //
 // PhLedger Marketing  (this site)   — marketing automation for small businesses
-// PhLedger Consulting (phledger.com) — data, BI and AI delivered the
-//   forward-deployed-engineer (FDE) way: an engineer works inside the
-//   client's business and ships something working in weeks.
+// PHledger (phledger.com, repo lesliezhili/phledger) — Forward Deployed
+//   Engineering partner for data, AI and cloud: senior engineers embedded in
+//   the client's team who help decide, build test-first and train the team.
+//   Prices and wording below follow phledger.com (src/content/*.ts there).
 //
 // The two brands link to each other: marketing clients who outgrow
 // spreadsheets are consulting leads, and consulting proves the automation
-// behind the marketing. Edit the consulting details to match phledger.com.
+// behind the marketing. Keep the consulting details in step with phledger.com.
 
 import type { ApprovalPolicy } from './approvals'
 
@@ -22,7 +23,11 @@ export interface Brand {
   audience: string[]
   pillars: string[] // content themes, rotated through the week
   channels: SocialChannel[] // most important first
+  /** Where calls to action land (e.g. the enquiry form). */
+  contactPath?: string
   pilotOffer: { name: string; what: string; price: string; cta: string }
+  /** Paid steps from first contact to the biggest engagement, as priced on the brand's site. */
+  ladder?: { name: string; price: string; path: string }[]
   crossLink: { to: Brand['id']; when: string }
   approvals: ApprovalPolicy
 }
@@ -42,31 +47,44 @@ export const BRANDS: Record<Brand['id'], Brand> = {
   },
   'phledger-consulting': {
     id: 'phledger-consulting',
-    name: 'PhLedger Consulting',
+    name: 'PHledger',
     site: 'https://phledger.com',
-    tagline: 'Data, BI and AI that ship in weeks — a forward-deployed engineer inside your business.',
-    audience: ['Small and mid-sized businesses running on spreadsheets', 'Finance and operations leaders', 'Non-profits and churches', 'Aged care and community services'],
+    contactPath: '/#contact', // the brief questionnaire on phledger.com
+    tagline: 'Forward-deployed engineers who train your team and ship the platform.',
+    audience: [
+      'Finance, data and operations leaders in mid-sized organisations',
+      'Aged care, NDIS, health and community services',
+      'Financial services, government and education',
+      'Teams choosing or migrating a cloud or data platform (AWS, Azure, Google Cloud)',
+      'Chinese-Australian and go-global businesses (出海)',
+    ],
     pillars: [
-      'FDE approach: embedded, shipping, measured',
-      'From spreadsheet to dashboard (BI)',
-      'Practical AI agents and automation',
-      'Case notes and lessons from real builds',
-      'Data quality, governance and trust',
+      'Embedded, not outsourced: train while we build',
+      'Foundations first: trusted data before AI',
+      'AI recommends, your people decide',
+      'Platform-neutral cloud and data decisions',
+      'We run on what we build',
     ],
     channels: ['linkedin', 'google', 'facebook', 'instagram', 'x', 'wechat'],
     pilotOffer: {
-      name: 'FDE Data & AI Pilot',
-      what: 'A free 60-minute data health check, then a 2-week embedded sprint that ships one dashboard or one AI automation into production',
-      price: '[Set the sprint price on phledger.com]',
-      cta: 'Book a free data health check',
+      name: 'Decision sprint',
+      what: 'Two weeks, fixed fee: target architecture, AWS/Azure/Google Cloud compared on your workloads, data management baseline, cost model, risk register and a decision memo your people sign off, plus a pilot plan with the success tests written first',
+      price: 'A$18,000 fixed, 2 weeks (ex GST)',
+      cta: 'Send PHledger a short brief',
     },
+    ladder: [
+      { name: 'Brief and first conversation', price: 'Free', path: '/#contact' },
+      { name: 'Decision sprint', price: 'A$18,000 fixed, 2 weeks', path: '/cloud#pricing' },
+      { name: 'Embedded FDE', price: 'A$26,000 per engineer per month, 3-month minimum', path: '/cloud#pricing' },
+      { name: 'Fixed-scope build', price: 'From A$60,000, paid per tested milestone', path: '/cloud#pricing' },
+    ],
     crossLink: { to: 'phledger-marketing', when: 'A consulting client wants more leads, reviews or social media handled' },
     approvals: { mode: 'zhi_li' },
   },
 }
 
 /** Tagged link so every visit is attributed to the channel and campaign. */
-export function trackedLink(brand: Brand, channel: SocialChannel, campaign: string, path = ''): string {
+export function trackedLink(brand: Brand, channel: SocialChannel, campaign: string, path = brand.contactPath ?? ''): string {
   const url = new URL(path || '/', brand.site.endsWith('/') ? brand.site : brand.site + '/')
   url.searchParams.set('utm_source', channel)
   url.searchParams.set('utm_medium', 'social')

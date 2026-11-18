@@ -35,7 +35,7 @@ export default function Footer() {
             <ul className="space-y-2 text-sm">
               <li><span className="text-gray-400">SilverConnect</span></li>
               <li><span className="text-white font-medium">Digital Marketing</span></li>
-              <li><Link href="/consulting" className="hover:text-white transition-colors">PhLedger Consulting — Data, BI &amp; AI</Link></li>
+              <li><Link href="/consulting" className="hover:text-white transition-colors">PHledger FDE Consulting — Data, AI &amp; Cloud</Link></li>
               <li><Link href="/phledgertax" className="hover:text-white transition-colors">PhLedgerTax</Link></li>
               <li><Link href="/pricing" className="hover:text-white transition-colors">{t('nav.pricing')}</Link></li>
               <li><Link href="/bible" className="hover:text-white transition-colors">{t('nav.bible')}</Link></li>

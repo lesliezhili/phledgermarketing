@@ -45,7 +45,7 @@ describe("formatting for each channel", () => {
 
   it("Chinese posts keep their Chinese call to action", () => {
     const zh = CONSULTING_LAUNCH.find(i => i.language === "zh")!
-    expect(formatForChannel(zh, consulting, "wechat").text).toContain("预约免费 60 分钟数据体检")
+    expect(formatForChannel(zh, consulting, "wechat").text).toContain("给 PHledger 发一份简短需求")
   })
 
   it("launch posts make no invented claims (no percentages or dollar results)", () => {

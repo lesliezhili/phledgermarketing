@@ -45,6 +45,10 @@ test('consulting page links to phledger.com with referral tracking', async ({ pa
   expect(href).toContain('https://phledger.com/')
   expect(href).toContain('utm_source=phledger-marketing')
   expect(href).toContain('utm_medium=referral')
+  for (const step of ['Decision sprint', 'Embedded FDE', 'Fixed-scope build']) {
+    await expect(page.getByRole('heading', { name: new RegExp(step) })).toBeVisible()
+  }
+  await expect(page.getByText('A$18,000 fixed, 2 weeks')).toBeVisible()
   await page.goto('/services')
   await page.getByRole('link', { name: 'Data, BI & AI Consulting' }).click()
   await expect(page).toHaveURL(/\/consulting$/)
