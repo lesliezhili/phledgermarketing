@@ -11,7 +11,7 @@
 // All costs are ASSUMPTIONS in AUD excl. GST — change them here.
 
 import {
-  packages, commitments, SETUP_FEE, leadPrices, PPL, MULTI_STORE, FOUNDING_OFFER, FOUNDING_PILOT, SEO_REPUTATION, ORDER_AUTOMATION, type Tier, type LeadType,
+  packages, commitments, SETUP_FEE, leadPrices, PPL, MULTI_STORE, FOUNDING_OFFER, FOUNDING_PILOT, SEO_REPUTATION, ORDER_AUTOMATION, LAUNCH_OFFER, REFERRAL, type Tier, type LeadType,
 } from './catalog'
 
 export const COSTS = {
@@ -240,6 +240,37 @@ export function orderAutomationEconomics(orders: number) {
     dayOneProfit: r2(ORDER_AUTOMATION.setup + fee - HOURS.ordersSetup * COSTS.hourlyCost - cost),
     monthlyMargin: r2((worstFee - cost) / worstFee),
   }
+}
+
+/**
+ * Launch offer: what 100 free months cost (time and cash), and how long the
+ * converted clients take to pay it back at a given conversion rate.
+ */
+export function launchOfferEconomics(conversionRate: number) {
+  const n = LAUNCH_OFFER.maxClients
+  const timeCost = n * LAUNCH_OFFER.maxHours * COSTS.hourlyCost
+  const cashCost = n * LAUNCH_OFFER.aiCostPerClient
+  const paying = Math.round(n * conversionRate)
+  const tier = LAUNCH_OFFER.convertsTo
+  const price = packages.find(p => p.tier === tier)!.price
+  const monthlyProfitEach = price - packageMonthlyCost(tier)
+  const hoursPerMonth = LAUNCH_OFFER.perMonth * LAUNCH_OFFER.maxHours
+  return {
+    timeCost: r2(timeCost),
+    cashCost: r2(cashCost),
+    paying,
+    monthlyProfitFromConverted: r2(paying * monthlyProfitEach),
+    paybackMonths: paying ? r2((timeCost + cashCost) / (paying * monthlyProfitEach)) : Infinity,
+    hoursPerMonth,
+    // converted client's first payment (no setup fee) vs. their first paid month's cost
+    convertedDayOneProfit: r2(price - packageMonthlyCost(tier)),
+  }
+}
+
+/** A referral credit never costs more than the cheapest paid month earns. */
+export function referralEconomics() {
+  const cheapest = Math.min(...packages.map(p => p.price - packageMonthlyCost(p.tier)))
+  return { creditPerReferral: REFERRAL.creditEach * 2, cheapestMonthlyProfit: r2(cheapest) }
 }
 
 /** Cash PhLedger pays out per client per month (not time): tools and tracked number. */

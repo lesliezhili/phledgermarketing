@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest"
 import {
   packageEconomics, payPerLeadEconomics, upgradeEconomics, capacity, costPerLead,
-  packageSetupCost, extraStoreEconomics, foundingOfferEconomics, storeQuoteEconomics, foundingPilotEconomics, seoReputationEconomics, orderAutomationEconomics, cashCostPerClient, payPerLeadEconomics as ppl, MIN_MARGIN, COSTS,
+  packageSetupCost, extraStoreEconomics, foundingOfferEconomics, storeQuoteEconomics, foundingPilotEconomics, seoReputationEconomics, orderAutomationEconomics, cashCostPerClient, payPerLeadEconomics as ppl, launchOfferEconomics, referralEconomics, MIN_MARGIN, COSTS,
 } from "../src/lib/economics"
 import { packages, commitments, leadPrices, PPL, SETUP_FEE, LEAD_RULES } from "../src/lib/catalog"
 
@@ -130,5 +130,24 @@ describe("break even on day one: the business, not just each client", () => {
     for (const cash of entryOffers) {
       expect(cash - cashCostPerClient()).toBeGreaterThanOrEqual(COSTS.monthlyOverhead)
     }
+  })
+})
+
+describe("launch offer (first 100 clients free for a month) and referrals", () => {
+  it("costs little cash: the free month is mostly time", () => {
+    expect(launchOfferEconomics(0.2).cashCost).toBeLessThanOrEqual(300)
+  })
+  it("fits beside paying work: at most half of the month's client hours", () => {
+    expect(launchOfferEconomics(0.2).hoursPerMonth).toBeLessThanOrEqual(COSTS.hoursPerMonthAvailable / 2)
+  })
+  it("pays back within 12 months at a 20% conversion rate", () => {
+    expect(launchOfferEconomics(0.2).paybackMonths).toBeLessThanOrEqual(12)
+  })
+  it("a converted client is profitable on their first paid day", () => {
+    expect(launchOfferEconomics(0.2).convertedDayOneProfit).toBeGreaterThan(0)
+  })
+  it("a referral (credit to both sides) costs less than one month's profit from the new client", () => {
+    const r = referralEconomics()
+    expect(r.creditPerReferral).toBeLessThanOrEqual(r.cheapestMonthlyProfit * 2)
   })
 })

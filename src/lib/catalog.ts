@@ -234,6 +234,27 @@ export const ORDER_AUTOMATION = {
   perExtraOrder: 0.5,
 }
 
+// Launch offer (K's suggestion): PhLedger's first 100 clients get a free
+// Starter Month — Google profile fixes, the free tool stack, auto-reply
+// templates and a 30-day before/after. Lighter than the founding pilot and
+// mostly automated. Staggered so one person can deliver it alongside paying
+// clients. Converts to Grace with no setup fee (setup done in the free month).
+export const LAUNCH_OFFER = {
+  maxClients: 100,
+  perMonth: 25, // start at most 25 free months a month
+  maxHours: 1.5, // per free client, hard cap
+  aiCostPerClient: 2, // AUD of Claude usage per free month (twice-daily routine, mostly Haiku)
+  convertsTo: 'Grace' as const,
+}
+
+// Referral reward, for any client who refers a new paying client (K first):
+// both get a credit once the referred client has paid their first invoice.
+// A credit, not cash, and capped, so it can never exceed what a month costs us.
+export const REFERRAL = {
+  creditEach: 50, // AUD off the next invoice, for referrer and referred
+  maxCreditsPerMonth: 3, // per referrer; more referrals roll over
+}
+
 export const FOUNDING_PILOT = {
   days: 30,
   stores: 1,
