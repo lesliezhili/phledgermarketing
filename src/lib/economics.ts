@@ -11,7 +11,7 @@
 // All costs are ASSUMPTIONS in AUD excl. GST — change them here.
 
 import {
-  packages, commitments, SETUP_FEE, leadPrices, PPL, MULTI_STORE, type Tier, type LeadType,
+  packages, commitments, SETUP_FEE, leadPrices, PPL, MULTI_STORE, FOUNDING_OFFER, type Tier, type LeadType,
 } from './catalog'
 
 export const COSTS = {
@@ -109,6 +109,29 @@ export function extraStoreEconomics() {
     dayOneCost: r2(dayOneCost),
     dayOneProfit: r2(dayOneCash - dayOneCost),
     monthlyMargin: r2((worstFee - monthlyCost) / worstFee),
+  }
+}
+
+/** Founding-customer offer for an owner with `stores` stores on one package tier. */
+export function foundingOfferEconomics(tier: Tier, stores: number) {
+  const f = FOUNDING_OFFER
+  const pkg = packages.find(p => p.tier === tier)!
+  const extra = Math.max(0, stores - 1)
+  const setupFee = (SETUP_FEE + extra * MULTI_STORE.extraStoreSetup) * (1 - f.setupDiscount)
+  const monthlyFee = (pkg.price + extra * MULTI_STORE.extraStoreMonthly) * (1 - f.monthlyDiscount)
+  const extraStoreMonthlyCost = HOURS.extraStoreMonthly * COSTS.hourlyCost + COSTS.trackedNumberPerMonth + COSTS.toolsPerPackageClient
+  const setupCost = packageSetupCost() + extra * HOURS.extraStoreSetup * COSTS.hourlyCost
+  const monthlyCost = packageMonthlyCost(tier) + extra * extraStoreMonthlyCost
+  const dayOneCash = setupFee + f.prepayMonths * monthlyFee
+  const standardDayOne = SETUP_FEE + extra * MULTI_STORE.extraStoreSetup + f.prepayMonths * (pkg.price + extra * MULTI_STORE.extraStoreMonthly)
+  return {
+    setupFee: r2(setupFee),
+    monthlyFee: r2(monthlyFee),
+    dayOneCash: r2(dayOneCash),
+    // cash paid up front against setup plus the whole prepaid period's work
+    prepaidPeriodProfit: r2(dayOneCash - setupCost - f.prepayMonths * monthlyCost),
+    monthlyMargin: r2((monthlyFee - monthlyCost) / monthlyFee),
+    savingVsStandard: r2(standardDayOne - dayOneCash),
   }
 }
 

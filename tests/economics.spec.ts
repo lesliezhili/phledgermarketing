@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest"
 import {
   packageEconomics, payPerLeadEconomics, upgradeEconomics, capacity, costPerLead,
-  packageSetupCost, extraStoreEconomics, MIN_MARGIN, COSTS,
+  packageSetupCost, extraStoreEconomics, foundingOfferEconomics, MIN_MARGIN, COSTS,
 } from "../src/lib/economics"
 import { packages, commitments, leadPrices, PPL, SETUP_FEE, LEAD_RULES } from "../src/lib/catalog"
 
@@ -29,6 +29,17 @@ describe("profitable from day one", () => {
     expect(e.dayOneProfit).toBeGreaterThan(0)
     expect(e.monthlyMargin).toBeGreaterThanOrEqual(MIN_MARGIN)
   })
+
+  for (const pkg of packages) {
+    it(`founding offer on ${pkg.tier} is profitable for 1 to 10 stores`, () => {
+      for (let stores = 1; stores <= 10; stores++) {
+        const e = foundingOfferEconomics(pkg.tier, stores)
+        expect(e.prepaidPeriodProfit, `${stores} stores`).toBeGreaterThan(0)
+        expect(e.monthlyMargin, `${stores} stores`).toBeGreaterThanOrEqual(MIN_MARGIN)
+        expect(e.savingVsStandard).toBeGreaterThan(0)
+      }
+    })
+  }
 
   it("the setup fee covers the setup work", () => {
     expect(SETUP_FEE).toBeGreaterThan(packageSetupCost())

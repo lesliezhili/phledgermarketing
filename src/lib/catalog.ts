@@ -201,6 +201,19 @@ export const MULTI_STORE = {
   extraStoreSetup: 190,
 }
 
+// Founding-customer offer for PhLedger Marketing's first clients, in return
+// for a case study with real numbers, an honest review and introductions.
+// Half-price setup needs the first months paid up front, so even the
+// founding price is profitable from day one (tests/economics.spec.ts).
+// The monthly discount does not stack with loyalty: the bigger one applies.
+export const FOUNDING_OFFER = {
+  maxClients: 3,
+  setupDiscount: 0.5, // 50% off the package and extra-store setup fees
+  monthlyDiscount: 0.1, // 10% off every store's monthly fee for the first 12 months
+  discountMonths: 12,
+  prepayMonths: 3, // first 3 months paid up front
+}
+
 export const leadNotCharged = [
   'Spam, sales pitches, job seekers and wrong numbers',
   `Calls under ${LEAD_RULES.minCallSeconds} seconds and missed calls with no message`,
