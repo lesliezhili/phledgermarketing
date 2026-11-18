@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest"
 import {
   packageEconomics, payPerLeadEconomics, upgradeEconomics, capacity, costPerLead,
-  packageSetupCost, extraStoreEconomics, foundingOfferEconomics, storeQuoteEconomics, MIN_MARGIN, COSTS,
+  packageSetupCost, extraStoreEconomics, foundingOfferEconomics, storeQuoteEconomics, foundingPilotEconomics, MIN_MARGIN, COSTS,
 } from "../src/lib/economics"
 import { packages, commitments, leadPrices, PPL, SETUP_FEE, LEAD_RULES } from "../src/lib/catalog"
 
@@ -83,4 +83,14 @@ describe("every quote the agent can send is profitable", () => {
       })
     }
   }
+})
+
+describe("founding pilot (free 30-day trial) is a capped acquisition cost", () => {
+  it("costs no more than the free health checks for a month", () => {
+    // 4 health checks a week at 0.5h is the standing marketing budget (~$480/month)
+    expect(foundingPilotEconomics().cost).toBeLessThanOrEqual(4 * 4 * 0.5 * COSTS.hourlyCost)
+  })
+  it("pays back within 12 months of the founding monthly price", () => {
+    expect(foundingPilotEconomics("Grace").paybackMonths).toBeLessThanOrEqual(12)
+  })
 })

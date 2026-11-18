@@ -11,7 +11,7 @@
 // All costs are ASSUMPTIONS in AUD excl. GST — change them here.
 
 import {
-  packages, commitments, SETUP_FEE, leadPrices, PPL, MULTI_STORE, FOUNDING_OFFER, type Tier, type LeadType,
+  packages, commitments, SETUP_FEE, leadPrices, PPL, MULTI_STORE, FOUNDING_OFFER, FOUNDING_PILOT, type Tier, type LeadType,
 } from './catalog'
 
 export const COSTS = {
@@ -184,6 +184,17 @@ export function storeQuoteEconomics(tier: Tier, stores: number, commitmentId: st
     monthlyMargin: r2(monthlyMargin),
     profitable: prepaidPeriodProfit > 0 && monthlyMargin >= MIN_MARGIN,
   }
+}
+
+/**
+ * Founding pilot: what the free trial costs, and how many months of the
+ * founding monthly price (after the pilot) it takes to earn it back.
+ */
+export function foundingPilotEconomics(tier: Tier = 'Grace') {
+  const cost = FOUNDING_PILOT.maxHours * COSTS.hourlyCost + COSTS.trackedNumberPerMonth + COSTS.toolsPerPackageClient
+  const pkg = packages.find(p => p.tier === tier)!
+  const monthlyProfit = pkg.price * (1 - FOUNDING_OFFER.monthlyDiscount) - packageMonthlyCost(tier)
+  return { cost: r2(cost), monthlyProfitAfter: r2(monthlyProfit), paybackMonths: r2(cost / monthlyProfit) }
 }
 
 /** How many clients of one kind fill the available hours, and what that earns. */

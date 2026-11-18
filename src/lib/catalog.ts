@@ -206,6 +206,20 @@ export const MULTI_STORE = {
 // Half-price setup needs the first months paid up front, so even the
 // founding price is profitable from day one (tests/economics.spec.ts).
 // The monthly discount does not stack with loyalty: the bigger one applies.
+// Founding pilot: a free 30-day trial for founding clients only, so a
+// first client can judge real work before paying. It is NOT profitable on
+// day one: it is the cost of winning a client (like the free health check)
+// and is strictly capped. tests/economics.spec.ts proves it pays back.
+// One store, Google Maps and enquiries only, and zero extra work for store
+// staff beyond placing a review card at the counter.
+export const FOUNDING_PILOT = {
+  days: 30,
+  stores: 1,
+  maxHours: 6, // hard cap on Zhi Li's time during the pilot
+  maxStaffMinutesPerWeek: 10, // store manager's time, at most
+  paybackMonths: 12, // pilot cost must be recovered within this many paid months
+}
+
 export const FOUNDING_OFFER = {
   maxClients: 3,
   setupDiscount: 0.5, // 50% off the package and extra-store setup fees
