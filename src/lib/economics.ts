@@ -11,7 +11,7 @@
 // All costs are ASSUMPTIONS in AUD excl. GST — change them here.
 
 import {
-  packages, commitments, SETUP_FEE, leadPrices, PPL, MULTI_STORE, FOUNDING_OFFER, FOUNDING_PILOT, type Tier, type LeadType,
+  packages, commitments, SETUP_FEE, leadPrices, PPL, MULTI_STORE, FOUNDING_OFFER, FOUNDING_PILOT, SEO_REPUTATION, ORDER_AUTOMATION, type Tier, type LeadType,
 } from './catalog'
 
 export const COSTS = {
@@ -37,6 +37,12 @@ export const HOURS = {
   healthCheck: 0.5, // free check, mostly drafted by the skill
   extraStoreSetup: 2, // claim/verify profile, categories, hours, products, photos, review card
   extraStoreMonthly: 0.5, // local posts reuse the first store's content; review replies
+  seoRepSetup: 2, // SEO audit, schema, titles, review automation
+  seoRepMonthly: 1, // SEO updates, approving negative-review replies
+  seoRepExtraStore: 0.5,
+  ordersSetup: 2,
+  ordersMonthlyPerStore: 0.5, // menu updates, orders that need a person
+  smsPerOrder: 3, // confirmation, reminder, thank-you
 }
 
 export const MIN_MARGIN = 0.25 // at the deepest discount a client can get
@@ -195,6 +201,33 @@ export function foundingPilotEconomics(tier: Tier = 'Grace') {
   const pkg = packages.find(p => p.tier === tier)!
   const monthlyProfit = pkg.price * (1 - FOUNDING_OFFER.monthlyDiscount) - packageMonthlyCost(tier)
   return { cost: r2(cost), monthlyProfitAfter: r2(monthlyProfit), paybackMonths: r2(cost / monthlyProfit) }
+}
+
+/** Local SEO & Reputation add-on for `stores` stores. */
+export function seoReputationEconomics(stores = 1) {
+  const extra = Math.max(0, stores - 1)
+  const fee = SEO_REPUTATION.monthly + extra * SEO_REPUTATION.perExtraStore
+  const cost = (HOURS.seoRepMonthly + extra * HOURS.seoRepExtraStore) * COSTS.hourlyCost
+  const setupCost = HOURS.seoRepSetup * COSTS.hourlyCost
+  const worstFee = fee * (1 - LOYALTY_MAX_DISCOUNT)
+  return {
+    monthlyFee: r2(fee),
+    dayOneProfit: r2(SEO_REPUTATION.setup + fee - setupCost - cost),
+    monthlyMargin: r2((worstFee - cost) / worstFee),
+  }
+}
+
+/** Order Automation add-on for one store in a month with `orders` orders. */
+export function orderAutomationEconomics(orders: number) {
+  const extraOrders = Math.max(0, orders - ORDER_AUTOMATION.includedOrders)
+  const fee = ORDER_AUTOMATION.monthlyPerStore + extraOrders * ORDER_AUTOMATION.perExtraOrder
+  const cost = HOURS.ordersMonthlyPerStore * COSTS.hourlyCost + orders * HOURS.smsPerOrder * COSTS.smsPerMessage
+  const worstFee = fee * (1 - LOYALTY_MAX_DISCOUNT)
+  return {
+    monthlyFee: r2(fee),
+    dayOneProfit: r2(ORDER_AUTOMATION.setup + fee - HOURS.ordersSetup * COSTS.hourlyCost - cost),
+    monthlyMargin: r2((worstFee - cost) / worstFee),
+  }
 }
 
 /** How many clients of one kind fill the available hours, and what that earns. */

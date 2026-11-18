@@ -212,6 +212,28 @@ export const MULTI_STORE = {
 // and is strictly capped. tests/economics.spec.ts proves it pays back.
 // One store, Google Maps and enquiries only, and zero extra work for store
 // staff beyond placing a review card at the counter.
+// Local SEO & Reputation add-on, on top of any package: website local SEO
+// (schema, titles, Google-consistent details, local keywords), AI review
+// replies, and bad-review handling with owner escalation. Daily Google
+// Maps ads ("daily 投流") are part of ads management in Faithful and up;
+// ad spend is always paid by the client directly to Google.
+export const SEO_REPUTATION = {
+  setup: 149, // SEO audit, schema on the site, review automation set-up
+  monthly: 99, // first store
+  perExtraStore: 49, // each extra store
+}
+
+// Order Automation add-on, per store: orders from Instagram, Facebook,
+// RedNote, WeChat, phone and the website checked the same way, confirmed,
+// sent to the kitchen and followed up (src/lib/orders.ts). SMS is the main
+// running cost, so orders above the included number are charged.
+export const ORDER_AUTOMATION = {
+  setup: 149, // menu, sizes, lead times, channel connections, staff form
+  monthlyPerStore: 99,
+  includedOrders: 100, // per store per month
+  perExtraOrder: 0.5,
+}
+
 export const FOUNDING_PILOT = {
   days: 30,
   stores: 1,

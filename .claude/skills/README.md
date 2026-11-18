@@ -28,6 +28,10 @@ the LLM → Agent → Skills → MCP layering:
 | `loyalty-emails` | Birthday, win-back, thank-you, referral emails | Faithful and up |
 | `speed-to-lead` | Instant honest reply to every enquiry and missed call | Grace and up (AI Speed-to-Lead Replies) |
 | `lead-qualification` | Eligibility, logging and billing leads | Pay per lead (tiny businesses only) |
+| `daily-maps-routine` | Daily ads budget and alerts (投流), review replies and escalation, daily owner summary | Faithful + SEO & Reputation |
+| `local-seo` | Website schema, titles, local keywords, name/address/phone match with Google | SEO & Reputation add-on |
+| `order-automation` | Orders from Instagram, Facebook, RedNote, WeChat, phone and website | Order Automation add-on |
+| `client-quote` | Quote, message, checklist, agenda and actions for a prospect | Every new client |
 | `monthly-report` | One-page results against break-even | Every plan |
 
 Prices, packages, lead prices and the tiny-business rule live in

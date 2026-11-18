@@ -29,6 +29,14 @@ Hashtags or tags: 3–8, local first (suburb, city), then topic
 Link or QR: the tracked order or enquiry page
 ```
 
+## RedNote (小红书)
+
+For clients with Chinese-speaking customers: notes in Simplified Chinese,
+a short title with the benefit and suburb (e.g. 菲茨罗伊紫薯蛋糕｜生日蛋糕可预订),
+3–9 real photos, honest first-person style, 5–10 tags, the order link in the
+profile. RedNote has no public posting API for this, so notes are drafted and
+a person posts them. No paid or fake reviews; mark any sponsored content.
+
 ## Rules
 
 - Use the client's real photos and numbers only. No stock photos of food or

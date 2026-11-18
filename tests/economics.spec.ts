@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest"
 import {
   packageEconomics, payPerLeadEconomics, upgradeEconomics, capacity, costPerLead,
-  packageSetupCost, extraStoreEconomics, foundingOfferEconomics, storeQuoteEconomics, foundingPilotEconomics, MIN_MARGIN, COSTS,
+  packageSetupCost, extraStoreEconomics, foundingOfferEconomics, storeQuoteEconomics, foundingPilotEconomics, seoReputationEconomics, orderAutomationEconomics, MIN_MARGIN, COSTS,
 } from "../src/lib/economics"
 import { packages, commitments, leadPrices, PPL, SETUP_FEE, LEAD_RULES } from "../src/lib/catalog"
 
@@ -92,5 +92,25 @@ describe("founding pilot (free 30-day trial) is a capped acquisition cost", () =
   })
   it("pays back within 12 months of the founding monthly price", () => {
     expect(foundingPilotEconomics("Grace").paybackMonths).toBeLessThanOrEqual(12)
+  })
+})
+
+describe("Local SEO & Reputation add-on is profitable", () => {
+  it("for 1 to 10 stores, on day one and at the deepest discount", () => {
+    for (let stores = 1; stores <= 10; stores++) {
+      const e = seoReputationEconomics(stores)
+      expect(e.dayOneProfit, `${stores} stores`).toBeGreaterThan(0)
+      expect(e.monthlyMargin, `${stores} stores`).toBeGreaterThanOrEqual(MIN_MARGIN)
+    }
+  })
+})
+
+describe("Order Automation add-on is profitable at any order volume", () => {
+  it("from 0 to 2,000 orders a month per store", () => {
+    for (const orders of [0, 10, 50, 100, 101, 200, 500, 1000, 2000]) {
+      const e = orderAutomationEconomics(orders)
+      expect(e.dayOneProfit, `${orders} orders`).toBeGreaterThan(0)
+      expect(e.monthlyMargin, `${orders} orders`).toBeGreaterThanOrEqual(MIN_MARGIN)
+    }
   })
 })
