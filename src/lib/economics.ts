@@ -11,7 +11,7 @@
 // All costs are ASSUMPTIONS in AUD excl. GST — change them here.
 
 import {
-  packages, commitments, SETUP_FEE, leadPrices, PPL, MULTI_STORE, FOUNDING_OFFER, FOUNDING_PILOT, SEO_REPUTATION, ORDER_AUTOMATION, LAUNCH_OFFER, REFERRAL, type Tier, type LeadType,
+  packages, commitments, SETUP_FEE, leadPrices, PPL, MULTI_STORE, FOUNDING_OFFER, FOUNDING_PILOT, SEO_REPUTATION, ORDER_AUTOMATION, AI_CUSTOMER_SERVICE, LAUNCH_OFFER, REFERRAL, type Tier, type LeadType,
 } from './catalog'
 
 export const COSTS = {
@@ -44,7 +44,13 @@ export const HOURS = {
   ordersSetup: 2,
   ordersMonthlyPerStore: 0.5, // menu updates, orders that need a person
   smsPerOrder: 3, // confirmation, reminder, thank-you
+  csSetup: 2, // approved facts, FAQs, channels, hand-over rules
+  csMonthly: 1, // approving complaint replies, adding FAQs from hand-overs
+  csExtraStore: 0.25,
 }
+
+// AI model share plus messaging (some channels are SMS, most are free) per conversation.
+export const CS_COST_PER_CONVERSATION = 0.15
 
 export const MIN_MARGIN = 0.25 // at the deepest discount a client can get
 const LOYALTY_MAX_DISCOUNT = 0.1 // loyalty from month 13; the bigger of loyalty/prepay applies
@@ -225,6 +231,21 @@ export function seoReputationEconomics(stores = 1) {
   return {
     monthlyFee: r2(fee),
     dayOneProfit: r2(SEO_REPUTATION.setup + fee - setupCost - cost),
+    monthlyMargin: r2((worstFee - cost) / worstFee),
+  }
+}
+
+/** AI Customer Service add-on for a month with `conversations` conversations. */
+export function aiCustomerServiceEconomics(conversations: number, stores = 1) {
+  const extraStores = Math.max(0, stores - 1)
+  const extraConv = Math.max(0, conversations - AI_CUSTOMER_SERVICE.includedConversations)
+  const fee = AI_CUSTOMER_SERVICE.monthly + extraStores * AI_CUSTOMER_SERVICE.perExtraStore + extraConv * AI_CUSTOMER_SERVICE.perExtraConversation
+  const cost = (HOURS.csMonthly + extraStores * HOURS.csExtraStore) * COSTS.hourlyCost + conversations * CS_COST_PER_CONVERSATION
+  const worstFee = fee * (1 - LOYALTY_MAX_DISCOUNT)
+  return {
+    monthlyFee: r2(fee),
+    monthlyCost: r2(cost),
+    dayOneProfit: r2(AI_CUSTOMER_SERVICE.setup + fee - HOURS.csSetup * COSTS.hourlyCost - cost),
     monthlyMargin: r2((worstFee - cost) / worstFee),
   }
 }

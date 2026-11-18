@@ -77,8 +77,10 @@ export default function BookingPage() {
   const perLeadBlocked = isPerLead && (!eligible || !abnValid || !tinyDeclared)
 
   // Day one for pay per lead: the start-up fee plus the first month's minimum, in advance.
-  const basePrice = isPerLead ? PPL.monthlyMinimum : quote.fees
-  const setupFee = isPerLead ? PPL.startupFee : quote.setup
+  // Add-ons (e.g. AI Customer Service): their own first month and setup, on top of a plan.
+  const addOn = selectedService?.addOnMonthly
+  const basePrice = isPerLead ? PPL.monthlyMinimum : addOn ? addOn : quote.fees
+  const setupFee = isPerLead ? PPL.startupFee : addOn ? selectedService?.addOnSetup ?? 0 : quote.setup
   const rushFee = rush ? 50 : 0
 
   // Cloud platform fee (% of base)
@@ -452,7 +454,10 @@ export default function BookingPage() {
                 <div className="flex justify-between">
                   <span className="text-gray-600">
                     {form.service}
-                    {isPaid && (
+                    {addOn && (
+                      <span className="block text-xs text-gray-500">Add-on to any package or pay per lead · first month</span>
+                    )}
+                    {isPaid && !addOn && (
                       <span className="block text-xs text-gray-500">
                         {selectedService?.tier} package · ${quote.monthly.toFixed(2)}/mo × {quote.months}
                         {quote.discount > 0 && ` (${Math.round(quote.discount * 100)}% off)`}
@@ -558,7 +563,7 @@ export default function BookingPage() {
                   <div className="bg-blue-50 rounded-lg p-3 mt-2">
                     <p className="text-xs font-semibold text-blue-800 mb-1">Fee Breakdown:</p>
                     <div className="text-xs text-blue-700 space-y-0.5">
-                      <p>• {isPerLead ? 'Leads (billed monthly)' : 'Package'}: ${basePrice.toFixed(2)}</p>
+                      <p>• {isPerLead ? 'Leads (billed monthly)' : addOn ? 'Add-on, first month' : 'Package'}: ${basePrice.toFixed(2)}</p>
                       {setupFee > 0 && <p>• Setup: ${setupFee.toFixed(2)}</p>}
                       {rush && <p>• Rush: $50.00</p>}
                       {adBudgetAmount > 0 && <p>• Ad Budget: ${adBudgetAmount.toFixed(2)}</p>}

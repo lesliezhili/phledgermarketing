@@ -43,6 +43,14 @@ export default function ServicesPage() {
         </Link>
       </div>
 
+      <div className="mb-6 bg-indigo-50 border border-indigo-200 rounded-xl p-5 text-center">
+        <p className="font-bold text-gray-900">🤝 AI Customer Service: get customers and keep them</p>
+        <p className="text-sm text-gray-600 mb-3">Presale questions answered in under a minute; complaints, refunds and faults handed to a person; thank-yous, reviews and reminders that bring customers back.</p>
+        <Link href="/customer-service" className="inline-block bg-indigo-600 text-white px-5 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700 transition-colors">
+          Try AI Customer Service
+        </Link>
+      </div>
+
       <div className="mb-12 bg-green-50 border border-green-200 rounded-xl p-5 text-center">
         <p className="font-bold text-gray-900">Not ready for a monthly package?</p>
         <p className="text-sm text-gray-600 mb-3">Tiny businesses (aggregated annual turnover under $2 million) can pay as you go: pay for each new customer enquiry or call, with a small start-up fee and monthly minimum. No contract.</p>

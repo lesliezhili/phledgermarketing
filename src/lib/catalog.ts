@@ -223,6 +223,19 @@ export const SEO_REPUTATION = {
   perExtraStore: 49, // each extra store
 }
 
+// AI Customer Service add-on: one inbox for every channel; presale questions
+// (enquiries, prices, hours, bookings, orders) and aftersales (order status,
+// faults, complaints, refunds, cancellations, reorders) answered or handed
+// over (src/lib/customer-service.ts), plus the after-purchase journey that
+// keeps customers coming back. AI and SMS costs scale with conversations.
+export const AI_CUSTOMER_SERVICE = {
+  setup: 149, // approved facts (hours, prices, policies, FAQs), channels, hand-over rules
+  monthly: 149, // first store
+  perExtraStore: 49,
+  includedConversations: 200, // per month across all stores
+  perExtraConversation: 0.4,
+}
+
 // Order Automation add-on, per store: orders from Instagram, Facebook,
 // RedNote, WeChat, phone and the website checked the same way, confirmed,
 // sent to the kitchen and followed up (src/lib/orders.ts). SMS is the main
@@ -298,8 +311,10 @@ export interface Service {
   id: number
   name: string
   desc: string
-  tier: Tier | 'Free' // the cheapest package that includes it
+  tier: Tier | 'Free' // the cheapest package that includes it (or can take the add-on)
   icon: string
+  addOnMonthly?: number // sold as an add-on to any package at this monthly price
+  addOnSetup?: number
 }
 
 // Ids are stable: /booking?service=<id> links depend on them.
@@ -314,11 +329,13 @@ export const services: Service[] = [
   { id: 8, name: 'Analytics & Reporting', desc: 'Monthly results against break-even: what sold, which channel, what to change.', tier: 'Grace', icon: '📊' },
   { id: 9, name: 'Customer Loyalty Program', desc: 'Birthday offers, repeat-customer emails and review requests that bring your customers back.', tier: 'Faithful', icon: '💌' },
   { id: 11, name: 'AI Speed-to-Lead Replies', desc: 'Every enquiry and missed call gets an honest automated reply within a minute — by SMS, email or WeChat, in English or Chinese — that asks the questions you need to quote — while you stay on the job. Works for leads from hipages, Airtasker, Bark and franchise head office too.', tier: 'Grace', icon: '⚡' },
+  { id: 12, name: 'AI Customer Service (Presale & Aftersales)', desc: 'One AI inbox for your website (AI agent chat and enquiry email) and your phone and mobile (calls and SMS), plus WhatsApp, Messenger, Instagram and WeChat. Before the sale it answers prices, hours, bookings and orders from your approved facts; after the sale it handles order status, faults, complaints and refunds with a person stepping in, then thanks, checks in, asks for a review and reminds customers to come back.', tier: 'Grace', icon: '🤝', addOnMonthly: AI_CUSTOMER_SERVICE.monthly, addOnSetup: AI_CUSTOMER_SERVICE.setup },
   { id: 10, name: 'Creator & B2B Campaigns', desc: 'Creator partnerships and LinkedIn campaigns to win bigger and corporate customers.', tier: 'Abundant', icon: '👑' },
 ]
 
 export function serviceLabel(s: Service) {
   if (s.tier === 'Free') return 'Free'
+  if (s.addOnMonthly) return 'Add-on · $' + s.addOnMonthly + '/mo'
   return s.tier + ' · $' + packageFor(s.tier)!.price + '/mo'
 }
 

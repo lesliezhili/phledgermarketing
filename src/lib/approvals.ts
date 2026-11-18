@@ -9,7 +9,8 @@
 //
 // Hard rules apply in EVERY mode and cannot be switched off:
 //   - critical reviews and allergy orders always go to a person and the owner
-//   - prices, discounts and offers are the owner's decision
+//   - prices, discounts, offers, refunds and compensation are the owner's decision
+//   - complaints are answered by a person (AI only acknowledges instantly)
 //   - spending more than the client's ad plan needs the client's approval
 //   - RedNote has no public API: a person sends
 //   - anything not listed is not allowed automatically
@@ -33,6 +34,11 @@ export type ActionType =
   | 'loyalty_message' // birthday, win-back, seasonal (consented customers only)
   | 'offer_discount' // any discount or free item
   | 'price_change'
+  | 'cs_instant_reply' // customer service: factual answer from the client's approved facts, or a holding reply that promises nothing
+  | 'cs_support_reply' // how-to or fault help that needs a person's words
+  | 'cs_complaint_reply' // the reply to an unhappy customer
+  | 'cs_refund' // refund, replacement, repair, credit or compensation
+  | 'cs_critical' // food safety, allergy, injury, legal or threats
 
 export type Route = 'auto' | 'zhi_li' | 'zhi_li_then_client' | 'person_sends' | 'escalate_owner'
 
@@ -55,7 +61,7 @@ export interface Decision {
 
 // Routine, transactional and time-critical: these run automatically in every
 // mode, because speed is the value (a reply in 60 seconds, a confirmed order).
-const ALWAYS_AUTO: ActionType[] = ['enquiry_reply', 'order_confirmation', 'ad_budget_today', 'ad_pause']
+const ALWAYS_AUTO: ActionType[] = ['enquiry_reply', 'order_confirmation', 'ad_budget_today', 'ad_pause', 'cs_instant_reply']
 
 // Simple and low-risk: automatic only in auto_simple mode.
 const SIMPLE: ActionType[] = ['review_reply_positive', 'post_google', 'loyalty_message']
@@ -67,10 +73,10 @@ export function decide(action: ActionRequest, policy: ApprovalPolicy): Decision 
   const t = action.type
 
   // --- hard rules, every mode ---
-  if (t === 'review_reply_critical' || t === 'order_allergy') {
+  if (t === 'review_reply_critical' || t === 'order_allergy' || t === 'cs_critical') {
     return { route: 'escalate_owner', reason: 'Safety-critical: a person handles it and the owner is told now' }
   }
-  if (t === 'price_change' || t === 'offer_discount') {
+  if (t === 'price_change' || t === 'offer_discount' || t === 'cs_refund') {
     return { route: 'zhi_li_then_client', reason: 'Prices and offers are the owner\'s decision' }
   }
   if (t === 'ad_budget_increase') {

@@ -28,6 +28,7 @@ the LLM → Agent → Skills → MCP layering:
 | `ad-campaign` | Paid ads on Meta, Google, LinkedIn, TikTok | Faithful and up |
 | `loyalty-emails` | Birthday, win-back, thank-you, referral emails | Faithful and up |
 | `speed-to-lead` | Instant honest reply to every enquiry and missed call | Grace and up (AI Speed-to-Lead Replies) |
+| `customer-service` | AI Customer Service: presale questions and aftersales (complaints, refunds, reorders) on the website and phone/mobile, plus the after-purchase journey | AI Customer Service add-on |
 | `lead-qualification` | Eligibility, logging and billing leads | Pay per lead (tiny businesses only) |
 | `daily-maps-routine` | Daily ads budget and alerts (投流), review replies and escalation, daily owner summary | Faithful + SEO & Reputation |
 | `local-seo` | Website schema, titles, local keywords, name/address/phone match with Google | SEO & Reputation add-on |
