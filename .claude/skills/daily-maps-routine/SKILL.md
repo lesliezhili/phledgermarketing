@@ -24,6 +24,14 @@ anything is published, sent or spent, and log it with `auditEntry`:
 The goal behind every action: more leads, more purchases, loyal customers,
 by beating expectations on price and quality — never by cutting corners.
 
+## Pilot mode (free tools only)
+
+During a pilot there is no SMS or tracked number: replies go through Meta
+Business Suite, WhatsApp Business, Gmail and the store's WeChat (drafted with
+`firstReply`, sent by the tool or a person); orders come in on the Google Form;
+results come from Google Business Profile insights and GA4. See
+`src/lib/pilot-stack.ts`.
+
 ## 1. Ads (daily 投流) — `src/lib/daily-ads.ts`
 
 Pull yesterday's results from the client's Google Ads account (spend,

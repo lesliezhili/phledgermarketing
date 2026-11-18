@@ -25,6 +25,16 @@ Chinese-speaking clients get a Chinese summary; English terms prevail.
   and ad spend is paid by the client directly.
 - Both sign before any paid work starts. Invoice through PhLedgerTax.
 
+## Free tools first (pilots and new clients)
+
+A pilot costs PhLedger no cash. Use the free stack in `src/lib/pilot-stack.ts`
+(`pilotStackMarkdown()` prints it): Google Business Profile, the client's own
+Google Ads account, Search Console + GA4, Google Forms + Sheets for orders,
+static QR codes from Chrome, Canva free, Meta Business Suite instant replies,
+WhatsApp Business / Gmail auto-replies, voicemail greeting for missed calls,
+the store's own WeChat and RedNote. Switch on a paid upgrade (tracked number,
+SMS, verified WeChat, Supabase) only when that client is paying.
+
 ## 2. Monthly scorecard — first working day of the month
 
 Copy `clients/_scorecard-template.json` to `clients/scorecard-<YYYY-MM>.json`,
