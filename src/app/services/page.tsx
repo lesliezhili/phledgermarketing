@@ -26,7 +26,7 @@ export default function ServicesPage() {
               <span className="text-linkedin font-bold">{serviceLabel(service)}</span>
             </div>
             <Link
-              href={`/booking?service=${service.id}`}
+              href={service.href ?? `/booking?service=${service.id}`}
               className="block mt-4 text-center bg-linkedin text-white py-2 rounded-lg text-sm font-medium hover:bg-linkedin-dark transition-colors"
             >
               {t('services.book.btn')}

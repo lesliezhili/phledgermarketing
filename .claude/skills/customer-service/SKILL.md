@@ -53,3 +53,26 @@ with last month and with repeat purchases in the funnel.
 Invent a price or fact; promise a refund, credit or discount; say "no
 refunds" or anything that limits Australian Consumer Law rights; argue with
 a customer; message anyone who said STOP.
+
+## AI Front Desk (pay per order) and phledger.com
+
+AI Front Desk moved here from phledger.com: missed calls (voice agent or
+text-back within 60 seconds) and Google reviews, paid per order captured
+($8 standard / $20 high value, no monthly or setup fee, owner's cap, first
+20 orders free). Code `src/lib/front-desk.ts`; economics
+`frontDeskEconomics`, `frontDeskMinOrders` (onboard only when the business
+is likely to reach the minimum orders a month; otherwise offer a package);
+page `/front-desk`.
+
+phledger.com keeps its `/frontdesk` page and integrates through the API
+(browser calls allowed from phledger.com only, `src/lib/integration.ts`):
+
+| Endpoint | Use |
+| --- | --- |
+| `GET /api/front-desk/offer?lang=en\|zh` | Prices and terms (single source of truth) |
+| `POST /api/front-desk/estimate` | Missed-call calculator |
+| `POST /api/front-desk/apply` | Pilot application (Supabase `dm_front_desk_applications`; email fallback) |
+| `POST /api/front-desk/call` | Telephony webhook: caller reply + owner summary (server to server) |
+
+Check new applications daily; at month end run `billFrontDesk` and list every
+order with its reason (charged, duplicate, spam, disputed, pilot, over cap).

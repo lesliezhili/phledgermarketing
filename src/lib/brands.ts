@@ -36,7 +36,7 @@ export const BRANDS: Record<Brand['id'], Brand> = {
   'phledger-marketing': {
     id: 'phledger-marketing',
     name: 'PhLedger Marketing',
-    site: 'https://phledger.com/marketing', // [confirm the marketing site's live URL]
+    site: 'https://phledgermarketing.vercel.app', // live deployment (also used by the /geo pages)
     tagline: 'Marketing for any business — pay for results, never miss a lead.',
     audience: ['Local shops, cafés and venues', 'Tradies and home services', 'Chinese-Australian business owners'],
     pillars: ['Speed-to-lead and missed calls', 'Google Maps and reviews', 'Before/after results', 'Honest marketing tips', 'Behind the automation'],

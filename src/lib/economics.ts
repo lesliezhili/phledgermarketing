@@ -13,6 +13,7 @@
 import {
   packages, commitments, SETUP_FEE, leadPrices, PPL, MULTI_STORE, FOUNDING_OFFER, FOUNDING_PILOT, SEO_REPUTATION, ORDER_AUTOMATION, AI_CUSTOMER_SERVICE, LAUNCH_OFFER, REFERRAL, type Tier, type LeadType,
 } from './catalog'
+import { FRONT_DESK, type FrontDeskTier } from './front-desk'
 
 export const COSTS = {
   hourlyCost: 60, // value of Zhi Li's hour (a sustainable owner wage + super + overheads)
@@ -303,4 +304,43 @@ export function capacity(tier: Tier) {
   const pkg = packages.find(p => p.tier === tier)!
   const profit = clients * (pkg.price - packageMonthlyCost(tier)) - COSTS.monthlyOverhead
   return { clients, monthlyProfit: r2(profit), effectiveHourly: r2(profit / COSTS.hoursPerMonthAvailable) }
+}
+
+// ---------------------------------------------------------------- AI Front Desk
+// Pay per order, no monthly fee: costs are a tracked number, voice-agent
+// minutes and SMS. Calls that don't become orders still cost minutes, so the
+// cost per billed order assumes 2.5 calls handled per order.
+export const FRONT_DESK_COSTS = {
+  fixedMonthly: COSTS.trackedNumberPerMonth + 5, // number + share of tools
+  hoursMonthly: 0.5, // checking disputes, approving review replies
+  hoursSetup: 1.5, // call forwarding, number, Google profile connection, approved facts
+  voicePerMinute: 0.2, // AI voice agent and telephony, AUD
+  minutesPerCall: 3,
+  callsPerOrder: 2.5,
+  smsPerOrder: 3, // caller confirmation, owner summary, follow-up
+}
+
+export const frontDeskCostPerOrder = () =>
+  r2(FRONT_DESK_COSTS.callsPerOrder * FRONT_DESK_COSTS.minutesPerCall * FRONT_DESK_COSTS.voicePerMinute + FRONT_DESK_COSTS.smsPerOrder * COSTS.smsPerMessage)
+
+const frontDeskFixed = () => FRONT_DESK_COSTS.fixedMonthly + FRONT_DESK_COSTS.hoursMonthly * COSTS.hourlyCost
+
+/** One client's month: `orders` billable orders captured (all orders still cost to handle above the cap). */
+export function frontDeskEconomics(orders: number, tier: FrontDeskTier, cap: number = FRONT_DESK.defaultCap) {
+  const fee = Math.min(orders * FRONT_DESK.prices[tier], Math.max(FRONT_DESK.minCap, cap))
+  const cost = frontDeskFixed() + orders * frontDeskCostPerOrder()
+  return { fee: r2(fee), cost: r2(cost), profit: r2(fee - cost), margin: fee > 0 ? r2((fee - cost) / fee) : -1 }
+}
+
+/** Fewest orders a month for the client to clear MIN_MARGIN: below this, don't onboard (or offer a package instead). */
+export function frontDeskMinOrders(tier: FrontDeskTier) {
+  const price = FRONT_DESK.prices[tier]
+  return Math.ceil(frontDeskFixed() / (price * (1 - MIN_MARGIN) - frontDeskCostPerOrder()))
+}
+
+/** The free pilot (no setup fee, first orders free) is an acquisition cost: what it costs and how fast it pays back. */
+export function frontDeskPilotEconomics(tier: FrontDeskTier, ordersPerMonth = frontDeskMinOrders(tier)) {
+  const cost = FRONT_DESK_COSTS.hoursSetup * COSTS.hourlyCost + frontDeskFixed() + FRONT_DESK.pilotFreeOrders * frontDeskCostPerOrder()
+  const monthlyProfit = frontDeskEconomics(ordersPerMonth, tier).profit
+  return { pilotCost: r2(cost), monthlyProfit, paybackMonths: monthlyProfit > 0 ? Math.ceil(cost / monthlyProfit) : Infinity }
 }

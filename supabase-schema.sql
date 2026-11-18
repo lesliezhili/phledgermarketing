@@ -349,3 +349,21 @@ CREATE POLICY "Admins manage leads" ON dm_leads FOR ALL USING (
 ALTER TABLE dm_profiles ADD COLUMN IF NOT EXISTS abn TEXT;
 ALTER TABLE dm_profiles ADD COLUMN IF NOT EXISTS turnover_band TEXT CHECK (turnover_band IN ('under2m', '2to10m', '10mplus'));
 ALTER TABLE dm_profiles ADD COLUMN IF NOT EXISTS tiny_declared_at TIMESTAMPTZ; -- when the owner declared turnover under $2M
+
+-- AI Front Desk pilot applications (from this site and from phledger.com via
+-- POST /api/front-desk/apply). Anyone may submit; only staff can read.
+create table if not exists dm_front_desk_applications (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+  business text not null,
+  industry text,
+  contact_name text,
+  contact text not null,
+  missed_per_week int,
+  message text,
+  language text not null default 'en',
+  source text,
+  status text not null default 'new'
+);
+alter table dm_front_desk_applications enable row level security;
+create policy "anyone can apply" on dm_front_desk_applications for insert to anon, authenticated with check (status = 'new');

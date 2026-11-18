@@ -3,7 +3,7 @@ import { test, expect } from './fixtures'
 const routes = [
   '/', '/services', '/pricing', '/booking', '/speed-to-lead', '/signup', '/login', '/about',
   '/linkedin', '/instagram', '/facebook', '/x-twitter', '/google-maps', '/bible', '/feedback',
-  '/phledgertax', '/finance', '/geo', '/consulting', '/customer-service',
+  '/phledgertax', '/finance', '/geo', '/consulting', '/customer-service', '/front-desk',
 ]
 
 for (const route of routes) {

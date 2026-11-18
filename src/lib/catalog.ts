@@ -5,6 +5,8 @@
 // client; services describe outcomes, not a single platform. Pages read from
 // here so a new channel, business type or service is added in one place.
 
+import { FRONT_DESK } from './front-desk'
+
 export type Tier = 'Grace' | 'Faithful' | 'Abundant'
 
 export interface Channel {
@@ -315,6 +317,8 @@ export interface Service {
   icon: string
   addOnMonthly?: number // sold as an add-on to any package at this monthly price
   addOnSetup?: number
+  priceLabel?: string // overrides the package label (e.g. pay per order)
+  href?: string // where the card's button goes instead of booking
 }
 
 // Ids are stable: /booking?service=<id> links depend on them.
@@ -330,10 +334,12 @@ export const services: Service[] = [
   { id: 9, name: 'Customer Loyalty Program', desc: 'Birthday offers, repeat-customer emails and review requests that bring your customers back.', tier: 'Faithful', icon: '💌' },
   { id: 11, name: 'AI Speed-to-Lead Replies', desc: 'Every enquiry and missed call gets an honest automated reply within a minute — by SMS, email or WeChat, in English or Chinese — that asks the questions you need to quote — while you stay on the job. Works for leads from hipages, Airtasker, Bark and franchise head office too.', tier: 'Grace', icon: '⚡' },
   { id: 12, name: 'AI Customer Service (Presale & Aftersales)', desc: 'One AI inbox for your website (AI agent chat and enquiry email) and your phone and mobile (calls and SMS), plus WhatsApp, Messenger, Instagram and WeChat. Before the sale it answers prices, hours, bookings and orders from your approved facts; after the sale it handles order status, faults, complaints and refunds with a person stepping in, then thanks, checks in, asks for a review and reminds customers to come back.', tier: 'Grace', icon: '🤝', addOnMonthly: AI_CUSTOMER_SERVICE.monthly, addOnSetup: AI_CUSTOMER_SERVICE.setup },
+  { id: 13, name: 'AI Front Desk', desc: 'Missed calls answered in English, Mandarin or Cantonese (or texted back within 60 seconds), the order sent to your phone, and every Google review logged with a reply drafted for you. No monthly or setup fee: pay only per order captured, up to a monthly cap you choose.', tier: 'Free', icon: '☎️', priceLabel: 'Pay per order · $' + FRONT_DESK.prices.standard + ' / $' + FRONT_DESK.prices.high_value, href: '/front-desk' },
   { id: 10, name: 'Creator & B2B Campaigns', desc: 'Creator partnerships and LinkedIn campaigns to win bigger and corporate customers.', tier: 'Abundant', icon: '👑' },
 ]
 
 export function serviceLabel(s: Service) {
+  if (s.priceLabel) return s.priceLabel
   if (s.tier === 'Free') return 'Free'
   if (s.addOnMonthly) return 'Add-on · $' + s.addOnMonthly + '/mo'
   return s.tier + ' · $' + packageFor(s.tier)!.price + '/mo'
