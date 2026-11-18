@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useI18n } from '@/lib/i18n'
-import { packages, commitments, loyaltyPerks, leadPrices, leadNotCharged, paygPerks, LEAD_RULES, PAY_PER_LEAD_ID, SETUP_FEE, MIN_MONTHS } from '@/lib/catalog'
+import { packages, commitments, loyaltyPerks, leadPrices, leadNotCharged, paygPerks, LEAD_RULES, PAY_PER_LEAD_ID, SETUP_FEE, MIN_MONTHS, MULTI_STORE, TINY_BUSINESS } from '@/lib/catalog'
 
 const faqs = [
   { q: 'Is there anything free?', a: 'Yes. The Marketing Health Check is free for any business, with no obligation. It tells you what to fix first and which channels suit you.' },
@@ -11,6 +11,7 @@ const faqs = [
   { q: 'What counts as a lead?', a: `A new customer reaching your business: an email, website form or social message asking to buy or book, or a phone call of ${LEAD_RULES.minCallSeconds} seconds or more to your tracked number. You pay when the lead arrives, whether or not it becomes a sale — you decide how to follow it up.` },
   { q: 'How do you know a lead came from you?', a: 'We give you a tracked phone number and tracked enquiry form or email, and log every lead with its date, channel and contact. You see each one in your dashboard and can dispute it within 7 days.' },
   { q: 'Pay per lead or a monthly package?', a: 'Pay per lead suits tiny businesses that want to pay only for results. A package suits businesses that want marketing run for them every month at a fixed price. Lead spend in the last 60 days comes off the setup fee when you move to a package.' },
+  { q: 'I have several stores. How does pricing work?', a: `Choose a package for your first store. Each extra store gets its own Google Maps profile, tracked phone number and local posts for $${MULTI_STORE.extraStoreMonthly} a month, plus a one-off $${MULTI_STORE.extraStoreSetup} setup — content and offers are shared, so you don't pay twice. Pay per lead is assessed on the whole group: it needs ${TINY_BUSINESS.label} across all connected stores.` },
   { q: 'Is ad spend included?', a: 'No. Ad spend is paid by you straight to the platform, so you see every dollar. A typical small-business budget is $300–$600 a month.' },
   { q: 'Can I change package or cancel?', a: `Yes. Move up or down any month. Monthly plans have a ${MIN_MONTHS}-month minimum, then 30 days' notice. Your price is locked while you stay.` },
   { q: 'How does PhLedgerTax integration work?', a: 'All billing, invoicing, and tax reporting is handled automatically through our PhLedgerTax agent. Prices exclude GST.' },

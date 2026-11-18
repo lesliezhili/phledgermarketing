@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest"
 import {
   packageEconomics, payPerLeadEconomics, upgradeEconomics, capacity, costPerLead,
-  packageSetupCost, MIN_MARGIN, COSTS,
+  packageSetupCost, extraStoreEconomics, MIN_MARGIN, COSTS,
 } from "../src/lib/economics"
 import { packages, commitments, leadPrices, PPL, SETUP_FEE, LEAD_RULES } from "../src/lib/catalog"
 
@@ -23,6 +23,12 @@ describe("profitable from day one", () => {
       expect(upgradeEconomics(pkg.tier).dayOneProfit).toBeGreaterThan(0)
     })
   }
+
+  it("each extra store is profitable on day one and keeps the minimum margin", () => {
+    const e = extraStoreEconomics()
+    expect(e.dayOneProfit).toBeGreaterThan(0)
+    expect(e.monthlyMargin).toBeGreaterThanOrEqual(MIN_MARGIN)
+  })
 
   it("the setup fee covers the setup work", () => {
     expect(SETUP_FEE).toBeGreaterThan(packageSetupCost())

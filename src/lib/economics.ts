@@ -11,7 +11,7 @@
 // All costs are ASSUMPTIONS in AUD excl. GST — change them here.
 
 import {
-  packages, commitments, SETUP_FEE, leadPrices, PPL, type Tier, type LeadType,
+  packages, commitments, SETUP_FEE, leadPrices, PPL, MULTI_STORE, type Tier, type LeadType,
 } from './catalog'
 
 export const COSTS = {
@@ -35,6 +35,8 @@ export const HOURS = {
   smsPerLead: 3, // first reply + up to 2 messages
   upgradeSetup: 4, // package setup after PPL: profile, number and page already exist
   healthCheck: 0.5, // free check, mostly drafted by the skill
+  extraStoreSetup: 2, // claim/verify profile, categories, hours, products, photos, review card
+  extraStoreMonthly: 0.5, // local posts reuse the first store's content; review replies
 }
 
 export const MIN_MARGIN = 0.25 // at the deepest discount a client can get
@@ -94,6 +96,20 @@ export function upgradeEconomics(tier: Tier) {
   const dayOneCash = SETUP_FEE - PPL.upgradeCreditMax + pkg.price
   const dayOneCost = HOURS.upgradeSetup * COSTS.hourlyCost + packageMonthlyCost(tier)
   return { dayOneCash: r2(dayOneCash), dayOneCost: r2(dayOneCost), dayOneProfit: r2(dayOneCash - dayOneCost) }
+}
+
+/** Each extra store for an owner with several stores. */
+export function extraStoreEconomics() {
+  const monthlyCost = HOURS.extraStoreMonthly * COSTS.hourlyCost + COSTS.trackedNumberPerMonth + COSTS.toolsPerPackageClient
+  const dayOneCash = MULTI_STORE.extraStoreSetup + MULTI_STORE.extraStoreMonthly
+  const dayOneCost = HOURS.extraStoreSetup * COSTS.hourlyCost + monthlyCost
+  const worstFee = MULTI_STORE.extraStoreMonthly * (1 - LOYALTY_MAX_DISCOUNT)
+  return {
+    dayOneCash: r2(dayOneCash),
+    dayOneCost: r2(dayOneCost),
+    dayOneProfit: r2(dayOneCash - dayOneCost),
+    monthlyMargin: r2((worstFee - monthlyCost) / worstFee),
+  }
 }
 
 /** How many clients of one kind fill the available hours, and what that earns. */

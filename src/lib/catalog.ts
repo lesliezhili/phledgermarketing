@@ -193,6 +193,14 @@ export const PPL = {
   upgradeCreditMax: 150,
 }
 
+// Several stores under one owner: the first store takes a package; each
+// extra store gets its own Google Business Profile, tracked number and
+// local posts, reusing the first store's content and offers.
+export const MULTI_STORE = {
+  extraStoreMonthly: 99,
+  extraStoreSetup: 190,
+}
+
 export const leadNotCharged = [
   'Spam, sales pitches, job seekers and wrong numbers',
   `Calls under ${LEAD_RULES.minCallSeconds} seconds and missed calls with no message`,
