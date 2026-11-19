@@ -6,3 +6,10 @@ out/
 .env.production
 *.tsbuildinfo
 next-env.d.ts
+test-results/
+playwright-report/
+clients/*
+!clients/_template.json
+!clients/README.md
+!clients/_scorecard-template.json
+!clients/_case-template.json

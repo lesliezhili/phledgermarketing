@@ -1,0 +1,23 @@
+{
+  "business": "Example Bakery",
+  "anonymise": true,
+  "anonymousName": { "en": "A Melbourne bakery", "zh": "墨尔本一家烘焙店" },
+  "industry": { "en": "Bakery, Melbourne", "zh": "墨尔本烘焙店" },
+  "challenge": {
+    "en": "What stopped customers finding or ordering before we started.",
+    "zh": "开始前，顾客为什么找不到或不下单。"
+  },
+  "whatWeDid": [
+    { "en": "Fixed the Google profile and listed every product with prices", "zh": "整理谷歌档案，所有产品带价格上架" }
+  ],
+  "periodDays": 30,
+  "periodEnd": "2027-01-05",
+  "metrics": [
+    { "name": { "en": "Calls from Google Maps", "zh": "谷歌地图来电" }, "before": 0, "after": 0, "source": "Google Business Profile insights" },
+    { "name": { "en": "Direction requests", "zh": "导航次数" }, "before": 0, "after": 0, "source": "Google Business Profile insights" },
+    { "name": { "en": "New Google reviews", "zh": "新增谷歌评价" }, "before": 0, "after": 0, "source": "Google Business Profile" },
+    { "name": { "en": "Orders from the tracked page", "zh": "追踪页面订单" }, "before": 0, "after": 0, "source": "Tracked order page" }
+  ],
+  "quote": { "en": "Only the client's own words, with permission.", "zh": "只用客户本人的话，并征得同意。" },
+  "clientApproved": false
+}

@@ -4,12 +4,12 @@ import Link from 'next/link'
 import { useI18n } from '@/lib/i18n'
 
 const services = [
-  { name: 'Profile & Brand Voice Setup', desc: 'Craft your X persona, bio, pinned posts, and consistent brand voice.', price: 'Free', icon: '🎤' },
-  { name: 'Thread Strategy & Ghostwriting', desc: 'Viral thread templates, daily posting schedule, and thought leadership threads.', price: '$59/mo', icon: '🧵' },
-  { name: 'Engagement & Growth Hacking', desc: 'Reply strategy, quote tweets, community building through authentic conversations.', price: '$49/mo', icon: '🚀' },
-  { name: 'X Spaces & Audio Marketing', desc: 'Host weekly Spaces, panel discussions, and live audio events for brand authority.', price: '$89/mo', icon: '🎙️' },
-  { name: 'X Ads & Promoted Posts', desc: 'Targeted campaigns, promoted tweets, and follower acquisition ads.', price: '$129/mo', icon: '📢' },
-  { name: 'X Premium & Verification Strategy', desc: 'Monetization setup, long-form content, and premium subscriber growth.', price: '$149/mo', icon: '✓' },
+  { name: 'Profile & Brand Voice Setup', desc: 'Craft your X persona, bio, pinned posts, and consistent brand voice.', price: 'Included in setup', icon: '🎤' },
+  { name: 'Thread Strategy & Ghostwriting', desc: 'Viral thread templates, daily posting schedule, and thought leadership threads.', price: 'Grace · $149/mo', icon: '🧵' },
+  { name: 'Engagement & Growth Hacking', desc: 'Reply strategy, quote tweets, community building through authentic conversations.', price: 'Grace · $149/mo', icon: '🚀' },
+  { name: 'X Spaces & Audio Marketing', desc: 'Host weekly Spaces, panel discussions, and live audio events for brand authority.', price: 'Grace · $149/mo', icon: '🎙️' },
+  { name: 'X Ads & Promoted Posts', desc: 'Targeted campaigns, promoted tweets, and follower acquisition ads.', price: 'Faithful · $349/mo', icon: '📢' },
+  { name: 'X Premium & Verification Strategy', desc: 'Monetization setup, long-form content, and premium subscriber growth.', price: 'Faithful · $349/mo', icon: '✓' },
 ]
 
 const stats = [
@@ -33,7 +33,7 @@ export default function XTwitterPage() {
             Real-time thought leadership. Build influence on X through authentic conversations, viral threads, and faith-driven engagement.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/booking" className="bg-white text-gray-900 px-8 py-3 rounded-lg font-semibold text-lg hover:bg-gray-100 transition-colors">
+            <Link href="/booking?service=1" className="bg-white text-gray-900 px-8 py-3 rounded-lg font-semibold text-lg hover:bg-gray-100 transition-colors">
               Get Started Free
             </Link>
             <Link href="/pricing" className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold text-lg hover:bg-white/10 transition-colors">

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest"
-import { computeSmartQuote } from "../lib/pricing/smart-pricing"
+import { computeSmartQuote } from "../src/lib/pricing/smart-pricing"
 
 describe("smart-pricing invariants", () => {
   it("clamps the demand multiplier within [0.80, 1.35]", () => {

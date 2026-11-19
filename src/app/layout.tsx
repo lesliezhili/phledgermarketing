@@ -7,9 +7,9 @@ import BibleFooter from '@/components/BibleFooter'
 import ClientProviders from '@/components/ClientProviders'
 
 export const metadata: Metadata = {
-  title: 'PhLedger Digital Marketing | Faith-Driven Growth Across All Platforms',
-  description: 'Grow your digital presence across LinkedIn, Instagram, Facebook, X, and Google Maps with faith-driven marketing strategies. Powered by PhLedger.',
-  keywords: ['digital marketing', 'PhLedger', 'LinkedIn', 'Instagram', 'Facebook', 'X Twitter', 'Google Maps', 'faith-driven business'],
+  title: 'PhLedger Marketing | Faith-Driven Marketing for Any Business',
+  description: 'Marketing for any business, whatever it sells. One proven 90-day method on the channels that reach your buyers — Google, Instagram, Facebook, LinkedIn, X and more. Powered by PhLedger.',
+  keywords: ['digital marketing', 'small business marketing', 'PhLedger', 'local marketing', 'social media', 'Google Business Profile', 'faith-driven business'],
 }
 
 export default function RootLayout({

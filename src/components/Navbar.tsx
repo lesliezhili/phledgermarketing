@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { useAuth } from '@/lib/auth'
 import { useI18n, LANGUAGES, Locale } from '@/lib/i18n'
+import { channels } from '@/lib/catalog'
 
 const countries = [
   { code: 'AU', name: 'Australia', flag: '🇦🇺' },
@@ -16,13 +17,7 @@ const countries = [
   { code: 'PH', name: 'Philippines', flag: '🇵🇭' },
 ]
 
-const platformLinks = [
-  { name: 'LinkedIn', href: '/services', icon: '💼' },
-  { name: 'Instagram', href: '/instagram', icon: '📸' },
-  { name: 'Facebook', href: '/facebook', icon: '👥' },
-  { name: 'X (Twitter)', href: '/x-twitter', icon: '𝕏' },
-  { name: 'Google Maps', href: '/google-maps', icon: '📍' },
-]
+const platformLinks = channels.map(({ name, href, icon }) => ({ name, href, icon }))
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -37,7 +32,8 @@ export default function Navbar() {
 
   const navigation = [
     { name: t('nav.home'), href: '/' },
-    { name: 'Platforms', href: '#', dropdown: true },
+    { name: t('nav.services'), href: '/services' },
+    { name: 'Channels', href: '#', dropdown: true },
     { name: t('nav.pricing'), href: '/pricing' },
     { name: 'Finance', href: '/finance' },
     { name: t('nav.book'), href: '/booking' },
@@ -136,7 +132,7 @@ export default function Navbar() {
                 <div key="platforms" className="relative">
                   <button onClick={() => setShowPlatforms(!showPlatforms)}
                     className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-linkedin hover:bg-blue-50 rounded-md transition-colors flex items-center">
-                    Platforms
+                    Channels
                     <svg className="w-3 h-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                   </button>
                   {showPlatforms && (
@@ -178,7 +174,7 @@ export default function Navbar() {
             {isAuthenticated && (
               <Link href="/dashboard" className="block px-3 py-2 text-base font-medium text-linkedin bg-blue-50 rounded-md" onClick={() => setMobileMenuOpen(false)}>Dashboard</Link>
             )}
-            <p className="px-3 py-1 text-xs font-bold text-gray-400 uppercase">Platforms</p>
+            <p className="px-3 py-1 text-xs font-bold text-gray-400 uppercase">Channels</p>
             {platformLinks.map(p => (
               <Link key={p.href} href={p.href} className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-linkedin hover:bg-blue-50 rounded-md"
                 onClick={() => setMobileMenuOpen(false)}>{p.icon} {p.name}</Link>

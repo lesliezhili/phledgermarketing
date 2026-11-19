@@ -1,0 +1,153 @@
+import { describe, it, expect } from "vitest"
+import {
+  packageEconomics, payPerLeadEconomics, upgradeEconomics, capacity, costPerLead,
+  packageSetupCost, extraStoreEconomics, foundingOfferEconomics, storeQuoteEconomics, foundingPilotEconomics, seoReputationEconomics, orderAutomationEconomics, cashCostPerClient, payPerLeadEconomics as ppl, launchOfferEconomics, referralEconomics, MIN_MARGIN, COSTS,
+} from "../src/lib/economics"
+import { packages, commitments, leadPrices, PPL, SETUP_FEE, LEAD_RULES } from "../src/lib/catalog"
+
+// These tests fail if any price, discount or hour budget makes PhLedger
+// Marketing lose money on a client's first day or in any month.
+
+describe("profitable from day one", () => {
+  for (const pkg of packages) {
+    for (const c of commitments) {
+      it(`${pkg.tier}, ${c.name}: day-one cash covers day-one cost`, () => {
+        const e = packageEconomics(pkg.tier, c.id)
+        expect(e.dayOneProfit).toBeGreaterThan(0)
+      })
+      it(`${pkg.tier}, ${c.name}: margin stays above ${MIN_MARGIN * 100}% at the biggest discount`, () => {
+        expect(packageEconomics(pkg.tier, c.id).monthlyMargin).toBeGreaterThanOrEqual(MIN_MARGIN)
+      })
+    }
+    it(`moving from pay per lead to ${pkg.tier} is profitable on day one, with the largest credit`, () => {
+      expect(upgradeEconomics(pkg.tier).dayOneProfit).toBeGreaterThan(0)
+    })
+  }
+
+  it("each extra store is profitable on day one and keeps the minimum margin", () => {
+    const e = extraStoreEconomics()
+    expect(e.dayOneProfit).toBeGreaterThan(0)
+    expect(e.monthlyMargin).toBeGreaterThanOrEqual(MIN_MARGIN)
+  })
+
+  for (const pkg of packages) {
+    it(`founding offer on ${pkg.tier} is profitable for 1 to 10 stores`, () => {
+      for (let stores = 1; stores <= 10; stores++) {
+        const e = foundingOfferEconomics(pkg.tier, stores)
+        expect(e.prepaidPeriodProfit, `${stores} stores`).toBeGreaterThan(0)
+        expect(e.monthlyMargin, `${stores} stores`).toBeGreaterThanOrEqual(MIN_MARGIN)
+        expect(e.savingVsStandard).toBeGreaterThan(0)
+      }
+    })
+  }
+
+  it("the setup fee covers the setup work", () => {
+    expect(SETUP_FEE).toBeGreaterThan(packageSetupCost())
+  })
+
+  it("pay per lead: start-up fee and first minimum cover set-up and the first month", () => {
+    expect(payPerLeadEconomics().dayOneProfit).toBeGreaterThan(0)
+  })
+
+  it("pay per lead: a month with no leads still covers its own cost", () => {
+    expect(payPerLeadEconomics({}).monthProfit).toBeGreaterThan(0)
+  })
+
+  it("pay per lead: every lead earns at least twice what it costs to handle", () => {
+    for (const l of leadPrices) expect(l.price).toBeGreaterThanOrEqual(2 * costPerLead())
+    const busy = payPerLeadEconomics({ enquiry: 10, call: 5, business: 2 })
+    expect(busy.monthProfit).toBeGreaterThan(busy.monthCost)
+  })
+
+  it("pay per lead has no free leads and a default cap above the minimum", () => {
+    expect(LEAD_RULES.freeLeads).toBe(0)
+    expect(LEAD_RULES.defaultMonthlyCap).toBeGreaterThan(PPL.monthlyMinimum)
+  })
+
+  it("a full book of clients pays a sustainable hourly rate after overheads", () => {
+    for (const pkg of packages) {
+      const cap = capacity(pkg.tier)
+      expect(cap.clients).toBeGreaterThan(0)
+      expect(cap.effectiveHourly + COSTS.hourlyCost).toBeGreaterThan(COSTS.hourlyCost)
+    }
+  })
+})
+
+describe("every quote the agent can send is profitable", () => {
+  for (const pkg of packages) {
+    for (const commitment of ["monthly", "6m", "12m", "founding", "after_pilot"]) {
+      it(`${pkg.tier}, ${commitment}, 1 to 10 stores`, () => {
+        for (let stores = 1; stores <= 10; stores++) {
+          expect(storeQuoteEconomics(pkg.tier, stores, commitment).profitable, `${stores} stores`).toBe(true)
+        }
+      })
+    }
+  }
+})
+
+describe("founding pilot (free 30-day trial) is a capped acquisition cost", () => {
+  it("costs no more than the free health checks for a month", () => {
+    // 4 health checks a week at 0.5h is the standing marketing budget (~$480/month)
+    expect(foundingPilotEconomics().cost).toBeLessThanOrEqual(4 * 4 * 0.5 * COSTS.hourlyCost)
+  })
+  it("pays back within 12 months of the founding monthly price", () => {
+    expect(foundingPilotEconomics("Grace").paybackMonths).toBeLessThanOrEqual(12)
+  })
+})
+
+describe("Local SEO & Reputation add-on is profitable", () => {
+  it("for 1 to 10 stores, on day one and at the deepest discount", () => {
+    for (let stores = 1; stores <= 10; stores++) {
+      const e = seoReputationEconomics(stores)
+      expect(e.dayOneProfit, `${stores} stores`).toBeGreaterThan(0)
+      expect(e.monthlyMargin, `${stores} stores`).toBeGreaterThanOrEqual(MIN_MARGIN)
+    }
+  })
+})
+
+describe("Order Automation add-on is profitable at any order volume", () => {
+  it("from 0 to 2,000 orders a month per store", () => {
+    for (const orders of [0, 10, 50, 100, 101, 200, 500, 1000, 2000]) {
+      const e = orderAutomationEconomics(orders)
+      expect(e.dayOneProfit, `${orders} orders`).toBeGreaterThan(0)
+      expect(e.monthlyMargin, `${orders} orders`).toBeGreaterThanOrEqual(MIN_MARGIN)
+    }
+  })
+})
+
+describe("break even on day one: the business, not just each client", () => {
+  it("the pilot costs no cash, only capped time", () => {
+    expect(foundingPilotEconomics().cashCost).toBe(0)
+  })
+
+  it("the first paying client's first payment covers a month of overhead in cash", () => {
+    const entryOffers = [
+      ...packages.map(p => storeQuoteEconomics(p.tier, 1, "monthly").dueToday),
+      ...packages.map(p => storeQuoteEconomics(p.tier, 1, "after_pilot").dueToday),
+      ...packages.map(p => storeQuoteEconomics(p.tier, 1, "founding").dueToday),
+      ppl().dayOneCash,
+    ]
+    for (const cash of entryOffers) {
+      expect(cash - cashCostPerClient()).toBeGreaterThanOrEqual(COSTS.monthlyOverhead)
+    }
+  })
+})
+
+describe("launch offer (first 100 clients free for a month) and referrals", () => {
+  it("costs little cash: the free month is mostly time", () => {
+    expect(launchOfferEconomics(0.2).cashCost).toBeLessThanOrEqual(300)
+  })
+  it("fits beside paying work: at most half of the month's client hours", () => {
+    expect(launchOfferEconomics(0.2).hoursPerMonth).toBeLessThanOrEqual(COSTS.hoursPerMonthAvailable / 2)
+  })
+  it("pays back within 12 months at a 20% conversion rate", () => {
+    expect(launchOfferEconomics(0.2).paybackMonths).toBeLessThanOrEqual(12)
+  })
+  it("a converted client is profitable on their first paid day", () => {
+    expect(launchOfferEconomics(0.2).convertedDayOneProfit).toBeGreaterThan(0)
+  })
+  it("a referral (credit to both sides) costs less than one month's profit from the new client", () => {
+    const r = referralEconomics()
+    expect(r.creditPerReferral).toBeLessThanOrEqual(r.cheapestMonthlyProfit * 2)
+  })
+})
