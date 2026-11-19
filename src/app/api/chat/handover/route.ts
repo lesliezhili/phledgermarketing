@@ -4,6 +4,7 @@
 import { cleanHistory } from '@/lib/chat-agent'
 import { chatClientFor } from '@/lib/chat-clients'
 import { handleMessage } from '@/lib/customer-service'
+import { MARKET_IDS, type MarketId } from '@/lib/markets'
 import { getSupabase } from '@/lib/supabase'
 import { json, preflight, readJson } from '@/lib/integration'
 import { allow, visitorKey } from '@/lib/rate-limit'
@@ -11,7 +12,7 @@ import { allow, visitorKey } from '@/lib/rate-limit'
 const str = (v: unknown, max: number) => (typeof v === 'string' ? v.trim().slice(0, max) : '')
 
 export async function POST(req: Request) {
-  const b = await readJson<{ client: string; name: string; contact: string; messages: unknown; language: string; consent: boolean; source: string }>(req)
+  const b = await readJson<{ client: string; name: string; contact: string; messages: unknown; language: string; consent: boolean; source: string; market: string }>(req)
   if (!b) return json(req, { error: 'invalid request body' }, 400)
   const client = chatClientFor(b.client)
   if (!client) return json(req, { error: 'unknown client' }, 400)
@@ -32,7 +33,7 @@ export async function POST(req: Request) {
   const lastUser = cleanHistory(raw).pop()
   const language = b.language === 'zh' || b.language === 'fr' ? b.language : 'en'
   const triage = lastUser
-    ? handleMessage({ business: client.business, text: lastUser.content, channel: 'webchat', language, knowledge: client.knowledge[language], policy: { mode: 'zhi_li' } })
+    ? handleMessage({ business: client.business, text: lastUser.content, channel: 'webchat', language, market: MARKET_IDS.includes(b.market as MarketId) ? (b.market as MarketId) : undefined, knowledge: client.knowledge[language], policy: { mode: 'zhi_li' } })
     : null
   const row = {
     client: client.id,

@@ -18,7 +18,9 @@
 //     credits or compensation — those are the owner's decision.
 //   - Complaints get an instant apology and a person's reply; food safety,
 //     allergy, injury, legal threats go to the owner now.
-//   - Refund replies never limit Australian Consumer Law rights.
+//   - Refund replies never limit the customer's consumer-law rights, named
+//     for the market (Australian Consumer Law, provincial law, Québec's LPC);
+//     emergencies point to the market's number (000 or 911).
 //   - "STOP" / "退订" stops all messages.
 //   - Review requests go to every customer, never only happy ones
 //     (Google's policy and ACCC guidance on reviews).
@@ -26,6 +28,7 @@
 
 import { decide, type ActionType, type ApprovalPolicy, type Decision } from './approvals'
 import { firstReply, type Trade } from './speed-to-lead'
+import type { MarketId } from './markets'
 
 export type CsChannel =
   | 'webchat' // AI agent on the website
@@ -59,6 +62,8 @@ export interface Knowledge {
   reviewLink?: string
   returnsPolicy?: string // the client's own words; never overrides consumer law
   faqs?: { keywords: string[]; answer: string }[]
+  /** Where the business and its customers are (default: Australia; French messages default to Québec). */
+  market?: MarketId
   /** Professional services (no shop orders): "I want…" is an enquiry, not an order. */
   professional?: boolean
   /** Reply to an open enquiry no FAQ matches (instead of the trade questions). */
@@ -72,6 +77,7 @@ export interface CsMessage {
   language?: CsLanguage // detected from the text if omitted
   firstContact?: boolean // add the automated-assistant disclosure (default true)
   trade?: Trade // for presale enquiries from service businesses
+  market?: MarketId // the customer's market, when it differs from the business's (e.g. PHledger's Canada pages)
   knowledge: Knowledge
   policy: ApprovalPolicy
 }
@@ -132,16 +138,35 @@ export const detectLanguage = (text: string): CsLanguage => {
   return fr >= 2 && fr > en ? 'fr' : 'en'
 }
 
+/** What changes by market in replies: the emergency number and the consumer law to name. */
+export const REGION: Record<MarketId, { emergency: string; law: Record<CsLanguage, string>; refundNote: string }> = {
+  au: {
+    emergency: '000',
+    law: { en: 'the Australian Consumer Law', zh: '澳大利亚消费者法', fr: 'la loi australienne sur la consommation (Australian Consumer Law)' },
+    refundNote: 'remedies under the Australian Consumer Law cannot be refused for a major failure',
+  },
+  ca: {
+    emergency: '911',
+    law: { en: 'your province\'s consumer protection law', zh: '您所在省份的消费者保护法', fr: 'la loi sur la protection du consommateur de votre province' },
+    refundNote: 'provincial consumer protection and sale-of-goods law apply (e.g. Ontario Consumer Protection Act, BC Business Practices and Consumer Protection Act); do not refuse a remedy the law requires',
+  },
+  qc: {
+    emergency: '911',
+    law: { en: 'Québec\'s Consumer Protection Act', zh: '魁北克《消费者保护法》', fr: 'la Loi sur la protection du consommateur' },
+    refundNote: 'Québec\'s Consumer Protection Act (legal warranty of quality and durability) applies; do not refuse a remedy the law requires',
+  },
+}
+
 const T = {
   en: {
     disclosure: (b: string) => `(I'm ${b}'s automated assistant; a person follows up whenever needed.)`,
     voiceDisclosure: (b: string) => `Hi, you're speaking with ${b}'s automated assistant. This call may be recorded so we get your details right; say "person" at any time to leave a message for the team.`,
     optOut: 'Reply STOP to opt out.',
     stopped: (b: string) => `You're unsubscribed from ${b}'s messages. You won't hear from us again unless you contact us.`,
-    critical: (b: string) => `We're very sorry. This is serious and the owner of ${b} has been told now; a person will contact you as soon as possible. If anyone needs urgent medical help, call 000.`,
+    critical: (b: string, emergency: string) => `We're very sorry. This is serious and the owner of ${b} has been told now; a person will contact you as soon as possible. If anyone needs urgent medical help, call ${emergency}.`,
     complaint: (b: string) => `I'm sorry about this. I've passed it straight to the team at ${b} and a person will reply today. If you can, please reply with your order details (date, name, what you bought) and a photo if it helps.`,
     fault: (b: string) => `Sorry it isn't working as it should. Please reply with your order details, what happened and a photo or short video. A person from ${b} will reply within one business day about the next step.`,
-    refund: (b: string) => `Thanks for letting us know. I've passed your request to the owner of ${b}, who will reply within one business day. Please reply with your order details and the reason. Your rights under the Australian Consumer Law are not affected.`,
+    refund: (b: string, law: string) => `Thanks for letting us know. I've passed your request to the owner of ${b}, who will reply within one business day. Please reply with your order details and the reason. Your rights under ${law} are not affected.`,
     policy: (p: string) => `Our policy: ${p}`,
     cancel: (b: string) => `Got it. I've passed your cancellation to ${b} and a person will confirm it shortly.`,
     status: (b: string) => `Thanks — I'm checking with the team at ${b} and a person will update you shortly. Please reply with the name or number on your order.`,
@@ -161,10 +186,10 @@ const T = {
     voiceDisclosure: (b: string) => `您好，这里是${b}的自动助理。为准确记录您的信息，通话可能会被录音；随时说“转人工”即可给团队留言。`,
     optOut: '回复“退订”即可停止接收消息。',
     stopped: (b: string) => `已为您退订${b}的消息。除非您联系我们，否则不会再收到消息。`,
-    critical: (b: string) => `非常抱歉。这件事很严重，${b}的老板已第一时间收到通知，会尽快有人联系您。如有人需要紧急医疗帮助，请拨打 000。`,
+    critical: (b: string, emergency: string) => `非常抱歉。这件事很严重，${b}的老板已第一时间收到通知，会尽快有人联系您。如有人需要紧急医疗帮助，请拨打 ${emergency}。`,
     complaint: (b: string) => `非常抱歉给您带来不好的体验。我已把情况直接转给${b}的团队，今天会有人回复您。方便的话请回复订单信息（日期、姓名、所购商品），有照片更好。`,
     fault: (b: string) => `抱歉产品出现问题。请回复订单信息、具体情况，以及照片或短视频。${b}会在一个工作日内有人回复下一步安排。`,
-    refund: (b: string) => `收到，谢谢告知。您的请求已转给${b}的老板，会在一个工作日内回复。请回复订单信息和原因。您在澳大利亚消费者法下的权利不受影响。`,
+    refund: (b: string, law: string) => `收到，谢谢告知。您的请求已转给${b}的老板，会在一个工作日内回复。请回复订单信息和原因。您在${law}下的权利不受影响。`,
     policy: (p: string) => `我们的政策：${p}`,
     cancel: (b: string) => `收到，已把您的取消请求转给${b}，稍后会有人确认。`,
     status: (b: string) => `谢谢，我正在和${b}的团队确认，稍后会有人告诉您进度。请回复订单上的姓名或单号。`,
@@ -185,10 +210,10 @@ const T = {
     voiceDisclosure: (b: string) => `Bonjour, vous parlez avec l'assistant automatisé de ${b}. Cet appel peut être enregistré pour bien noter vos renseignements; dites « une personne » à tout moment pour laisser un message à l'équipe.`,
     optOut: 'Répondez ARRET pour vous désabonner.',
     stopped: (b: string) => `Vous êtes désabonné des messages de ${b}. Vous n'aurez plus de nouvelles de nous, à moins de nous écrire.`,
-    critical: (b: string) => `Nous sommes vraiment désolés. C'est sérieux : le propriétaire de ${b} vient d'être avisé et une personne vous contactera dès que possible. En cas d'urgence médicale, composez le 911.`,
+    critical: (b: string, emergency: string) => `Nous sommes vraiment désolés. C'est sérieux : le propriétaire de ${b} vient d'être avisé et une personne vous contactera dès que possible. En cas d'urgence médicale, composez le ${emergency}.`,
     complaint: (b: string) => `Je suis désolé de cette situation. Je l'ai transmise directement à l'équipe de ${b} et une personne vous répondra aujourd'hui. Si possible, répondez en indiquant les détails de votre commande (date, nom, achat) et une photo au besoin.`,
     fault: (b: string) => `Désolé que ça ne fonctionne pas comme prévu. Répondez en indiquant les détails de votre commande, ce qui s'est passé, et une photo ou une courte vidéo. Une personne de ${b} vous répondra d'ici un jour ouvrable pour la suite.`,
-    refund: (b: string) => `Merci de nous en informer. J'ai transmis votre demande au propriétaire de ${b}, qui vous répondra d'ici un jour ouvrable. Répondez en indiquant les détails de votre commande et la raison. Vos droits en vertu de la Loi sur la protection du consommateur ne sont pas touchés.`,
+    refund: (b: string, law: string) => `Merci de nous en informer. J'ai transmis votre demande au propriétaire de ${b}, qui vous répondra d'ici un jour ouvrable. Répondez en indiquant les détails de votre commande et la raison. Vos droits en vertu de ${law} ne sont pas touchés.`,
     policy: (p: string) => `Notre politique : ${p}`,
     cancel: (b: string) => `C'est noté. J'ai transmis votre annulation à ${b} et une personne la confirmera sous peu.`,
     status: (b: string) => `Merci, je vérifie auprès de l'équipe de ${b} et une personne vous donnera des nouvelles sous peu. Répondez en indiquant le nom ou le numéro de votre commande.`,
@@ -228,6 +253,7 @@ export function matchFaq(text: string, k: Knowledge) {
 export function handleMessage(m: CsMessage): CsResult {
   const intent = classify(m.text)
   const language = m.language ?? detectLanguage(m.text)
+  const region = REGION[m.market ?? m.knowledge.market ?? (language === 'fr' ? 'qc' : 'au')]
   const t = T[language]
   const b = m.business
   const k = m.knowledge
@@ -244,7 +270,7 @@ export function handleMessage(m: CsMessage): CsResult {
     case 'opt_out':
       return { intent, stage: STAGE[intent], language, reply: t.stopped(b), replyDecision: decide({ type: 'cs_instant_reply' }, m.policy), answeredByAi: true, generic: false, handover: null, optOut: true }
     case 'critical':
-      reply = t.critical(b)
+      reply = t.critical(b, region.emergency)
       toPerson('cs_critical', 'owner', 1, 'SAFETY OR LEGAL: call the customer now. Do not admit fault or offer money in writing before the owner decides.')
       break
     case 'complaint':
@@ -254,12 +280,12 @@ export function handleMessage(m: CsMessage): CsResult {
     case 'fault': {
       const faq = matchFaq(m.text, k)
       reply = faq ? `${faq}\n${t.fault(b)}` : t.fault(b)
-      toPerson('cs_support_reply', 'zhi_li', 24, 'Fault: check the order and the photo; repair, replace or refund under the consumer guarantees as the owner decides.')
+      toPerson('cs_support_reply', 'zhi_li', 24, `Fault: check the order and the photo; repair, replace or refund as the owner decides; ${region.refundNote}.`)
       break
     }
     case 'refund_return':
-      reply = k.returnsPolicy ? `${t.refund(b)}\n${t.policy(k.returnsPolicy)}` : t.refund(b)
-      toPerson('cs_refund', 'owner', 24, 'Refund or return: the owner decides (with Zhi Li) — remedies under the Australian Consumer Law cannot be refused for a major failure.')
+      reply = k.returnsPolicy ? `${t.refund(b, region.law[language])}\n${t.policy(k.returnsPolicy)}` : t.refund(b, region.law[language])
+      toPerson('cs_refund', 'owner', 24, `Refund or return: the owner decides (with Zhi Li); ${region.refundNote}.`)
       break
     case 'cancel':
       reply = t.cancel(b)

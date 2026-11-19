@@ -12,6 +12,7 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { detectLanguage, handleMessage, type CsIntent, type CsStage } from './customer-service'
 import type { ChatClient } from './chat-clients'
+import type { MarketId } from './markets'
 
 export type ChatLang = 'en' | 'zh' | 'fr'
 export interface ChatTurn { role: 'user' | 'assistant'; content: string }
@@ -73,7 +74,7 @@ export function moneyGrounded(answer: string, facts: string): boolean {
   return (answer.match(MONEY) ?? []).every(m => known.has(norm(m)))
 }
 
-export async function chat(client: ChatClient, history: ChatTurn[], language?: ChatLang, answerer: GroundedAnswerer | null = claudeAnswerer()): Promise<ChatResult> {
+export async function chat(client: ChatClient, history: ChatTurn[], language?: ChatLang, answerer: GroundedAnswerer | null = claudeAnswerer(), market?: MarketId): Promise<ChatResult> {
   const last = history[history.length - 1]
   if (!last || last.role !== 'user') throw new Error('the last turn must be the visitor\'s message')
   const firstContact = !history.some(t => t.role === 'assistant')
@@ -84,6 +85,7 @@ export async function chat(client: ChatClient, history: ChatTurn[], language?: C
     channel: 'webchat',
     language: lang,
     firstContact,
+    market,
     knowledge: client.knowledge[lang],
     policy: { mode: 'zhi_li' },
   })

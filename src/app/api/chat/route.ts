@@ -1,13 +1,14 @@
 // POST /api/chat — the website chat agent. Called from the client's website
 // (phledger.com) with { client, messages, language? }. Returns the reply and
 // whether a person needs to follow up. Internal notes are never returned.
-import { chat, cleanHistory } from '@/lib/chat-agent'
+import { chat, claudeAnswerer, cleanHistory } from '@/lib/chat-agent'
+import { MARKET_IDS, type MarketId } from '@/lib/markets'
 import { chatClientFor } from '@/lib/chat-clients'
 import { json, preflight, readJson } from '@/lib/integration'
 import { allow, visitorKey } from '@/lib/rate-limit'
 
 export async function POST(req: Request) {
-  const b = await readJson<{ client: string; messages: unknown; language: string }>(req)
+  const b = await readJson<{ client: string; messages: unknown; language: string; market: string }>(req)
   if (!b) return json(req, { error: 'invalid request body' }, 400)
   const client = chatClientFor(b.client)
   if (!client) return json(req, { error: 'unknown client' }, 400)
@@ -19,7 +20,8 @@ export async function POST(req: Request) {
     return json(req, { error: 'Too many messages. Please wait a few minutes, or send us a brief.' }, 429, { 'Retry-After': '600' })
   }
   const language = b.language === 'zh' || b.language === 'en' || b.language === 'fr' ? b.language : undefined
-  const r = await chat(client, history, language)
+  const market = MARKET_IDS.includes(b.market as MarketId) ? (b.market as MarketId) : undefined
+  const r = await chat(client, history, language, claudeAnswerer(), market)
   return json(req, {
     reply: r.reply,
     language: r.language,
