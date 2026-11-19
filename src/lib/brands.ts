@@ -12,6 +12,7 @@
 // behind the marketing. Keep the consulting details in step with phledger.com.
 
 import type { ApprovalPolicy } from './approvals'
+import type { MarketId } from './markets'
 
 export type SocialChannel = 'linkedin' | 'google' | 'facebook' | 'instagram' | 'x' | 'rednote' | 'wechat'
 
@@ -25,6 +26,10 @@ export interface Brand {
   channels: SocialChannel[] // most important first
   /** Where calls to action land (e.g. the enquiry form). */
   contactPath?: string
+  /** Markets marketed together (default: Australia only). */
+  markets?: MarketId[]
+  /** Landing page per market, when it differs from contactPath. */
+  marketPaths?: Partial<Record<MarketId, string>>
   pilotOffer: { name: string; what: string; price: string; cta: string }
   /** Paid steps from first contact to the biggest engagement, as priced on the brand's site. */
   ladder?: { name: string; price: string; path: string }[]
@@ -50,6 +55,8 @@ export const BRANDS: Record<Brand['id'], Brand> = {
     name: 'PHledger',
     site: 'https://phledger.com',
     contactPath: '/#contact', // the brief questionnaire on phledger.com
+    markets: ['au', 'ca'],
+    marketPaths: { ca: '/canada' }, // Canadian landing page on phledger.com
     tagline: 'Forward-deployed engineers who train your team and ship the platform.',
     audience: [
       'Finance, data and operations leaders in mid-sized organisations',
@@ -84,7 +91,9 @@ export const BRANDS: Record<Brand['id'], Brand> = {
 }
 
 /** Tagged link so every visit is attributed to the channel and campaign. */
-export function trackedLink(brand: Brand, channel: SocialChannel, campaign: string, path = brand.contactPath ?? ''): string {
+export function trackedLink(brand: Brand, channel: SocialChannel, campaign: string, path?: string, market?: MarketId): string {
+  path = path ?? (market && brand.marketPaths?.[market]) ?? brand.contactPath ?? ''
+  if (market) campaign = `${campaign}-${market}`
   const url = new URL(path || '/', brand.site.endsWith('/') ? brand.site : brand.site + '/')
   url.searchParams.set('utm_source', channel)
   url.searchParams.set('utm_medium', 'social')

@@ -12,6 +12,7 @@
 
 import { decide, type ApprovalPolicy, type Route } from './approvals'
 import { trackedLink, type Brand, type SocialChannel } from './brands'
+import { MARKETS, localToUtc, localise, type MarketId } from './markets'
 
 export interface ChannelSpec {
   name: string
@@ -44,6 +45,7 @@ export interface PostIdea {
   language?: 'en' | 'zh'
   campaign: string
   path?: string // page on the brand's site the link opens (default: its contact path)
+  markets?: MarketId[] // only these markets (default: all the brand's markets)
 }
 
 export interface ChannelPost {
@@ -51,17 +53,23 @@ export interface ChannelPost {
   channel: SocialChannel
   text: string
   link?: string
-  date: string // YYYY-MM-DD
+  date: string // YYYY-MM-DD (local to the market)
   route: Route // who must approve before it goes out
+  market?: MarketId
+  postAt?: string // UTC instant to schedule, from the market's local posting time
+  localTime?: string // e.g. "08:30 America/Toronto"
 }
 
 const truncate = (s: string, max: number) => (s.length <= max ? s : s.slice(0, max - 1).replace(/\s+\S*$/, '') + '…')
 
 /** One idea → the text for one channel. */
-export function formatForChannel(idea: PostIdea, brand: Brand, channel: SocialChannel): { text: string; link?: string } {
+export function formatForChannel(idea: PostIdea, brand: Brand, channel: SocialChannel, market?: MarketId): { text: string; link?: string } {
   const spec = CHANNEL_SPECS[channel]
-  const link = trackedLink(brand, channel, idea.campaign, idea.path)
-  const cta = idea.cta ?? brand.pilotOffer.cta
+  const link = trackedLink(brand, channel, idea.campaign, idea.path, market)
+  if (market && idea.language !== 'zh') {
+    idea = { ...idea, hook: localise(idea.hook, market), body: localise(idea.body, market), cta: idea.cta && localise(idea.cta, market) }
+  }
+  const cta = idea.cta ?? (market ? localise(brand.pilotOffer.cta, market) : brand.pilotOffer.cta)
   const tags = (idea.hashtags ?? []).slice(0, spec.hashtags).map(t => '#' + t.replace(/^#/, '').replace(/\s+/g, ''))
   const linkLine = spec.clickableLinks ? `${cta}: ${link}` : `${cta} — link in bio`
   if (channel === 'x') {
@@ -132,7 +140,7 @@ export class DryRunPublisher implements Publisher {
 export async function publishWeek(posts: ChannelPost[], approvedIds: Set<string>, publisher: Publisher): Promise<PublishResult[]> {
   const out: PublishResult[] = []
   for (const p of posts) {
-    const key = `${p.ideaId}:${p.channel}:${p.date}`
+    const key = postKey(p)
     const approved = p.route === 'auto' || approvedIds.has(key)
     if (CHANNEL_SPECS[p.channel].automation === 'person' || p.route === 'person_sends') {
       out.push({ channel: p.channel, date: p.date, status: 'queued_for_person', detail: CHANNEL_SPECS[p.channel].how })
@@ -145,4 +153,31 @@ export async function publishWeek(posts: ChannelPost[], approvedIds: Set<string>
   return out
 }
 
-export const postKey = (p: ChannelPost) => `${p.ideaId}:${p.channel}:${p.date}`
+export const postKey = (p: ChannelPost) => `${p.market ? p.market + ':' : ''}${p.ideaId}:${p.channel}:${p.date}`
+
+/**
+ * Australia and Canada together: one week's plan per market, on that
+ * market's channels, each post timed for local business hours (daylight
+ * saving included) and tagged so analytics separate the two markets.
+ */
+export function planMarkets(brand: Brand, ideas: PostIdea[], weekStart: string, markets: MarketId[] = brand.markets ?? ['au'], policy: ApprovalPolicy = brand.approvals): ChannelPost[] {
+  const posts: ChannelPost[] = []
+  for (const id of markets) {
+    const m = MARKETS[id]
+    const forMarket = ideas.filter(i => !i.markets || i.markets.includes(id))
+    if (!forMarket.length) continue
+    const channels = brand.channels.filter(c => m.channels.includes(c))
+    for (const channel of channels) {
+      const spec = CHANNEL_SPECS[channel]
+      const dates = datesForWeek(weekStart, spec.bestDays, spec.postsPerWeek)
+      dates.forEach((date, i) => {
+        const idea = forMarket[i % forMarket.length]
+        const { text, link } = formatForChannel(idea, brand, channel, id)
+        const type = channel === 'rednote' ? 'post_rednote' : channel === 'google' ? 'post_google' : 'post_social'
+        const time = m.postTimes[channel] ?? '09:00'
+        posts.push({ ideaId: idea.id, channel, text, link, date, route: decide({ type }, policy).route, market: id, postAt: localToUtc(date, time, m.timeZone), localTime: `${time} ${m.timeZone}` })
+      })
+    }
+  }
+  return posts.sort((a, b) => (a.postAt ?? a.date).localeCompare(b.postAt ?? b.date))
+}

@@ -50,6 +50,7 @@ export const CHAT_CLIENTS: Record<ChatClientId, ChatClient> = {
           { keywords: ['industry', 'industries', 'aged care', 'ndis', 'health', 'government', 'financial services'], answer: 'We work across every industry, with deep roots in aged care and NDIS, health and community services, financial services, government, education, retail, manufacturing, energy, property and professional services.' },
           { keywords: ['front desk', 'missed call', 'google review', 'small business'], answer: `For small businesses, the AI Front Desk answers missed calls and drafts Google review replies for ${FD} per order captured, with no monthly fee. It is run by PhLedger Marketing: https://phledgermarketing.vercel.app/front-desk` },
           { keywords: ['security', 'privacy', 'data stay', 'our data', 'confidential'], answer: 'We work inside your own cloud accounts, so your data stays with you. AI recommends; your people decide and sign off, and tests are written before anything ships.' },
+          { keywords: ['canada', 'canadian', 'toronto', 'vancouver', 'calgary', 'montreal', 'montréal', 'cad', 'pipeda'], answer: 'Yes, we work with organisations in Canada as well as Australia. Engineers work remotely with your team, meeting in the overlap (late afternoon Toronto, early morning Melbourne), and we can build in Canadian cloud regions with PIPEDA (and Québec\'s Law 25 where it applies) in mind. Prices on our site are in Australian dollars; your statement of work sets the currency. More: https://phledger.com/canada' },
           { keywords: ['how long', 'timeline', 'start', 'when can'], answer: 'A decision sprint takes two weeks. Embedded engagements run by the sprint or month, with a three-month minimum. Every engagement is confirmed in a written statement of work before it starts.' },
         ],
         enquiryFallback: `Thanks for your question. The quickest way to get a proper answer is a short brief: tell us your stack and the problem you want solved, and an engineer will reply. ${BRIEF}`,
@@ -73,6 +74,7 @@ export const CHAT_CLIENTS: Record<ChatClientId, ChatClient> = {
           { keywords: ['行业', '养老', 'ndis', '医疗', '政府', '金融'], answer: '我们覆盖所有行业，在养老与 NDIS、健康与社区服务、金融、政府、教育、零售、制造、能源、地产和专业服务领域有积累。' },
           { keywords: ['前台', '漏接', '差评', '小店', '小生意'], answer: `小商家可以用 AI 前台：接漏接电话、写 Google 评价回复草稿，每单 ${FD}，无月费。由 PhLedger Marketing 提供：https://phledgermarketing.vercel.app/front-desk` },
           { keywords: ['安全', '隐私', '数据'], answer: '我们在你自己的云账号内工作，数据留在你手里。AI 给建议，由你的团队决定并签字确认；上线前先写好测试。' },
+          { keywords: ['加拿大', '多伦多', '温哥华', '卡尔加里', '蒙特利尔', '加元'], answer: '是的，除了澳大利亚，我们也服务加拿大的机构。工程师远程融入你的团队，利用两地重叠时段开会（多伦多下午晚些时候 = 墨尔本清晨），并可在加拿大本地云区域建设，按 PIPEDA（以及适用时魁北克 Law 25）设计。网站价格以澳元标示，币种以工作说明书为准。详情：https://phledger.com/canada' },
           { keywords: ['多久', '周期', '什么时候开始'], answer: '决策冲刺两周。融入式合作按迭代或按月，至少三个月。每次合作开始前都会以书面工作说明书确认。' },
         ],
         enquiryFallback: `谢谢您的提问。最快得到准确答复的方式是发一份简短需求：告诉我们您的技术栈和想解决的问题，会有工程师回复您。${BRIEF}`,
@@ -80,7 +82,8 @@ export const CHAT_CLIENTS: Record<ChatClientId, ChatClient> = {
     },
     facts: {
       en: [
-        'PHledger (Property Health Ledger) is a Melbourne-based (Kew East) Forward Deployed Engineering partner for data, AI and cloud, across all industries.',
+        'PHledger (Property Health Ledger) is a Melbourne-based (Kew East) Forward Deployed Engineering partner for data, AI and cloud, across all industries, working with organisations in Australia and Canada.',
+        'Canada: engineers work remotely with Canadian teams, meeting in the time-zone overlap (late afternoon Toronto = early morning Melbourne); builds can stay in Canadian cloud regions (AWS ca-central-1 / ca-west-1, Azure Canada Central / East, Google Cloud northamerica-northeast1 / 2), designed around PIPEDA and Québec Law 25 where it applies. Site prices are in AUD; the statement of work sets the currency. Canadian page: https://phledger.com/canada',
         'Services: FDE Decision Partnership; Cloud Implementation on AWS, Azure and Google Cloud (Terraform/OpenTofu, inside the client\'s accounts); Platform Implementation (Databricks, Snowflake, dbt, Coalesce, Spark, Kafka, Hadoop modernisation, data CI/CD; open source first); FDE Training (hands-on, learning by shipping); Data & AI Analytics (KPI and finance-reporting automation, ML, LLM applications).',
         'Approach: engineers embedded in the client team; train while we build; AI recommends, people decide; tests written first; foundations (TOGAF-aligned architecture, DAMA-DMBOK data management) before AI.',
         `Prices (AUD, ex GST, indicative; confirmed in a written statement of work): Decision sprint A$18,000 fixed for 2 weeks; Embedded FDE A$26,000 per engineer per month, 3-month minimum; Fixed-scope build from A$60,000 paid per tested milestone; first brief and conversation free. Details: ${PRICING}`,

@@ -53,3 +53,20 @@ minimum) → Fixed-scope build (from A$60,000). Keep them in step when the site 
 
 Visits by channel (GA4 UTM), data health checks booked, FDE pilots sold,
 and marketing clients referred to consulting and back.
+
+## Australia + Canada (marketed together)
+
+`src/lib/markets.ts` defines both markets: currency, sales tax, posting time
+zone (Melbourne / Toronto, daylight saving handled), channels (no Google
+Business Profile in Canada without a Canadian address), cloud regions, and
+the laws to design for (Privacy Act / Spam Act vs PIPEDA, Québec Law 25 /
+CASL, 10 business days to unsubscribe). Campaign `AU_CA_LAUNCH` in
+`src/lib/campaigns.ts`: shared posts are spelled per market
+(organisation → organization), market-only posts carry `markets`.
+
+Weekly: `npm run social -- phledger-consulting <monday>` plans both markets
+(about 27 posts) with each post's local time and UTC schedule time. Canadian
+links land on phledger.com/canada and are tagged `utm_campaign=…-ca`, so the
+brief email and GA show which market a lead came from. Approve each market's
+posts separately (the same idea on the same day is two approvals).
+Before targeting Québec, add French content.
