@@ -30,7 +30,7 @@ export async function POST(req: Request) {
     .map((t: { role: string; content: string }) => `${t.role === 'user' ? 'Visitor' : 'Assistant'}: ${t.content.slice(0, 1000)}`)
     .join('\n')
   const lastUser = cleanHistory(raw).pop()
-  const language = b.language === 'zh' ? 'zh' : 'en'
+  const language = b.language === 'zh' || b.language === 'fr' ? b.language : 'en'
   const triage = lastUser
     ? handleMessage({ business: client.business, text: lastUser.content, channel: 'webchat', language, knowledge: client.knowledge[language], policy: { mode: 'zhi_li' } })
     : null

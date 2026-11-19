@@ -141,3 +141,53 @@ export const AU_CA_LAUNCH: PostIdea[] = [
     hashtags: ['数据工程', '人工智能', '加拿大'],
   },
 ]
+
+// Québec: French only (Charter of the French language). Canadian French;
+// have a native Québec speaker review before publishing.
+export const QC_LAUNCH: PostIdea[] = [
+  {
+    id: 'qc-embedded',
+    pillar: 'Embedded, not outsourced: train while we build',
+    campaign: AUCA,
+    language: 'fr',
+    markets: ['qc'],
+    cta: 'Décrivez-nous votre projet',
+    hook: 'Des ingénieurs déployés chez vous pour vos données, votre IA et votre infonuagique.',
+    body: 'Un ingénieur principal de PHledger se joint à votre équipe : il vous aide à choisir la plateforme, construit en commençant par les tests sur AWS, Azure ou Google Cloud, et forme vos gens au fur et à mesure. Vous gardez la compétence, pas seulement le code.',
+    hashtags: ['IngénierieDesDonnées', 'IA', 'Infonuagique'],
+  },
+  {
+    id: 'qc-data-home',
+    pillar: 'Foundations first: trusted data before AI',
+    campaign: AUCA,
+    language: 'fr',
+    markets: ['qc'],
+    cta: 'Décrivez-nous votre projet',
+    hook: 'Vos données peuvent rester au Québec. Votre IA aussi.',
+    body: 'Nous bâtissons dans vos propres comptes, dans des régions infonuagiques situées au Québec (AWS ca-central-1 à Montréal, Azure Canada Est à Québec, Google Cloud northamerica-northeast1 à Montréal), avec des accès et une conservation conçus dès le départ en fonction de la Loi 25.',
+    hashtags: ['Loi25', 'ProtectionDesDonnées', 'Infonuagique'],
+  },
+  {
+    id: 'qc-time-zones',
+    pillar: 'Embedded, not outsourced: train while we build',
+    campaign: AUCA,
+    language: 'fr',
+    markets: ['qc'],
+    cta: 'Décrivez-nous votre projet',
+    hook: 'Une équipe d\'ingénierie basée à Melbourne pour une organisation québécoise? Les fuseaux horaires jouent en votre faveur.',
+    body: 'La fin d\'après-midi à Montréal correspond au début de matinée à Melbourne : on se rencontre dans ce créneau, puis le travail avance pendant votre nuit. Vous commencez la journée avec un compte rendu écrit, et les décisions restent entre les mains de vos gens.',
+    hashtags: ['Données', 'IA', 'Québec'],
+  },
+  {
+    id: 'qc-decision',
+    pillar: 'Platform-neutral cloud and data decisions',
+    campaign: AUCA,
+    language: 'fr',
+    markets: ['qc'],
+    path: '/canada/fr#prix',
+    cta: 'Voir le modèle de prix',
+    hook: 'AWS, Azure ou Google Cloud? Databricks ou Snowflake? Décidez à partir de vos propres charges de travail.',
+    body: 'Un sprint de décision de deux semaines compare les options sur vos charges de travail, vérifie où les données doivent résider, et se termine par un modèle de coûts, un registre des risques, un plan de sortie et un plan pilote dont les tests de réussite sont écrits d\'avance.',
+    hashtags: ['Infonuagique', 'Databricks', 'Snowflake'],
+  },
+]

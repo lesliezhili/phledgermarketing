@@ -18,7 +18,7 @@ export async function POST(req: Request) {
   if (!allow(`chat:${visitorKey(req)}`, 30, 10 * 60_000)) {
     return json(req, { error: 'Too many messages. Please wait a few minutes, or send us a brief.' }, 429, { 'Retry-After': '600' })
   }
-  const language = b.language === 'zh' ? 'zh' : b.language === 'en' ? 'en' : undefined
+  const language = b.language === 'zh' || b.language === 'en' || b.language === 'fr' ? b.language : undefined
   const r = await chat(client, history, language)
   return json(req, {
     reply: r.reply,

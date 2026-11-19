@@ -1,4 +1,7 @@
 // Markets PHledger sells into: Australia and Canada, marketed together.
+// Québec is its own market: commercial advertising there must be in French
+// (Charter of the French language, as amended by Bill 96), so Québec gets
+// French posts and the French page; the rest of Canada gets English and Chinese.
 //
 // Same brand, same messages, same approval rules; what changes per market:
 // currency and tax, time zones (posts go out at local business hours),
@@ -8,7 +11,8 @@
 
 import type { SocialChannel } from './brands'
 
-export type MarketId = 'au' | 'ca'
+export type MarketId = 'au' | 'ca' | 'qc'
+export type ContentLanguage = 'en' | 'zh' | 'fr'
 
 export interface Market {
   id: MarketId
@@ -26,6 +30,8 @@ export interface Market {
   cloudRegions: string[] // keep data in-country
   law: { privacy: string; antiSpam: string; unsubscribeBusinessDays: number; consumer: string }
   languages: string[]
+  /** Post languages for this market (an idea's `language`, default 'en'). */
+  contentLanguages: ContentLanguage[]
   notes: string[]
 }
 
@@ -49,6 +55,7 @@ export const MARKETS: Record<MarketId, Market> = {
     cloudRegions: ['AWS ap-southeast-2 (Sydney) / ap-southeast-4 (Melbourne)', 'Azure Australia East / Southeast', 'Google Cloud australia-southeast1 / 2'],
     law: { privacy: 'Privacy Act 1988 (Australian Privacy Principles)', antiSpam: 'Spam Act 2003', unsubscribeBusinessDays: 5, consumer: 'Australian Consumer Law' },
     languages: ['English', 'Simplified Chinese'],
+    contentLanguages: ['en', 'zh'],
     notes: ['Home market: on-site work in Melbourne by arrangement.'],
   },
   ca: {
@@ -66,10 +73,33 @@ export const MARKETS: Record<MarketId, Market> = {
     cloudRegions: ['AWS ca-central-1 (Montréal) / ca-west-1 (Calgary)', 'Azure Canada Central / Canada East', 'Google Cloud northamerica-northeast1 / 2'],
     law: { privacy: 'PIPEDA (and Québec Law 25)', antiSpam: 'CASL (Canada\'s Anti-Spam Legislation)', unsubscribeBusinessDays: 10, consumer: 'provincial consumer protection law' },
     languages: ['English', 'Simplified Chinese'],
+    contentLanguages: ['en', 'zh'],
     notes: [
+      'Outside Québec. Use location targeting (paid posts, or LinkedIn page post targeting) so English posts reach the rest of Canada and French posts reach Québec.',
       'Remote-first delivery; Melbourne and Toronto overlap roughly 4–6 pm Toronto = 8–10 am Melbourne (next day).',
       'CASL needs express or implied consent before commercial email/SMS; replying to an enquiry is allowed (implied consent for 6 months).',
-      'French content needed before targeting Québec.',
+    ],
+  },
+  qc: {
+    id: 'qc',
+    name: 'Québec',
+    nameZh: '魁北克',
+    currency: 'CAD',
+    salesTax: 'TPS/TVQ (GST 5% + QST 9.975%)',
+    locale: 'fr-CA',
+    timeZone: 'America/Toronto', // same clock as Montréal
+    alsoTimeZones: ['America/Montreal'],
+    cities: ['Montréal', 'Québec', 'Laval', 'Gatineau'],
+    channels: ['linkedin', 'facebook', 'instagram', 'x'],
+    postTimes: POST_TIMES,
+    cloudRegions: ['AWS ca-central-1 (Montréal)', 'Azure Canada East (Québec) / Canada Central', 'Google Cloud northamerica-northeast1 (Montréal)'],
+    law: { privacy: 'Loi 25 (Act respecting the protection of personal information in the private sector) and PIPEDA', antiSpam: 'CASL (LCAP)', unsubscribeBusinessDays: 10, consumer: 'Loi sur la protection du consommateur' },
+    languages: ['Français'],
+    contentLanguages: ['fr'],
+    notes: [
+      'Commercial advertising must be in French (Charter of the French language / Bill 96); English may appear only if French is at least as prominent.',
+      'Contracts of adhesion (e.g. standard terms) must be offered in French first.',
+      'French copy here was drafted in Canadian French; have a native Québec speaker review it before publishing.',
     ],
   },
 }

@@ -8,7 +8,7 @@ import type { Knowledge } from './customer-service'
 import { FRONT_DESK } from './front-desk'
 
 export type ChatClientId = 'phledger'
-type Lang = 'en' | 'zh'
+type Lang = 'en' | 'zh' | 'fr'
 
 export interface ChatClient {
   id: ChatClientId
@@ -79,6 +79,26 @@ export const CHAT_CLIENTS: Record<ChatClientId, ChatClient> = {
         ],
         enquiryFallback: `谢谢您的提问。最快得到准确答复的方式是发一份简短需求：告诉我们您的技术栈和想解决的问题，会有工程师回复您。${BRIEF}`,
       },
+      fr: {
+        professional: true,
+        address: 'Kew East, Melbourne (Australie). Nos ingénieurs travaillent à distance avec les équipes au Québec et au Canada.',
+        bookingLink: 'https://phledger.com/canada/fr#contact',
+        prices: [
+          { item: 'Sprint de décision', price: '18 000 $ AU, prix fixe, 2 semaines' },
+          { item: 'FDE intégré', price: '26 000 $ AU par ingénieur par mois, minimum 3 mois' },
+          { item: 'Réalisation à portée fixe', price: 'à partir de 60 000 $ AU, payée par jalon testé' },
+        ],
+        faqs: [
+          { keywords: ['fde', 'déployé', 'déployés', 'que faites-vous', 'intégré'], answer: 'PHledger est un partenaire d\'ingénierie déployée (FDE) pour les données, l\'IA et l\'infonuagique. Un ingénieur principal se joint à votre équipe, vous aide à choisir la plateforme, construit en commençant par les tests dans vos comptes et forme vos gens au fur et à mesure.' },
+          { keywords: ['aws', 'azure', 'google cloud', 'infonuagique', 'nuage', 'migration', 'migrer'], answer: 'Nous réalisons des projets sur AWS, Azure et Google Cloud : choix de la plateforme, zones d\'atterrissage, migration et modernisation, FinOps, sécurité et gouvernance, avec Terraform ou OpenTofu, dans vos propres comptes. Un sprint de décision de deux semaines compare d\'abord les options sur vos charges de travail.' },
+          { keywords: ['databricks', 'snowflake', 'dbt', 'kafka', 'spark', 'lakehouse', 'entrepôt', 'pipeline'], answer: 'Nous bâtissons des lakehouses et des entrepôts de données sur Databricks, Snowflake, dbt et Coalesce, modernisons Spark, Kafka et Hadoop, et mettons en place des pipelines de bout en bout avec intégration continue. Code source ouvert d\'abord.' },
+          { keywords: ['formation', 'former', 'apprendre', 'cours'], answer: 'La formation FDE est pratique : votre équipe apprend Databricks, Snowflake, dbt, Kafka, Terraform, les données prêtes pour l\'IA et l\'ingénierie des grands modèles de langage en livrant de vrais projets avec nos ingénieurs.' },
+          { keywords: ['loi 25', 'confidentialité', 'renseignements personnels', 'québec', 'quebec', 'montréal', 'montreal', 'données au canada'], answer: 'Nous pouvons bâtir dans des régions infonuagiques situées au Québec (AWS ca-central-1 et Google Cloud northamerica-northeast1 à Montréal, Azure Canada Est à Québec), avec des accès et une conservation conçus en fonction de la Loi 25 et de la LPRPDE. L\'IA recommande; vos gens décident.' },
+          { keywords: ['fuseau', 'fuseaux', 'heure', 'heures', 'décalage'], answer: 'La fin d\'après-midi à Montréal correspond au début de matinée à Melbourne : on se rencontre dans ce créneau, puis le travail avance pendant votre nuit, avec un compte rendu écrit le matin.' },
+          { keywords: ['combien de temps', 'délai', 'commencer', 'quand'], answer: 'Un sprint de décision dure deux semaines. Les mandats intégrés se font par sprint ou par mois, avec un minimum de trois mois. Chaque mandat est confirmé par un énoncé de travail écrit avant de commencer, qui fixe aussi la devise.' },
+        ],
+        enquiryFallback: 'Merci de votre question. La façon la plus rapide d\'obtenir une réponse précise : décrivez-nous brièvement votre environnement et le problème à régler, et un ingénieur vous répondra. https://phledger.com/canada/fr#contact',
+      },
     },
     facts: {
       en: [
@@ -91,10 +111,12 @@ export const CHAT_CLIENTS: Record<ChatClientId, ChatClient> = {
         `To start: send a short brief at ${BRIEF} or email zhili@phledger.com. LinkedIn: https://www.linkedin.com/company/phledger/`,
       ].join('\n'),
       zh: '', // filled below from the English facts; the agent answers in the visitor's language
+      fr: '',
     },
   },
 }
 CHAT_CLIENTS.phledger.facts.zh = CHAT_CLIENTS.phledger.facts.en
+CHAT_CLIENTS.phledger.facts.fr = CHAT_CLIENTS.phledger.facts.en
 
 export function chatClientFor(id: unknown): ChatClient | null {
   return typeof id === 'string' && Object.prototype.hasOwnProperty.call(CHAT_CLIENTS, id) ? CHAT_CLIENTS[id as ChatClientId] : null

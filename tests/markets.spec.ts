@@ -10,7 +10,7 @@ const phl = BRANDS["phledger-consulting"]
 
 describe("markets", () => {
   it("PHledger is marketed in Australia and Canada together", () => {
-    expect(phl.markets).toEqual(["au", "ca"])
+    expect(phl.markets).toEqual(["au", "ca", "qc"])
     expect(MARKETS.au.currency).toBe("AUD")
     expect(MARKETS.ca.currency).toBe("CAD")
   })

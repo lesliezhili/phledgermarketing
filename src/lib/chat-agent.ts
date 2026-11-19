@@ -10,10 +10,10 @@
 //      reply is used instead. With no API key, the rules answer alone.
 
 import Anthropic from '@anthropic-ai/sdk'
-import { handleMessage, type CsIntent, type CsStage } from './customer-service'
+import { detectLanguage, handleMessage, type CsIntent, type CsStage } from './customer-service'
 import type { ChatClient } from './chat-clients'
 
-export type ChatLang = 'en' | 'zh'
+export type ChatLang = 'en' | 'zh' | 'fr'
 export interface ChatTurn { role: 'user' | 'assistant'; content: string }
 
 /** Answers an open question from facts; returns null to fall back to the rules. */
@@ -57,7 +57,7 @@ export function systemPrompt(client: ChatClient): string {
     `You are the automated website assistant for ${client.business}. Visitors are prospective or current clients.`,
     'Answer only from the FACTS below. If the answer is not in the facts, say you are not sure and suggest sending a short brief or emailing the team; do not guess.',
     'Never invent prices, discounts, client names, case studies, results or dates. Never promise anything on the team\'s behalf. Complaints, refunds and anything about money owed are handled by a person, not you.',
-    'Reply in the visitor\'s language (English, or Simplified Chinese if they write in Chinese). Plain text, no markdown, two to four sentences. Include a link from the facts only when it helps the visitor take the next step.',
+    'Reply in the visitor\'s language: English; Simplified Chinese if they write in Chinese; Canadian (Québec) French if they write in French (use Québec terms such as infonuagique and courriel). Plain text, no markdown, two to four sentences. Include a link from the facts only when it helps the visitor take the next step; for French speakers prefer https://phledger.com/canada/fr.',
     '',
     'FACTS',
     client.facts.en,
@@ -77,7 +77,7 @@ export async function chat(client: ChatClient, history: ChatTurn[], language?: C
   const last = history[history.length - 1]
   if (!last || last.role !== 'user') throw new Error('the last turn must be the visitor\'s message')
   const firstContact = !history.some(t => t.role === 'assistant')
-  const lang: ChatLang = language ?? (/[一-鿿]/.test(last.content) ? 'zh' : 'en')
+  const lang: ChatLang = language ?? detectLanguage(last.content)
   const r = handleMessage({
     business: client.business,
     text: last.content,

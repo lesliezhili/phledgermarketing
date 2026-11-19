@@ -33,7 +33,7 @@ export type CsChannel =
   | 'phone' // voice call (voice agent, or voicemail transcript)
   | 'sms' // mobile text
   | 'whatsapp' | 'messenger' | 'instagram' | 'wechat'
-export type CsLanguage = 'en' | 'zh'
+export type CsLanguage = 'en' | 'zh' | 'fr' // fr: Canadian French (Québec)
 export type CsStage = 'presale' | 'purchase' | 'aftersales'
 
 export type CsIntent =
@@ -101,20 +101,20 @@ export interface CsResult {
 
 // Order matters: safety and opt-out first, then aftersales, then presale.
 const INTENTS: [CsIntent, RegExp][] = [
-  ['opt_out', /^\s*(stop|unsubscribe|退订|取消订阅)\s*[.!。]?\s*$/i],
-  ['critical', /food poisoning|\bsick\b|vomit|diarrh|allerg|anaphyla|epipen|injur|hospital|ambulance|lawyer|\bsue\b|legal action|police|scam|fraud|食物中毒|拉肚子|呕吐|过敏|受伤|医院|律师|起诉|报警|诈骗/i],
-  ['refund_return', /refund|money back|\breturn(ing)?\b|exchange|chargeback|replace(ment)?|退款|退货|换货|退钱|赔偿/i],
-  ['fault', /broken|faulty|defect|not working|doesn'?t work|stopped working|damaged|leak|warranty|坏了|不能用|故障|漏水|保修|损坏/i],
-  ['complaint', /complain|unhappy|disappoint|terrible|awful|worst|rude|wrong order|missing|forgot|\blate\b|\bcold\b|never arrived|not happy|投诉|不满意|太差|送错|漏了|迟到|态度差|难吃/i],
-  ['cancel', /cancel|取消/i],
-  ['order_status', /where('?s| is) my|order status|track(ing)?|ready yet|arrived yet|on (its|the) way|我的订单|到哪|什么时候到|好了吗/i],
-  ['reorder', /again|re-?order|re-?book|same as (last|before)|another one|再订|再来|再约|续订|和上次一样/i],
-  ['how_to', /how (do|can|should) i|how to|instructions|set ?up|look after|care for|怎么用|如何|怎么弄|保存/i],
-  ['thanks', /thank|thanks|loved|love it|amazing|awesome|delicious|great (job|service)|谢谢|好吃|很棒|太好了|满意/i],
-  ['booking', /\bbook|appointment|reservation|reserve|availab|free (on|this|next)|预约|订位|有空|档期/i],
-  ['price', /how much|price|cost|quote|\$|多少钱|价格|报价|价钱/i],
-  ['hours_location', /open|hours|close|closing|where are you|address|parking|located|几点|营业|地址|在哪|停车/i],
-  ['order', /\border\b|can i (get|have)|i'?d like|i want|pick ?up|deliver|下单|我要|想订|想要|自取|外送/i],
+  ['opt_out', /^\s*(stop|unsubscribe|退订|取消订阅|arr[eê]t|d[ée]sabonner|d[ée]sabonnement)\s*[.!。]?\s*$/i],
+  ['critical', /food poisoning|\bsick\b|vomit|diarrh|allerg|anaphyla|epipen|injur|hospital|ambulance|lawyer|\bsue\b|legal action|police|scam|fraud|intoxication|malade|bless[ée]|blessure|h[ôo]pital|avocat|poursuite|fraude|arnaque|食物中毒|拉肚子|呕吐|过敏|受伤|医院|律师|起诉|报警|诈骗/i],
+  ['refund_return', /refund|money back|\breturn(ing)?\b|exchange|chargeback|replace(ment)?|rembours|\bretour|[ée]change|remplacement|退款|退货|换货|退钱|赔偿/i],
+  ['fault', /broken|faulty|defect|not working|doesn'?t work|stopped working|damaged|leak|warranty|bris[ée]|d[ée]fectueu|ne fonctionne (pas|plus)|ne marche (pas|plus)|endommag|garantie|fuite|坏了|不能用|故障|漏水|保修|损坏/i],
+  ['complaint', /complain|unhappy|disappoint|terrible|awful|worst|rude|wrong order|missing|forgot|\blate\b|\bcold\b|never arrived|not happy|plainte|pas content|pas satisfait|insatisfait|d[ée][çc]u|d[ée]cevant|horrible|\bpire\b|impoli|en retard|mauvaise commande|manquant|jamais arriv|投诉|不满意|太差|送错|漏了|迟到|态度差|难吃/i],
+  ['cancel', /cancel|annul|取消/i],
+  ['order_status', /where('?s| is) my|order status|track(ing)?|ready yet|arrived yet|on (its|the) way|o[ùu] est ma commande|suivi|statut de|est-ce pr[eê]t|我的订单|到哪|什么时候到|好了吗/i],
+  ['reorder', /again|re-?order|re-?book|same as (last|before)|another one|de nouveau|encore une fois|m[eê]me chose que|再订|再来|再约|续订|和上次一样/i],
+  ['how_to', /how (do|can|should) i|how to|instructions|set ?up|look after|care for|comment (faire|utiliser|conserver|puis-je|est-ce que je)|mode d'emploi|怎么用|如何|怎么弄|保存/i],
+  ['thanks', /thank|thanks|loved|love it|amazing|awesome|delicious|great (job|service)|merci|d[ée]licieux|g[ée]nial|excellent|谢谢|好吃|很棒|太好了|满意/i],
+  ['booking', /\bbook|appointment|reservation|reserve|availab|free (on|this|next)|r[ée]serv|rendez-vous|disponib|预约|订位|有空|档期/i],
+  ['price', /how much|price|cost|quote|\$|combien|\bprix\b|\bco[uû]t|tarif|soumission|devis|多少钱|价格|报价|价钱/i],
+  ['hours_location', /open|hours|close|closing|where are you|address|parking|located|ouvert|heures|horaire|\bferm[ée]\b|adresse|stationnement|o[ùu] (êtes|etes)-vous|几点|营业|地址|在哪|停车/i],
+  ['order', /\border\b|can i (get|have)|i'?d like|i want|pick ?up|deliver|commander|je voudrais|j'aimerais|je veux|livraison|ramassage|下单|我要|想订|想要|自取|外送/i],
 ]
 
 export function classify(text: string): CsIntent {
@@ -122,7 +122,15 @@ export function classify(text: string): CsIntent {
   return 'enquiry'
 }
 
-const detectLanguage = (text: string): CsLanguage => (/[一-鿿]/.test(text) ? 'zh' : 'en')
+const FRENCH_WORDS = /\b(bonjour|merci|vous|votre|vos|est-ce|combien|je|nous|pour|avec|une|des|les|du|au|aux|est|sont|pas|quel|quelle|comment|pourquoi|o[ùu]|veux|voudrais|aimerais|mon|ma|mes|un|le|la|et)\b/gi
+const ENGLISH_WORDS = /\b(the|and|you|your|is|are|my|i|can|how|what|do|does|please|thanks|thank|order|want|to|for|of|with|in|at|on|this|that|have|we|it)\b/gi
+export const detectLanguage = (text: string): CsLanguage => {
+  if (/[\u4e00-\u9fff]/.test(text)) return 'zh'
+  // Score French against English, so "Can I order at Café X in Montréal?" stays English.
+  const fr = (text.match(FRENCH_WORDS) ?? []).length + (/[àâçéèêëîïôûùüÿœ]/i.test(text) ? 1 : 0) + (/\b(j|c|qu|l|d|n)'/i.test(text) ? 1 : 0)
+  const en = (text.match(ENGLISH_WORDS) ?? []).length
+  return fr >= 2 && fr > en ? 'fr' : 'en'
+}
 
 const T = {
   en: {
@@ -170,6 +178,30 @@ const T = {
     order: (link: string) => `可以在这里下单：${link}。也可以直接回复想要的商品、规格或数量，以及需要的日期和时间。`,
     orderNoLink: `乐意为您服务。请回复想要的商品、规格或数量，以及需要的日期和时间，我们来确认。`,
     handover: (b: string) => `谢谢您的消息，${b}稍后会有人回复您。`,
+  },
+  // Canadian French (Québec). Emergency number 911; consumer law: Loi sur la protection du consommateur.
+  fr: {
+    disclosure: (b: string) => `(Je suis l'assistant automatisé de ${b}; une personne fait le suivi au besoin.)`,
+    voiceDisclosure: (b: string) => `Bonjour, vous parlez avec l'assistant automatisé de ${b}. Cet appel peut être enregistré pour bien noter vos renseignements; dites « une personne » à tout moment pour laisser un message à l'équipe.`,
+    optOut: 'Répondez ARRET pour vous désabonner.',
+    stopped: (b: string) => `Vous êtes désabonné des messages de ${b}. Vous n'aurez plus de nouvelles de nous, à moins de nous écrire.`,
+    critical: (b: string) => `Nous sommes vraiment désolés. C'est sérieux : le propriétaire de ${b} vient d'être avisé et une personne vous contactera dès que possible. En cas d'urgence médicale, composez le 911.`,
+    complaint: (b: string) => `Je suis désolé de cette situation. Je l'ai transmise directement à l'équipe de ${b} et une personne vous répondra aujourd'hui. Si possible, répondez en indiquant les détails de votre commande (date, nom, achat) et une photo au besoin.`,
+    fault: (b: string) => `Désolé que ça ne fonctionne pas comme prévu. Répondez en indiquant les détails de votre commande, ce qui s'est passé, et une photo ou une courte vidéo. Une personne de ${b} vous répondra d'ici un jour ouvrable pour la suite.`,
+    refund: (b: string) => `Merci de nous en informer. J'ai transmis votre demande au propriétaire de ${b}, qui vous répondra d'ici un jour ouvrable. Répondez en indiquant les détails de votre commande et la raison. Vos droits en vertu de la Loi sur la protection du consommateur ne sont pas touchés.`,
+    policy: (p: string) => `Notre politique : ${p}`,
+    cancel: (b: string) => `C'est noté. J'ai transmis votre annulation à ${b} et une personne la confirmera sous peu.`,
+    status: (b: string) => `Merci, je vérifie auprès de l'équipe de ${b} et une personne vous donnera des nouvelles sous peu. Répondez en indiquant le nom ou le numéro de votre commande.`,
+    reorder: (link?: string) => link ? `Ça fait plaisir de vous revoir! Vous pouvez commander ou réserver ici : ${link}. Ou répondez en indiquant ce que vous voulez et pour quand.` : `Ça fait plaisir de vous revoir! Répondez en indiquant ce que vous voulez et pour quand, et nous confirmerons.`,
+    thanks: (b: string, link?: string) => link ? `Merci, ça compte beaucoup pour l'équipe de ${b}! Si vous avez un moment, un avis Google aide d'autres personnes à nous trouver : ${link}` : `Merci, ça compte beaucoup pour l'équipe de ${b}!`,
+    hours: (h: string) => `Nos heures : ${h}`,
+    address: (a: string) => `Nous sommes au ${a}.`,
+    price: (lines: string) => `Nos prix :\n${lines}`,
+    priceUnknown: (b: string) => `Merci de votre question. Une personne de ${b} vous confirmera le prix sous peu.`,
+    booking: (link: string) => `Vous pouvez réserver un moment ici : ${link}`,
+    order: (link: string) => `Vous pouvez commander ici : ${link}. Ou répondez en indiquant ce que vous voulez, la taille ou la quantité, et la date et l'heure souhaitées.`,
+    orderNoLink: `Avec plaisir. Répondez en indiquant ce que vous voulez, la taille ou la quantité, et la date et l'heure souhaitées, et nous confirmerons.`,
+    handover: (b: string) => `Merci de votre message. Une personne de ${b} vous répondra sous peu.`,
   },
 }
 
@@ -257,7 +289,7 @@ export function handleMessage(m: CsMessage): CsResult {
     }
     case 'price': {
       const hits = matchPrices(m.text, k)
-      if (hits.length) reply = t.price(hits.map(p => `- ${p.item}: ${p.price}`).join('\n')) + (k.orderLink ? `\n${t.order(k.orderLink)}` : '')
+      if (hits.length) reply = t.price(hits.map(p => `- ${p.item}${language === 'fr' ? ' : ' : ': '}${p.price}`).join('\n')) + (k.orderLink ? `\n${t.order(k.orderLink)}` : '')
       else { reply = t.priceUnknown(b); toPerson('cs_support_reply', 'owner', 4, 'Price question with no published price: the owner quotes.') }
       break
     }
@@ -276,6 +308,7 @@ export function handleMessage(m: CsMessage): CsResult {
       const faq = matchFaq(m.text, k)
       if (faq) reply = faq
       else if (k.enquiryFallback) { reply = k.enquiryFallback; generic = true }
+      else if (language === 'fr') { reply = t.handover(b); generic = true }
       else reply = firstReply({ business: b, trade: m.trade, channel: m.channel === 'wechat' ? 'wechat' : m.channel === 'email' ? 'email' : 'sms', language, bookingLink: k.bookingLink })
         .split('\n').filter(l => !l.startsWith('(') && !l.startsWith('（') && !/STOP|退订/.test(l)).join('\n')
     }
@@ -287,8 +320,10 @@ export function handleMessage(m: CsMessage): CsResult {
     // A URL ends at whitespace or Chinese punctuation (Chinese text has no spaces); trailing . , ; : are not part of it.
     const URL_RE = /https?:\/\/[^\s。，、；：！？（）()]+?(?=[.,;:!?]?(?:[\s。，、；：！？（）()]|$))/g
     const links = reply.match(URL_RE) ?? []
-    reply = reply.replace(URL_RE, language === 'zh' ? '（链接稍后发短信给您）' : '(I\'ll text you the link)')
-    reply = language === 'zh' ? reply.replace(/回复/g, '告诉我') : reply.replace(/\b[Pp]lease reply with\b/g, 'Please tell me').replace(/\b[Rr]eply with\b/g, 'tell me')
+    reply = reply.replace(URL_RE, language === 'zh' ? '（链接稍后发短信给您）' : language === 'fr' ? '(je vous envoie le lien par texto)' : '(I\'ll text you the link)')
+    reply = language === 'zh' ? reply.replace(/回复/g, '告诉我')
+      : language === 'fr' ? reply.replace(/Répondez en indiquant/g, 'Dites-moi').replace(/répondez en indiquant/g, 'dites-moi')
+      : reply.replace(/\b[Pp]lease reply with\b/g, 'Please tell me').replace(/\b[Rr]eply with\b/g, 'tell me')
     if (m.firstContact !== false) reply = `${t.voiceDisclosure(b)}\n${reply}`
     if (links.length) smsFollowUp = `${b}: ${links.join(' ')}`
   } else {

@@ -42,7 +42,7 @@ export interface PostIdea {
   body: string // the main message, plain words
   cta?: string // overrides the brand's pilot call to action
   hashtags?: string[]
-  language?: 'en' | 'zh'
+  language?: 'en' | 'zh' | 'fr'
   campaign: string
   path?: string // page on the brand's site the link opens (default: its contact path)
   markets?: MarketId[] // only these markets (default: all the brand's markets)
@@ -66,12 +66,13 @@ const truncate = (s: string, max: number) => (s.length <= max ? s : s.slice(0, m
 export function formatForChannel(idea: PostIdea, brand: Brand, channel: SocialChannel, market?: MarketId): { text: string; link?: string } {
   const spec = CHANNEL_SPECS[channel]
   const link = trackedLink(brand, channel, idea.campaign, idea.path, market)
-  if (market && idea.language !== 'zh') {
+  if (market && (idea.language ?? 'en') === 'en') {
     idea = { ...idea, hook: localise(idea.hook, market), body: localise(idea.body, market), cta: idea.cta && localise(idea.cta, market) }
   }
   const cta = idea.cta ?? (market ? localise(brand.pilotOffer.cta, market) : brand.pilotOffer.cta)
   const tags = (idea.hashtags ?? []).slice(0, spec.hashtags).map(t => '#' + t.replace(/^#/, '').replace(/\s+/g, ''))
-  const linkLine = spec.clickableLinks ? `${cta}: ${link}` : `${cta} — link in bio`
+  const inBio = idea.language === 'fr' ? 'lien dans la bio' : idea.language === 'zh' ? '链接见主页简介' : 'link in bio'
+  const linkLine = spec.clickableLinks ? `${cta}${idea.language === 'fr' ? ' : ' : ': '}${link}` : `${cta} — ${inBio}`
   if (channel === 'x') {
     // Short form: hook + link only.
     const tail = ` ${link}`
@@ -164,7 +165,7 @@ export function planMarkets(brand: Brand, ideas: PostIdea[], weekStart: string, 
   const posts: ChannelPost[] = []
   for (const id of markets) {
     const m = MARKETS[id]
-    const forMarket = ideas.filter(i => !i.markets || i.markets.includes(id))
+    const forMarket = ideas.filter(i => (!i.markets || i.markets.includes(id)) && m.contentLanguages.includes(i.language ?? 'en'))
     if (!forMarket.length) continue
     const channels = brand.channels.filter(c => m.channels.includes(c))
     for (const channel of channels) {

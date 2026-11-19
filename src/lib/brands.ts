@@ -55,8 +55,8 @@ export const BRANDS: Record<Brand['id'], Brand> = {
     name: 'PHledger',
     site: 'https://phledger.com',
     contactPath: '/#contact', // the brief questionnaire on phledger.com
-    markets: ['au', 'ca'],
-    marketPaths: { ca: '/canada' }, // Canadian landing page on phledger.com
+    markets: ['au', 'ca', 'qc'],
+    marketPaths: { ca: '/canada', qc: '/canada/fr' }, // Canadian pages on phledger.com (English, French)
     tagline: 'Forward-deployed engineers who train your team and ship the platform.',
     audience: [
       'Finance, data and operations leaders in mid-sized organisations',

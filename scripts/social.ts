@@ -1,4 +1,4 @@
-// npm run social -- phledger-consulting 2026-11-23            (Australia + Canada)
+// npm run social -- phledger-consulting 2026-11-23            (Australia + Canada + Québec)
 // npm run social -- phledger-consulting 2026-11-23 au         (one market)
 // npm run social -- phledger-consulting 2026-11-23 launch     (original single-market launch)
 //
@@ -9,7 +9,7 @@
 // scheduler or connector.
 import { writeFileSync, mkdirSync } from 'node:fs'
 import { BRANDS, type Brand } from '../src/lib/brands'
-import { CONSULTING_LAUNCH, AU_CA_LAUNCH } from '../src/lib/campaigns'
+import { CONSULTING_LAUNCH, AU_CA_LAUNCH, QC_LAUNCH } from '../src/lib/campaigns'
 import { planWeek, planMarkets, CHANNEL_SPECS } from '../src/lib/social-publisher'
 import { MARKETS, type MarketId } from '../src/lib/markets'
 
@@ -28,7 +28,7 @@ const single = which === 'launch'
 const markets = (single ? [] : which ? which.split(',') : brand.markets ?? ['au']) as MarketId[]
 for (const m of markets) if (!(m in MARKETS)) { console.error(`Unknown market ${m}. Use: ${Object.keys(MARKETS).join(', ')}`); process.exit(1) }
 
-const week = single ? planWeek(brand, CONSULTING_LAUNCH, weekStart) : planMarkets(brand, AU_CA_LAUNCH, weekStart, markets)
+const week = single ? planWeek(brand, CONSULTING_LAUNCH, weekStart) : planMarkets(brand, [...AU_CA_LAUNCH, ...QC_LAUNCH], weekStart, markets)
 const label = single ? 'launch' : markets.join('-')
 const md = [
   `# ${brand.name} — posts for the week of ${weekStart} (${single ? 'launch' : markets.map(m => MARKETS[m].name).join(' + ')})`,

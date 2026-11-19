@@ -70,3 +70,15 @@ links land on phledger.com/canada and are tagged `utm_campaign=…-ca`, so the
 brief email and GA show which market a lead came from. Approve each market's
 posts separately (the same idea on the same day is two approvals).
 Before targeting Québec, add French content.
+
+## Québec (French)
+
+Québec is its own market (`MARKETS.qc`): commercial advertising there must be
+in French (Charter of the French language / Bill 96), so it gets only French
+posts (`QC_LAUNCH`), linking to phledger.com/canada/fr and tagged
+`utm_campaign=…-qc`; English Canada posts never go to Québec. Use location
+targeting so each audience gets its own language. The weekly run now plans
+Australia, Canada and Québec (about 39 posts). Customer service and the
+website chat detect French and reply in Canadian French (911, Loi sur la
+protection du consommateur, ARRET to opt out). Have a native Québec speaker
+review new French copy before publishing.
