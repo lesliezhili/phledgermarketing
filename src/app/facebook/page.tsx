@@ -4,12 +4,12 @@ import Link from 'next/link'
 import { useI18n } from '@/lib/i18n'
 
 const services = [
-  { name: 'Business Page Setup & Optimization', desc: 'Complete Facebook business page with faith-aligned branding, about section, and CTA buttons.', price: 'Free', icon: '🏢' },
-  { name: 'Content Strategy & Scheduling', desc: 'Weekly content mix: videos, posts, events, and community engagement.', price: '$49/mo', icon: '📅' },
-  { name: 'Facebook Groups Management', desc: 'Build and manage faith-driven communities around your brand.', price: '$69/mo', icon: '👥' },
-  { name: 'Facebook Ads Campaigns', desc: 'Targeted ad campaigns for lead generation, retargeting, and conversions.', price: '$149/mo', icon: '🎯' },
-  { name: 'Messenger & Chatbot Setup', desc: 'Automated responses, FAQ bots, and lead capture through Messenger.', price: '$99/mo', icon: '💬' },
-  { name: 'Facebook Shop & Marketplace', desc: 'Set up your Facebook Shop, product catalog, and marketplace listings.', price: '$79/mo', icon: '🛒' },
+  { name: 'Business Page Setup & Optimization', desc: 'Complete Facebook business page with faith-aligned branding, about section, and CTA buttons.', price: 'Included in setup', icon: '🏢' },
+  { name: 'Content Strategy & Scheduling', desc: 'Weekly content mix: videos, posts, events, and community engagement.', price: 'Grace · $149/mo', icon: '📅' },
+  { name: 'Facebook Groups Management', desc: 'Build and manage faith-driven communities around your brand.', price: 'Grace · $149/mo', icon: '👥' },
+  { name: 'Facebook Ads Campaigns', desc: 'Targeted ad campaigns for lead generation, retargeting, and conversions.', price: 'Faithful · $349/mo', icon: '🎯' },
+  { name: 'Messenger & Chatbot Setup', desc: 'Automated responses, FAQ bots, and lead capture through Messenger.', price: 'Grace · $149/mo', icon: '💬' },
+  { name: 'Facebook Shop & Marketplace', desc: 'Set up your Facebook Shop, product catalog, and marketplace listings.', price: 'Grace · $149/mo', icon: '🛒' },
 ]
 
 const stats = [
@@ -33,7 +33,7 @@ export default function FacebookPage() {
             Build thriving communities and reach billions. Faith-driven Facebook marketing that connects, engages, and converts.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/booking" className="bg-white text-blue-700 px-8 py-3 rounded-lg font-semibold text-lg hover:bg-blue-50 transition-colors">
+            <Link href="/booking?service=1" className="bg-white text-blue-700 px-8 py-3 rounded-lg font-semibold text-lg hover:bg-blue-50 transition-colors">
               Get Started Free
             </Link>
             <Link href="/pricing" className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold text-lg hover:bg-white/10 transition-colors">

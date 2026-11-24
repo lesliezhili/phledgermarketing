@@ -1,22 +1,27 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth'
 import { useI18n } from '@/lib/i18n'
+import { packages } from '@/lib/catalog'
 
-const plans = [
-  { id: 'grace', name: 'Grace', price: '$0', desc: 'Free forever' },
-  { id: 'faithful', name: 'Faithful', price: '$49/mo', desc: 'Grow with strategy' },
-  { id: 'abundant', name: 'Abundant', price: '$199/mo', desc: 'Enterprise marketing' },
-]
+// Creating an account is free; the plan records which package the client
+// wants. Billing starts only once a package is booked.
+const plans = packages.map(p => ({ id: p.id, name: p.tier, price: `$${p.price}/mo`, desc: p.desc }))
 
 export default function SignupPage() {
   const { t } = useI18n()
   const { signup } = useAuth()
   const router = useRouter()
-  const [form, setForm] = useState({ name: '', email: '', company: '', password: '', confirm: '', plan: 'grace' })
+  const [form, setForm] = useState({ name: '', email: '', company: '', password: '', confirm: '', plan: 'faithful' })
+
+  // Pre-select a plan from /signup?plan=<id> (linked from the pricing page)
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get('plan')
+    if (id && plans.some(p => p.id === id)) setForm(f => ({ ...f, plan: id }))
+  }, [])
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 

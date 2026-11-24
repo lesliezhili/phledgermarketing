@@ -19,9 +19,10 @@ export default function AboutPage() {
       <div className="text-center mb-16">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">{t('about.who')}</h1>
         <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-          PhLedger LinkedIn Marketing is a faith-driven professional growth platform. 
-          We help businesses and professionals grow their LinkedIn presence through 
-          ethical, Bible-inspired marketing strategies.
+          PhLedger Marketing is a faith-driven marketing service for any business,
+          whatever it sells. We help shops, venues, online brands, service providers
+          and non-profits grow through ethical, Bible-inspired marketing — on the
+          channels that reach their buyers.
         </p>
       </div>
 
@@ -31,14 +32,14 @@ export default function AboutPage() {
           <h2 className="text-2xl font-bold text-blue-900 mb-4">{t('about.mission')}</h2>
           <p className="text-blue-800">
             To empower professionals and businesses with faith-driven marketing tools 
-            that honor God, serve communities, and deliver measurable results on LinkedIn.
+            that honor God, serve communities, and deliver measurable results on every channel.
           </p>
         </div>
         <div className="bg-amber-50 rounded-xl p-8">
           <h2 className="text-2xl font-bold text-amber-900 mb-4">{t('about.vision')}</h2>
           <p className="text-amber-800">
             A world where professional marketing and Biblical values work together — 
-            where every LinkedIn profile tells a story of purpose, integrity, and service.
+            where every business tells its story with purpose, integrity, and service.
           </p>
         </div>
       </div>
@@ -66,8 +67,8 @@ export default function AboutPage() {
             <p className="text-gray-400 text-sm">Free-tier architecture powering all PhLedger platforms with transparent pricing and seamless signup.</p>
           </div>
           <div className="text-center p-6 border border-linkedin rounded-xl bg-blue-900/30">
-            <h3 className="text-xl font-bold text-linkedin mb-2">LinkedIn Marketing</h3>
-            <p className="text-gray-300 text-sm">Faith-driven professional growth, content strategy, and audience engagement on LinkedIn.</p>
+            <h3 className="text-xl font-bold text-linkedin mb-2">PhLedger Marketing</h3>
+            <p className="text-gray-300 text-sm">Faith-driven marketing for any product or service, across Google, social media, ads and outreach.</p>
           </div>
           <div className="text-center p-6 border border-gray-700 rounded-xl">
             <h3 className="text-xl font-bold text-green-400 mb-2">PhLedgerTax</h3>

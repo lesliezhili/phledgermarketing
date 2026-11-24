@@ -305,3 +305,85 @@ INSERT INTO dm_bible_verses (text, reference, category, platform_relevance) VALU
 ('Iron sharpens iron, and one person sharpens another.', 'Proverbs 27:17', 'leadership', ARRAY['linkedin', 'x_twitter']),
 ('Wealth gained hastily will dwindle, but whoever gathers little by little will increase it.', 'Proverbs 13:11', 'finance', ARRAY['linkedin', 'google_maps']),
 ('Do not withhold good from those to whom it is due, when it is in your power to act.', 'Proverbs 3:27', 'wisdom', ARRAY['google_maps', 'facebook']);
+
+-- ============================================================
+-- Pay per lead (PAYG for tiny and small businesses)
+-- A lead = a new customer reaching the client's business by email, form,
+-- message or a call of 60s+. Charged when it arrives, sale or not.
+-- Billing rules: src/lib/leads.ts (spam, short calls, repeats within
+-- 30 days, existing customers and upheld disputes are not charged;
+-- $149 start-up fee; $39 monthly minimum counts toward leads; never above the client's monthly cap).
+-- ============================================================
+CREATE TABLE IF NOT EXISTS dm_leads (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES dm_profiles(id) ON DELETE CASCADE, -- the client business
+  lead_type TEXT NOT NULL CHECK (lead_type IN ('enquiry', 'call', 'business')),
+  channel TEXT, -- google, instagram, facebook, linkedin, x, website, print
+  contact TEXT NOT NULL, -- email or phone of the person, as received
+  received_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  call_seconds INTEGER,
+  is_spam BOOLEAN DEFAULT FALSE,
+  is_existing_customer BOOLEAN DEFAULT FALSE,
+  dispute_status TEXT NOT NULL DEFAULT 'none' CHECK (dispute_status IN ('none', 'requested', 'upheld', 'rejected')),
+  charge_reason TEXT, -- result of billing: charged, free lead, monthly cap, spam, duplicate, ...
+  amount DECIMAL(10,2) DEFAULT 0,
+  billing_month DATE, -- first day of the month the lead is billed in
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS dm_leads_user_month ON dm_leads (user_id, billing_month);
+
+-- Per-client pay-per-lead settings
+ALTER TABLE dm_profiles ADD COLUMN IF NOT EXISTS lead_monthly_cap DECIMAL(10,2) DEFAULT 300;
+ALTER TABLE dm_profiles ADD COLUMN IF NOT EXISTS free_leads_remaining INTEGER DEFAULT 0;
+
+ALTER TABLE dm_leads ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users view own leads" ON dm_leads FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Admins manage leads" ON dm_leads FOR ALL USING (
+  EXISTS (SELECT 1 FROM dm_profiles WHERE id = auth.uid() AND role = 'admin')
+);
+
+-- Pay per lead eligibility: tiny businesses only — ATO aggregated annual
+-- turnover under $2 million (the CGT small business entity test).
+ALTER TABLE dm_profiles ADD COLUMN IF NOT EXISTS abn TEXT;
+ALTER TABLE dm_profiles ADD COLUMN IF NOT EXISTS turnover_band TEXT CHECK (turnover_band IN ('under2m', '2to10m', '10mplus'));
+ALTER TABLE dm_profiles ADD COLUMN IF NOT EXISTS tiny_declared_at TIMESTAMPTZ; -- when the owner declared turnover under $2M
+
+-- AI Front Desk pilot applications (from this site and from phledger.com via
+-- POST /api/front-desk/apply). Anyone may submit; only staff can read.
+create table if not exists dm_front_desk_applications (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+  business text not null,
+  industry text,
+  contact_name text,
+  contact text not null,
+  missed_per_week int,
+  message text,
+  language text not null default 'en',
+  source text,
+  status text not null default 'new'
+);
+alter table dm_front_desk_applications enable row level security;
+create policy "anyone can apply" on dm_front_desk_applications for insert to anon, authenticated with check (status = 'new');
+
+-- Website chat hand-overs (from phledger.com's chat agent via
+-- POST /api/chat/handover). Anyone may submit; only staff can read.
+create table if not exists dm_chat_handovers (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+  client text not null,
+  name text,
+  contact text not null,
+  language text not null default 'en',
+  stage text,
+  intent text,
+  within_hours int not null default 24,
+  note text,
+  transcript text,
+  source text,
+  status text not null default 'new'
+);
+alter table dm_chat_handovers enable row level security;
+create policy "anyone can hand over" on dm_chat_handovers for insert to anon, authenticated with check (status = 'new');

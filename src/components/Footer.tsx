@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useI18n } from '@/lib/i18n'
+import { channels } from '@/lib/catalog'
 
 export default function Footer() {
   const { t } = useI18n()
@@ -17,17 +18,16 @@ export default function Footer() {
               </div>
               <span className="text-white font-bold text-lg">Digital Marketing</span>
             </div>
-            <p className="text-gray-400 text-sm mb-4">Faith-driven digital marketing across LinkedIn, Instagram, Facebook, X, and Google Maps. Powered by PhLedger + Supabase.</p>
+            <p className="text-gray-400 text-sm mb-4">Faith-driven marketing for any business, whatever it sells — on the channels that reach your buyers. Powered by PhLedger + Supabase.</p>
             <a href="https://www.linkedin.com/company/phledger/" target="_blank" rel="noopener noreferrer" className="text-linkedin hover:text-blue-400 text-sm transition-colors">{t('footer.follow')}</a>
           </div>
           <div>
-            <h4 className="text-white font-semibold mb-4">Platforms</h4>
+            <h4 className="text-white font-semibold mb-4">Channels</h4>
             <ul className="space-y-2 text-sm">
-              <li><Link href="/services" className="hover:text-white transition-colors">💼 LinkedIn</Link></li>
-              <li><Link href="/instagram" className="hover:text-white transition-colors">📸 Instagram</Link></li>
-              <li><Link href="/facebook" className="hover:text-white transition-colors">👥 Facebook</Link></li>
-              <li><Link href="/x-twitter" className="hover:text-white transition-colors">𝕏 X (Twitter)</Link></li>
-              <li><Link href="/google-maps" className="hover:text-white transition-colors">📍 Google Maps</Link></li>
+              <li><Link href="/services" className="hover:text-white transition-colors">🧭 All Services</Link></li>
+              {channels.map(c => (
+                <li key={c.id}><Link href={c.href} className="hover:text-white transition-colors">{c.icon} {c.name}</Link></li>
+              ))}
             </ul>
           </div>
           <div>
@@ -35,6 +35,9 @@ export default function Footer() {
             <ul className="space-y-2 text-sm">
               <li><span className="text-gray-400">SilverConnect</span></li>
               <li><span className="text-white font-medium">Digital Marketing</span></li>
+              <li><Link href="/front-desk" className="hover:text-white transition-colors">☎️ AI Front Desk</Link></li>
+              <li><Link href="/customer-service" className="hover:text-white transition-colors">🤝 AI Customer Service</Link></li>
+              <li><Link href="/consulting" className="hover:text-white transition-colors">PHledger FDE Consulting — Data, AI &amp; Cloud</Link></li>
               <li><Link href="/phledgertax" className="hover:text-white transition-colors">PhLedgerTax</Link></li>
               <li><Link href="/pricing" className="hover:text-white transition-colors">{t('nav.pricing')}</Link></li>
               <li><Link href="/bible" className="hover:text-white transition-colors">{t('nav.bible')}</Link></li>

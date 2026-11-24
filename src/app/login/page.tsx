@@ -36,7 +36,7 @@ export default function LoginPage() {
           <div className="w-16 h-16 bg-gradient-to-br from-linkedin to-purple-600 rounded-xl flex items-center justify-center mx-auto mb-4">
             <span className="text-white font-bold text-2xl">Ph</span>
           </div>
-          <h2 className="text-3xl font-bold text-gray-900">{t('auth.welcome')}</h2>
+          <h1 className="text-3xl font-bold text-gray-900">{t('auth.welcome')}</h1>
           <p className="mt-2 text-gray-600">{t('auth.signin.subtitle')}</p>
         </div>
 

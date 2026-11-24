@@ -1,8 +1,8 @@
-# PhLedger LinkedIn Marketing Platform
+# PhLedger Marketing Platform
 
 > "Commit to the LORD whatever you do, and he will establish your plans." — Proverbs 16:3
 
-A faith-driven LinkedIn marketing platform built with **Next.js 14** (App Router), **Tailwind CSS**, and **TypeScript**. Same architecture as SilverConnect.
+A faith-driven, **business-agnostic** marketing platform — one 90-day method for any business, whatever it sells, delivered on the channels that reach its buyers. Built with **Next.js 14** (App Router), **Tailwind CSS**, and **TypeScript**. Same architecture as SilverConnect.
 
 ## Powered by PhLedger
 
@@ -15,7 +15,7 @@ A faith-driven LinkedIn marketing platform built with **Next.js 14** (App Router
 | Platform | Purpose | Status |
 |----------|---------|--------|
 | **SilverConnect** | Service platform (architecture reused here) | Active |
-| **LinkedIn Marketing** | Professional growth & marketing (this app) | Active |
+| **PhLedger Marketing** | Marketing for any product or service (this app) | Active |
 | **PhLedgerTax** | Payment, accounting & tax agent | Integrated |
 
 All platforms are powered by PhLedger and built under God with Bible content throughout.
@@ -37,15 +37,15 @@ All platforms are powered by PhLedger and built under God with Bible content thr
 - Service booking system
 - Customer feedback & reviews
 
-### LinkedIn Marketing Services
-- Profile Optimization
-- Content Strategy & Calendar
-- LinkedIn Ads Management
-- Lead Generation Campaigns
-- Thought Leadership Program
-- Company Page Management
-- Analytics & Reporting
-- Faith-Based Networking
+### Business-Agnostic Marketing Services
+All business types, channels and services live in one catalogue,
+`src/lib/catalog.ts`. Add a channel, business type or service there and every
+page (home, services, booking, navigation, footer) picks it up.
+
+- **Business types**: local shop or venue, online product, service to businesses, service to people, church or non-profit
+- **Channels**: Google Maps & Search, Instagram, Facebook, LinkedIn, X — chosen per client
+- **Services**: Marketing Health Check, Offer & Brand Messaging, Content Strategy, Social Media Management, Local & Google Visibility, Paid Ads Management (any platform), Outreach & Partnerships, Analytics & Reporting
+- **Method**: the same 5 steps in 90 days — Diagnose, Fix the basics, Launch push, Grow and retain, Report and decide
 
 ### PhLedgerTax Integration
 - Payment processing (Credit/Debit/Bank/PayPal/Crypto)
@@ -78,10 +78,28 @@ npm start
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
+## Testing
+
+```bash
+# Unit tests: pricing engine, pay-per-lead billing, speed-to-lead replies
+npm test
+
+# End-to-end browser tests (Playwright) against the production build
+npm run build
+npx playwright install chromium   # first time only
+npm run test:e2e
+```
+
+The e2e suite (`e2e/`) checks every page loads without browser errors,
+package and commitment totals on the booking page, the tiny-business gate on
+pay per lead (ABN, turnover under $2 million, declaration), the
+speed-to-lead demo and `POST /api/leads/reply`, and that key pages have no
+sideways scroll on a phone. CI runs both suites (`.github/workflows/tests.yml`).
+
 ## Project Structure
 
 ```
-linkedinmarketing/
+phledgermarketing/
 ├── src/
 │   ├── app/
 │   │   ├── layout.tsx          # Root layout + metadata
@@ -89,7 +107,9 @@ linkedinmarketing/
 │   │   ├── page.tsx            # Home page
 │   │   ├── login/page.tsx      # Sign in
 │   │   ├── signup/page.tsx     # Create account (SilverConnect architecture)
-│   │   ├── services/page.tsx   # LinkedIn marketing services
+│   │   ├── services/page.tsx   # Business-agnostic services
+│   │   ├── linkedin/page.tsx   # LinkedIn channel (also instagram, facebook, x-twitter, google-maps)
+│   │   ├── api/pricing/quote/  # Smart-pricing API
 │   │   ├── pricing/page.tsx    # Tiered pricing (Grace/Faithful/Abundant)
 │   │   ├── booking/page.tsx    # Service booking form
 │   │   ├── feedback/page.tsx   # Reviews & testimonials
@@ -101,6 +121,8 @@ linkedinmarketing/
 │   │   ├── Footer.tsx          # Footer with "Powered by PhLedger"
 │   │   └── BibleVerse.tsx      # Bible verse display component
 │   └── lib/
+│       ├── catalog.ts          # Business types, channels, services, method
+│       ├── pricing/            # Smart-pricing engine
 │       └── bible.ts            # Bible verses & marketing wisdom data
 ├── public/                     # Static assets
 ├── package.json
