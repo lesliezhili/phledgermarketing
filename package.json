@@ -15,6 +15,7 @@
     "scorecard": "tsx scripts/report.ts scorecard",
     "case-study": "tsx scripts/report.ts case-study",
     "profitability": "tsx scripts/profitability.ts",
+    "brand-plan": "tsx scripts/brand-plan.ts",
     "social": "tsx scripts/social.ts"
   },
   "dependencies": {

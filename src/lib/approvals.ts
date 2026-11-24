@@ -11,6 +11,7 @@
 //   - critical reviews and allergy orders always go to a person and the owner
 //   - prices, discounts, offers, refunds and compensation are the owner's decision
 //   - complaints are answered by a person (AI only acknowledges instantly)
+//   - case studies, press releases and event spending need the client's sign-off
 //   - spending more than the client's ad plan needs the client's approval
 //   - RedNote has no public API: a person sends
 //   - anything not listed is not allowed automatically
@@ -39,6 +40,10 @@ export type ActionType =
   | 'cs_complaint_reply' // the reply to an unhappy customer
   | 'cs_refund' // refund, replacement, repair, credit or compensation
   | 'cs_critical' // food safety, allergy, injury, legal or threats
+  | 'content_longform' // blog, whitepaper, guide, webinar deck, landing page
+  | 'case_study_publish' // names a customer or their results
+  | 'press_release' // statement to media
+  | 'event_spend' // venue, catering, sponsorship or paid promotion for an event
 
 export type Route = 'auto' | 'zhi_li' | 'zhi_li_then_client' | 'person_sends' | 'escalate_owner'
 
@@ -67,7 +72,7 @@ const ALWAYS_AUTO: ActionType[] = ['enquiry_reply', 'order_confirmation', 'ad_bu
 const SIMPLE: ActionType[] = ['review_reply_positive', 'post_google', 'loyalty_message']
 
 // Content the client may want to see in zhi_li_and_client mode.
-const CONTENT: ActionType[] = ['review_reply_positive', 'review_reply_negative', 'post_google', 'post_social', 'post_rednote', 'loyalty_message', 'ad_new_creative']
+const CONTENT: ActionType[] = ['review_reply_positive', 'review_reply_negative', 'post_google', 'post_social', 'post_rednote', 'loyalty_message', 'ad_new_creative', 'content_longform']
 
 export function decide(action: ActionRequest, policy: ApprovalPolicy): Decision {
   const t = action.type
@@ -75,6 +80,12 @@ export function decide(action: ActionRequest, policy: ApprovalPolicy): Decision 
   // --- hard rules, every mode ---
   if (t === 'review_reply_critical' || t === 'order_allergy' || t === 'cs_critical') {
     return { route: 'escalate_owner', reason: 'Safety-critical: a person handles it and the owner is told now' }
+  }
+  if (t === 'case_study_publish') {
+    return { route: 'zhi_li_then_client', reason: 'A case study names the customer: their written permission and the client\'s sign-off are needed' }
+  }
+  if (t === 'press_release' || t === 'event_spend') {
+    return { route: 'zhi_li_then_client', reason: 'Public statements and event spending are the client\'s decision' }
   }
   if (t === 'price_change' || t === 'offer_discount' || t === 'cs_refund') {
     return { route: 'zhi_li_then_client', reason: 'Prices and offers are the owner\'s decision' }
